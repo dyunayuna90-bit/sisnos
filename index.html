@@ -16,17 +16,16 @@
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Share+Tech+Mono&display=swap');
 
         :root {
-            /* Theme 1: Pip-Boy Terminal (Strict) */
+            /* Theme 1: Pip-Boy Terminal */
             --bg-color: #030a03;
             --text-color: #14ff14;
             --text-muted: #086b08;
             --accent: #22ff22;
-            --glow: 0 0 4px rgba(20, 255, 20, 0.4);
+            --glow: 0 0 5px rgba(20, 255, 20, 0.4);
             --crt-line: rgba(20, 255, 20, 0.08);
             --chart-fill: rgba(20, 255, 20, 0.2);
             --font-main: 'Share Tech Mono', monospace;
             --letter-space: 0px;
-            --radar-fade: rgba(3, 10, 3, 0.15);
             --border-style: solid;
         }
 
@@ -41,7 +40,6 @@
             --chart-fill: rgba(7, 54, 66, 0.1);
             --font-main: 'Fira Code', monospace;
             --letter-space: -0.5px;
-            --radar-fade: rgba(253, 246, 227, 0.15);
             --border-style: solid;
         }
 
@@ -52,8 +50,7 @@
             background-color: var(--bg-color); height: 100vh; width: 100vw; overflow: hidden;
             display: flex; flex-direction: column;
             font-family: var(--font-main); color: var(--text-color);
-            letter-spacing: var(--letter-space);
-            text-transform: uppercase;
+            letter-spacing: var(--letter-space); text-transform: uppercase;
         }
 
         /* Fullscreen CRT Glass */
@@ -79,7 +76,7 @@
 
         @keyframes scan { 0% { top: -100px; } 100% { top: 100%; } }
 
-        /* Viewport Content */
+        /* Viewport */
         #viewport {
             flex: 1; overflow-y: auto; overflow-x: hidden; padding: 15px; padding-bottom: 90px;
             text-shadow: var(--glow); z-index: 5; position: relative;
@@ -95,17 +92,15 @@
 
         .nav-btn {
             background: none; border: none; color: var(--text-muted); font-family: var(--font-main);
-            font-size: 1.2rem; cursor: pointer; padding: 10px; transition: 0.1s; text-transform: uppercase;
-            font-weight: bold;
+            font-size: 1.2rem; cursor: pointer; padding: 10px; transition: 0.1s; text-transform: uppercase; font-weight: bold;
         }
         .nav-btn.active { color: var(--text-color); text-shadow: var(--glow); border-bottom: 4px solid var(--text-color); }
 
-        /* Elements */
+        /* General Elements */
         h1, h2, h3 { border-bottom: 2px var(--border-style) var(--text-color); padding-bottom: 5px; margin-bottom: 15px; font-size: 1.2rem; }
         button, input {
             font-family: var(--font-main); color: var(--text-color); background: transparent;
-            border: 2px var(--border-style) var(--text-color); outline: none; padding: 10px; text-shadow: var(--glow);
-            text-transform: uppercase;
+            border: 2px var(--border-style) var(--text-color); outline: none; padding: 10px; text-shadow: var(--glow); text-transform: uppercase;
         }
         button { cursor: pointer; font-weight: bold; }
         button:active { background: var(--text-color); color: var(--bg-color); }
@@ -120,7 +115,7 @@
         }
         .fab-btn:active { box-shadow: 0 0 0 transparent; transform: translate(-4px, 4px); }
 
-        /* Editor Core */
+        /* Editor Component */
         .editor-container { position: relative; width: 100%; height: 50vh; margin-top: 10px; }
         
         #edit-content, #edit-replica {
@@ -142,12 +137,12 @@
         }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* Visualization Layouts */
+        /* Visualizations */
         .chart-box { border: 2px var(--border-style) var(--text-color); padding: 5px; margin-bottom: 15px; position: relative; background: rgba(0,0,0,0.05); }
         canvas { display: block; width: 100%; }
         .chart-label { position: absolute; top: 0; left: 5px; font-size: 0.8rem; background: var(--bg-color); padding: 0 5px; font-weight: bold; transform: translateY(-50%); border: 1px solid var(--text-color); }
 
-        /* Specific Elements */
+        /* Specific Classes */
         .note-card { border: 2px var(--border-style) var(--text-color); padding: 12px; margin-bottom: 10px; cursor: pointer; position: relative; display: block; width: 100%; text-align: left;}
         .note-card:active { background: var(--chart-fill); }
         .note-date { font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;}
@@ -172,7 +167,7 @@
         .stat-val { font-size: 1.4rem; font-weight: bold; }
         .stat-lbl { font-size: 0.7rem; color: var(--text-muted); }
 
-        /* Modal */
+        /* Modal & Toast */
         #modal-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-color); z-index: 50; display: none;
@@ -185,7 +180,6 @@
         }
         .modal-box input { width: 100%; margin: 15px 0; text-align: center; font-size: 1.5rem; text-transform: uppercase; }
 
-        /* Toast */
         #toast {
             position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
             background: var(--text-color); color: var(--bg-color);
@@ -227,7 +221,7 @@
 
     <script>
         /** * OS-NXT CORE LOGIC
-         * Absolute logic. Strict functional state.
+         * Absolute logic. Protected Memory. Memory-Leak Free.
          */
 
         // --- PWA SETUP ---
@@ -241,17 +235,26 @@
         };
         setupPWA();
 
-        // --- STATE & UTILS ---
+        // --- SAFE STATE INITIALIZATION (Anti-Blank Screen) ---
         let state = {
-            notes: JSON.parse(localStorage.getItem('os-nxt-notes')) || [],
-            labels: JSON.parse(localStorage.getItem('os-nxt-labels')) || ['TUGAS', 'PRIBADI', 'IDE'],
-            logs: JSON.parse(localStorage.getItem('os-nxt-logs')) || [],
-            settings: JSON.parse(localStorage.getItem('os-nxt-settings')) || { theme: 'pipboy', sound: true },
-            currentView: 'dashboard',
-            activeNoteId: null,
-            filterLabel: null
+            notes: [], labels: ['TUGAS', 'PRIBADI', 'IDE'], logs: [],
+            settings: { theme: 'pipboy', sound: true }, currentView: 'dashboard', activeNoteId: null, filterLabel: null
         };
         
+        try {
+            const memNotes = localStorage.getItem('os-nxt-notes');
+            if(memNotes) state.notes = JSON.parse(memNotes);
+            const memLabels = localStorage.getItem('os-nxt-labels');
+            if(memLabels) state.labels = JSON.parse(memLabels);
+            const memLogs = localStorage.getItem('os-nxt-logs');
+            if(memLogs) state.logs = JSON.parse(memLogs);
+            const memSettings = localStorage.getItem('os-nxt-settings');
+            if(memSettings) state.settings = JSON.parse(memSettings);
+        } catch (e) {
+            console.error("CORRUPT MEMORY DETECTED. Resetting to default parameters.");
+            localStorage.clear(); // Wipe bad data to save the UI
+        }
+
         let sessionStartTime = Date.now();
 
         const saveState = () => {
@@ -288,10 +291,10 @@
         // --- AUDIO ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
-        const initAudio = () => { if (!audioCtx) audioCtx = new AudioContext(); };
+        const initAudio = () => { if (!audioCtx && AudioContext) audioCtx = new AudioContext(); };
         const playTone = (freq, type, duration, vol) => {
-            if (!state.settings.sound) return;
-            initAudio(); if(audioCtx.state === 'suspended') audioCtx.resume();
+            if (!state.settings.sound || !audioCtx) return;
+            if(audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
             osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
             gain.gain.setValueAtTime(vol, audioCtx.currentTime);
@@ -306,13 +309,18 @@
             commit: () => { playTone(800, 'square', 0.1, 0.05); setTimeout(() => playTone(1200, 'square', 0.15, 0.05), 100); }
         };
 
-        // --- NAVIGATION ---
+        // --- NAVIGATION & ANIMATION CONTROL ---
         let activeAnimations = [];
-        const clearAnimations = () => { activeAnimations.forEach(id => cancelAnimationFrame(id)); activeAnimations = []; };
+        // Absolute logic: clear ALL running requestAnimationFrames before starting new ones
+        const clearAnimations = () => { 
+            activeAnimations.forEach(id => cancelAnimationFrame(id)); 
+            activeAnimations = []; 
+        };
 
         const navigate = (view, silent = false) => {
             if (!silent) sfx.enter();
-            state.currentView = view; clearAnimations();
+            state.currentView = view; 
+            
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.innerText.includes(view === 'notes' || view === 'editor' ? 'DATA' : (view === 'log' ? 'LOG' : (view === 'settings' ? 'CFG' : 'SYS'))));
             if(activeBtn) activeBtn.classList.add('active');
@@ -332,8 +340,11 @@
 
         // --- 1. DASHBOARD (SYS) ---
         const renderDashboard = () => {
+            clearAnimations(); // Prevent overlapping animations immediately
+            
             const storageKB = getStorageSize();
             const recentNotes = [...state.notes].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 2);
+            const viewport = document.getElementById('viewport');
 
             viewport.innerHTML = `
                 <h2>SYS.DIAGNOSTICS</h2>
@@ -344,7 +355,7 @@
                         <div class="stat-lbl">BLOCKS</div>
                     </div>
                     <div class="stat-block">
-                        <div class="stat-val">${storageKB}k</div>
+                        <div class="stat-val" id="mem-usage-val">${storageKB}k</div>
                         <div class="stat-lbl">MEM USAGE</div>
                     </div>
                     <div class="stat-block">
@@ -354,13 +365,13 @@
                 </div>
 
                 <div class="flex-row" style="align-items: stretch; margin-top: 15px;">
-                    <div class="chart-box" style="flex: 1; height: 120px; display:flex; justify-content:center; align-items:center; overflow:hidden;">
+                    <div class="chart-box" style="flex: 1; height: 130px; display:flex; justify-content:center; align-items:center; overflow:hidden; position:relative;">
                         <span class="chart-label">MEM SCAN</span>
-                        <canvas id="radar-chart" width="100" height="100"></canvas>
+                        <canvas id="radar-chart" width="110" height="110"></canvas>
                     </div>
-                    <div class="chart-box" style="flex: 1; height: 120px; display:flex; justify-content:center; align-items:center;">
+                    <div class="chart-box" style="flex: 1; height: 130px; display:flex; justify-content:center; align-items:center; position:relative;">
                         <span class="chart-label">DATA DIST</span>
-                        <canvas id="pie-chart" width="100" height="100"></canvas>
+                        <canvas id="pie-chart" width="110" height="110"></canvas>
                     </div>
                 </div>
 
@@ -379,18 +390,25 @@
                 </div>
             `;
             
-            drawPieChart(); drawRadarScanner(storageKB); updateUptime();
-            addLog('SYSTEM', 'Accessed SYS Diagnostics');
+            drawPieChart(); 
+            drawRadarScanner(storageKB); 
+            updateUptime();
+            
+            // Log logic just once per visit
+            if(!state.logs.length || state.logs[0].action !== 'SYSTEM') {
+                addLog('SYSTEM', 'Accessed SYS Diagnostics');
+            }
         };
 
         const updateUptime = () => {
+            if(state.currentView !== 'dashboard') return;
             const el = document.getElementById('uptime-val');
-            if(!el || state.currentView !== 'dashboard') return;
+            if(!el) return;
             const diff = Math.floor((Date.now() - sessionStartTime) / 1000);
             const m = String(Math.floor(diff / 60)).padStart(2, '0');
             const s = String(diff % 60).padStart(2, '0');
             el.innerText = `${m}:${s}`;
-            activeAnimations.push(setTimeout(updateUptime, 1000));
+            activeAnimations.push(requestAnimationFrame(updateUptime));
         };
 
         const drawPieChart = () => {
@@ -405,7 +423,7 @@
 
             if(total === 0) { ctx.fillStyle = color; ctx.font = "12px monospace"; ctx.textAlign="center"; ctx.fillText("NO DATA", canvas.width/2, canvas.height/2); return; }
 
-            let startAngle = 0; const cx = canvas.width / 2; const cy = canvas.height / 2; const radius = cy - 5;
+            let startAngle = 0; const cx = canvas.width / 2; const cy = canvas.height / 2; const radius = cy - 10;
             validDist.forEach(([label, count], index) => {
                 const sliceAngle = (count / total) * 2 * Math.PI;
                 ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, radius, startAngle, startAngle + sliceAngle); ctx.closePath();
@@ -415,36 +433,74 @@
             });
         };
 
+        // FIXED RADAR SCANNER - NO MORE OVERLAP
         const drawRadarScanner = (storage) => {
             const canvas = document.getElementById('radar-chart'); if(!canvas) return;
             const ctx = canvas.getContext('2d');
-            const cx = canvas.width / 2; const cy = canvas.height / 2; const radius = cx - 5; let angle = 0;
+            const cx = canvas.width / 2; const cy = canvas.height / 2; const radius = cx - 10; 
+            let angle = 0;
+            
             const color = getComputedStyle(document.body).getPropertyValue('--text-color').trim();
+            const bgColor = getComputedStyle(document.body).getPropertyValue('--bg-color').trim();
+            const fill = getComputedStyle(document.body).getPropertyValue('--chart-fill').trim();
+            const crtLine = getComputedStyle(document.body).getPropertyValue('--crt-line').trim();
             
             const animate = () => {
                 if(state.currentView !== 'dashboard') return;
-                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--radar-fade').trim(); ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--crt-line').trim();
+                
+                // 1. CLEAR ENTIRE CANVAS (Solusi murni anti tumpang-tindih)
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // 2. DRAW BASE GRID
+                ctx.strokeStyle = crtLine;
+                ctx.lineWidth = 1;
                 ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy); ctx.stroke();
-                ctx.save(); ctx.translate(cx, cy); ctx.rotate(angle);
-                ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, radius, 0, 0.2); ctx.lineTo(0,0);
-                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--chart-fill').trim(); ctx.fill();
-                ctx.strokeStyle = color; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(radius, 0); ctx.stroke();
+
+                // 3. DRAW ROTATING SCANNER
+                ctx.save(); 
+                ctx.translate(cx, cy); 
+                ctx.rotate(angle);
+                ctx.beginPath(); 
+                ctx.moveTo(0, 0); 
+                ctx.arc(0, 0, radius, 0, 0.5); // Lebar kerucut scanner
+                ctx.lineTo(0,0);
+                ctx.fillStyle = fill; 
+                ctx.fill();
+                ctx.strokeStyle = color; 
+                ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(radius, 0); ctx.stroke();
                 ctx.restore();
-                angle += 0.08; activeAnimations.push(requestAnimationFrame(animate));
-            }; animate();
+
+                // 4. DRAW INFO BOX IN CENTER
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(cx - 24, cy - 10, 48, 20);
+                ctx.strokeStyle = color;
+                ctx.strokeRect(cx - 24, cy - 10, 48, 20);
+                ctx.fillStyle = color; 
+                ctx.font = "10px monospace"; 
+                ctx.textAlign="center";
+                
+                const displaySize = storage > 1000 ? (storage/1024).toFixed(1)+'M' : storage+'K';
+                ctx.fillText(displaySize, cx, cy + 4);
+
+                angle += 0.04; // Speed putaran
+                activeAnimations.push(requestAnimationFrame(animate));
+            }; 
+            animate();
         };
 
         const requestClearLogs = () => {
             openCommit('FLUSH SYS LOGS', 'Erase all trace data? Type "ok".', () => {
-                state.logs = []; saveState(); showToast('LOGS FLUSHED'); renderDashboard();
+                state.logs = []; saveState(); showToast('LOGS FLUSHED'); 
+                renderDashboard(); // This will now safely clear animations first
             });
         };
 
         // --- 2. NOTES LIST (DATA) ---
         const renderNotes = () => {
+            clearAnimations();
+            const viewport = document.getElementById('viewport');
             const searchTerm = document.getElementById('search-box')?.value.toLowerCase() || '';
             let filteredNotes = state.notes;
             if(state.filterLabel) filteredNotes = filteredNotes.filter(n => n.labels.includes(state.filterLabel));
@@ -495,6 +551,8 @@
         const openNote = (id) => { state.activeNoteId = id; navigate('editor'); };
 
         const renderEditor = () => {
+            clearAnimations();
+            const viewport = document.getElementById('viewport');
             const note = state.notes.find(n => n.id === state.activeNoteId);
             if(!note) return navigate('notes');
 
@@ -567,7 +625,9 @@
                 if(note && note._isNew) {
                     state.notes = state.notes.filter(n => n.id !== state.activeNoteId);
                 } else {
-                    state.notes = JSON.parse(localStorage.getItem('os-nxt-notes')) || [];
+                    // Safe reload from memory
+                    const savedNotes = localStorage.getItem('os-nxt-notes');
+                    state.notes = savedNotes ? JSON.parse(savedNotes) : [];
                 }
                 showToast('CHANGES PURGED');
                 navigate('notes');
@@ -595,6 +655,8 @@
 
         // --- 4. LOG ---
         const renderLog = () => {
+            clearAnimations();
+            const viewport = document.getElementById('viewport');
             viewport.innerHTML = `
                 <h2>TRACE.LOG</h2>
                 <div style="border-left: 2px var(--border-style) var(--text-color); margin-left: 10px;">
@@ -610,6 +672,8 @@
 
         // --- 5. SETTINGS (CFG) ---
         const renderSettings = () => {
+            clearAnimations();
+            const viewport = document.getElementById('viewport');
             viewport.innerHTML = `
                 <h2>SYS.CONFIG</h2>
                 
@@ -704,12 +768,14 @@
             else { sfx.error(); modalInput.value = ''; modalInput.placeholder = "INVALID."; }
         });
 
-        // --- INIT ---
-        document.body.setAttribute('data-theme', state.settings.theme);
-        document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#030a03' : '#fdf6e3';
-        history.replaceState({ view: 'dashboard' }, "", "#dashboard");
-        renderDashboard();
-        document.body.addEventListener('click', initAudio, { once: true });
+        // --- SYSTEM BOOT INIT ---
+        window.onload = () => {
+            document.body.setAttribute('data-theme', state.settings.theme);
+            document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#030a03' : '#fdf6e3';
+            history.replaceState({ view: 'dashboard' }, "", "#dashboard");
+            renderDashboard();
+            document.body.addEventListener('click', initAudio, { once: true });
+        };
 
     </script>
 </body>
