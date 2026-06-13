@@ -20,7 +20,6 @@
             --text-color: #14ff14;
             --text-muted: #086b08;
             --accent: #22ff22;
-            /* Efek Chromatic Aberration (RGB pisah) + Neon Glow */
             --glow: 1px 0px 1px rgba(255,0,0,0.5), -1px 0px 1px rgba(0,0,255,0.5), 0 0 10px rgba(20, 255, 20, 0.7);
             --crt-line: rgba(20, 255, 20, 0.1);
             --chart-fill: rgba(20, 255, 20, 0.2);
@@ -34,7 +33,7 @@
             --text-color: #073642; 
             --text-muted: #93a1a1;
             --accent: #dc322f; 
-            --glow: none; /* Linux murni flat, tanpa glow/aberasi */
+            --glow: none;
             --crt-line: rgba(0, 0, 0, 0.05);
             --chart-fill: rgba(7, 54, 66, 0.15);
             --font-main: 'Fira Code', monospace;
@@ -52,17 +51,17 @@
             letter-spacing: var(--letter-space); text-transform: uppercase; font-size: 16px;
         }
 
-        /* 1. Base Monitor Layer */
+        /* Base Monitor Layer */
         #screen-base { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); z-index: 1; }
 
-        /* 2. RGB Sub-Pixel Matrix */
+        /* RGB Sub-Pixel Matrix */
         #crt-matrix {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(90deg, rgba(255,0,0,0.03), rgba(0,255,0,0.02), rgba(0,0,255,0.03));
             background-size: 3px 100%; pointer-events: none; z-index: 2;
         }
 
-        /* 3. Scanline & SVG Static Noise */
+        /* SVG Static Noise & Scanline */
         #noise-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
@@ -76,29 +75,27 @@
         }
         @keyframes scan { 0% { top: -150px; } 100% { top: 100%; } }
 
-        /* 4. Layar Cembung Ekstrem (Kaca Tabung 3D) */
+        /* Layar Cembung Ekstrem */
         #crt-vignette {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(0,0,0,0.95) 130%);
             box-shadow: inset 0 0 60px rgba(0,0,0,0.95); 
-            border-radius: 20px; /* Lengkungan sudut monitor jadul */
-            pointer-events: none; z-index: 99;
+            border-radius: 20px; pointer-events: none; z-index: 99;
         }
-        
         #crt-glare {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(120deg, rgba(255,255,255,0.03) 0%, transparent 30%, transparent 60%, rgba(255,255,255,0.01) 100%);
             pointer-events: none; z-index: 98;
         }
 
-        /* Phosphor Burst (Solid, NO wobble) */
+        /* Phosphor Burst */
         .crt-flash { animation: burst 0.3s ease-out forwards; }
         @keyframes burst {
             0% { filter: brightness(2) contrast(1.5) saturate(1.5); }
             100% { filter: brightness(1) contrast(1) saturate(1); }
         }
 
-        /* 5. Safe Area Container (Isi OS) */
+        /* Safe Area Container */
         .safe-area-wrapper {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; z-index: 20;
@@ -130,7 +127,7 @@
         }
         .fab-btn:active { box-shadow: 0 0 0 transparent; transform: translate(-5px, 5px); }
 
-        /* ADVANCED EDITOR (ContentEditable) */
+        /* ADVANCED EDITOR */
         .editor-container { 
             position: relative; width: 100%; height: 50vh; margin-top: 10px; 
             border: 2px var(--border-style) var(--text-color); background: rgba(0,0,0,0.2);
@@ -151,24 +148,34 @@
         #edit-content ol, #edit-content ul { padding-left: 25px; margin-bottom: 10px; list-style-position: outside; }
         #edit-content li { margin-bottom: 5px; }
 
-        /* DYNAMIC FLOATING TOOLBAR (Native Replacement) */
+        /* DYNAMIC FLOATING TOOLBAR (SMART BOUNDARY) */
         #format-toolbar {
-            position: fixed; /* Bounded to viewport */
+            position: fixed; 
             background: var(--bg-color); border: 2px solid var(--text-color); 
             box-shadow: 0 15px 25px rgba(0,0,0,0.9), 0 0 15px var(--glow);
             display: none; flex-direction: row; align-items: center; z-index: 80; padding: 2px;
-            transition: top 0.1s ease, left 0.1s ease; /* Gerakan transisi halus pas nempel */
-            transform: translate(-50%, -100%); /* Center pivot ke posisi yg di-set JS */
-            margin-top: -15px; /* Jarak aman di atas teks */
+            transition: top 0.1s ease, left 0.1s ease; 
+            transform: translate(-50%, -100%); 
+            margin-top: -15px; 
         }
-        /* Segitiga panah ke bawah */
+        /* Arrow default (nunjuk ke bawah) */
         #format-toolbar::after {
             content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
             border-width: 8px 8px 0; border-style: solid;
             border-color: var(--text-color) transparent transparent transparent; display: block; width: 0;
         }
 
-        .fmt-btn { background: transparent; color: var(--text-color); border: none; font-size: 1.1rem; padding: 10px 14px; margin: 0; font-weight: bold; border-right: 2px solid var(--text-muted); border-radius: 0; user-select: none; text-shadow: none;}
+        /* Class kalau nabrak plafon, jungkir balik ke bawah teks */
+        #format-toolbar.flip-down {
+            transform: translate(-50%, 0); margin-top: 15px;
+        }
+        #format-toolbar.flip-down::after {
+            top: -8px; bottom: auto;
+            border-width: 0 8px 8px; border-style: solid;
+            border-color: transparent transparent var(--text-color) transparent;
+        }
+
+        .fmt-btn { background: transparent; color: var(--text-color); border: none; font-size: 1.1rem; padding: 12px 18px; margin: 0; font-weight: bold; border-right: 2px solid var(--text-muted); border-radius: 0; user-select: none; text-shadow: none;}
         .fmt-btn:last-child { border-right: none; }
         .fmt-btn:active { background: var(--text-color); color: var(--bg-color); }
 
@@ -202,6 +209,7 @@
 
         #modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; display: none; justify-content: center; align-items: center; padding: 20px; }
         .modal-box { border: 2px solid var(--text-color); background: var(--bg-color); padding: 25px; width: 100%; max-width: 400px; text-align: center; box-shadow: -10px 10px 0px var(--chart-fill); z-index: 101; }
+        
         .modal-box input { width: 100%; margin: 20px 0; text-align: center; font-size: 1.8rem; text-transform: uppercase; user-select: auto; }
 
         #toast { position: absolute; top: 50px; left: 50%; transform: translateX(-50%); background: var(--text-color); color: var(--bg-color); padding: 12px 25px; font-weight: bold; font-size: 1.2rem; z-index: 120; opacity: 0; pointer-events: none; transition: opacity 0.2s; border: 2px solid var(--bg-color); box-shadow: 0 0 20px var(--glow); }
@@ -256,7 +264,7 @@
 
     <script>
         /** * OS-NXT CORE LOGIC
-         * Floating Selection Toolbar. Pure Chromatic CRT.
+         * Absolute Nav Intercept (Save on back). Boundary Toolbar.
          */
 
         const setupPWA = () => {
@@ -331,7 +339,7 @@
             boot: () => { analogHit(200, 600, 0.2, 0.1); setTimeout(()=>analogHit(600, 1000, 0.3, 0.1), 200); }
         };
 
-        // --- NAVIGATION ---
+        // --- NAVIGATION & ANIMATIONS ---
         let activeAnimations = [];
         const clearAnimations = () => { activeAnimations.forEach(id => cancelAnimationFrame(id)); activeAnimations = []; document.getElementById('format-toolbar').style.display = 'none'; };
         const triggerFlash = () => { const vp = document.getElementById('viewport'); vp.classList.remove('crt-flash'); void vp.offsetWidth; vp.classList.add('crt-flash'); };
@@ -347,42 +355,58 @@
             if(!silent) history.pushState({ view: view }, "", `#${view}`);
         };
 
+        // THE ABSOLUTE NAV INTERCEPTOR (SAVE DEFAULT)
         const navigate = (view, silent = false) => {
             if (state.currentView === 'editor' && view !== 'editor') {
                 const note = state.notes.find(n => n.id === state.activeNoteId);
                 const currentState = JSON.stringify({ t: document.getElementById('edit-title').value, c: document.getElementById('edit-content').innerHTML });
+                
                 if (currentState !== pristineEditorState || (note._isNew && (note.title !== '' || document.getElementById('edit-content').innerHTML !== ''))) {
                     sfx.error(); showToast("WARN: UNSAVED DATA!");
-                    openCommit('DISCARD CHANGES', 'Data modified. Purge changes?', () => {
-                        if(note && note._isNew) { state.notes = state.notes.filter(n => n.id !== state.activeNoteId); } 
-                        else { const savedNotes = localStorage.getItem('os-nxt-notes'); state.notes = savedNotes ? JSON.parse(savedNotes) : []; }
-                        showToast('CHANGES PURGED'); forceNavigate(view);
-                    }); return; 
-                } else { if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId); }
-            } forceNavigate(view, silent);
+                    // LOGIKA BERUBAH: Paksa SAVE bukan Discard
+                    openCommit('SAVE CHANGES', 'Unsaved data detected. Type "ok" to SAVE.', () => {
+                        captureDraft(); const n = state.notes.find(n => n.id === state.activeNoteId);
+                        n.timestamp = new Date().toISOString(); delete n._isNew; 
+                        saveState(); showToast('DATA SAVED'); addLog('DATA', `Auto-saved block ID:${n.id}`); forceNavigate(view);
+                    });
+                    return; 
+                } else {
+                    if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId);
+                }
+            }
+            forceNavigate(view, silent);
         };
 
+        // HARDWARE BACK BUTTON INTERCEPTOR (SAVE DEFAULT)
         window.addEventListener('popstate', (e) => {
             if (state.currentView === 'editor') { 
-                history.pushState({ view: 'editor' }, "", "#editor"); 
+                history.pushState({ view: 'editor' }, "", "#editor"); // Tahan paksa
                 const note = state.notes.find(n => n.id === state.activeNoteId);
                 const currentState = JSON.stringify({ t: document.getElementById('edit-title').value, c: document.getElementById('edit-content').innerHTML });
+                
                 if (currentState !== pristineEditorState || (note._isNew && (note.title !== '' || document.getElementById('edit-content').innerHTML !== ''))) {
                     sfx.error(); showToast("WARN: UNSAVED DATA!");
-                    openCommit('DISCARD CHANGES', 'Data modified. Purge changes?', () => {
-                        if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId); else { const savedNotes = localStorage.getItem('os-nxt-notes'); state.notes = savedNotes ? JSON.parse(savedNotes) : []; }
-                        showToast('CHANGES PURGED'); forceNavigate('notes', true);
+                    // LOGIKA BERUBAH: Paksa SAVE bukan Discard
+                    openCommit('SAVE CHANGES', 'Unsaved data detected. Type "ok" to SAVE.', () => {
+                        captureDraft(); const n = state.notes.find(n => n.id === state.activeNoteId);
+                        n.timestamp = new Date().toISOString(); delete n._isNew; 
+                        saveState(); showToast('DATA SAVED'); addLog('DATA', `Auto-saved block ID:${n.id}`); forceNavigate('notes', true);
                     });
-                } else { if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId); forceNavigate('notes', true); }
-            } else { if(e.state && e.state.view) forceNavigate(e.state.view, true); else forceNavigate('dashboard', true); }
+                } else {
+                    if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId);
+                    forceNavigate('notes', true);
+                }
+            } 
+            else { if(e.state && e.state.view) forceNavigate(e.state.view, true); else forceNavigate('dashboard', true); }
         });
 
         // --- 1. DASHBOARD ---
         const renderDashboard = () => {
             const storageKB = getStorageSize(); const recentNotes = [...state.notes].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 2);
+            const vp = document.getElementById('viewport');
             let hexString = ""; for(let i=0; i<8; i++) hexString += Math.floor(Math.random()*16777215).toString(16).padStart(6, '0').toUpperCase() + " ";
 
-            document.getElementById('viewport').innerHTML = `
+            vp.innerHTML = `
                 <h2>SYS.DIAGNOSTICS</h2>
                 <div class="hex-anim"><span class="blink-fast">_></span> 0x${hexString}</div>
                 <div class="flex-row">
@@ -485,12 +509,16 @@
         const setFilter = (lbl) => { sfx.enter(); state.filterLabel = lbl; renderNotes(); };
         const executeQuickSearch = () => { sfx.type(); const term = document.getElementById('search-box').value.toLowerCase(); document.querySelectorAll('.note-item-dom').forEach(card => { card.style.display = (card.getAttribute('data-title').includes(term) || card.getAttribute('data-content').includes(term)) ? 'block' : 'none'; }); };
 
-        // --- 3. EDITOR & DYNAMIC TOOLBAR ---
+        // --- 3. EDITOR & DYNAMIC BOUNDARY TOOLBAR ---
         const addNote = () => { const id = Date.now(); state.notes.unshift({ id, title: '', content: '', labels: [], pinned: false, timestamp: new Date().toISOString(), _isNew: true }); state.activeNoteId = id; forceNavigate('editor'); };
         const openNote = (id) => { state.activeNoteId = id; forceNavigate('editor'); };
 
         let saveTimeout;
-        const pushHistory = (val) => { if(editorHistory[historyIndex] === val) return; editorHistory = editorHistory.slice(0, historyIndex + 1); editorHistory.push(val); historyIndex++; };
+        const pushHistory = (val) => {
+            if(editorHistory[historyIndex] === val) return;
+            editorHistory = editorHistory.slice(0, historyIndex + 1);
+            editorHistory.push(val); historyIndex++;
+        };
 
         const renderEditor = () => {
             const vp = document.getElementById('viewport'); const note = state.notes.find(n => n.id === state.activeNoteId); if(!note) return forceNavigate('notes');
@@ -501,18 +529,28 @@
             vp.innerHTML = `
                 <div class="flex-between">
                     <button onclick="requestDiscard()" style="border-style:dashed; color:var(--text-muted);">&lt; DISCARD</button>
-                    <div><button onclick="togglePinDraft()" style="margin-right:10px; ${note.pinned ? 'background:var(--text-color); color:var(--bg-color);' : ''}">PIN</button><button style="background:var(--text-color); color:var(--bg-color);" onclick="requestSave()">SAVE &gt;</button></div>
+                    <div>
+                        <button onclick="togglePinDraft()" style="margin-right:10px; ${note.pinned ? 'background:var(--text-color); color:var(--bg-color);' : ''}">PIN</button>
+                        <button style="background:var(--text-color); color:var(--bg-color);" onclick="requestSave()">SAVE &gt;</button>
+                    </div>
                 </div>
+                
                 <input type="text" id="edit-title" value="${note.title}" placeholder="> TITLE_BLOCK" style="width:100%; margin-bottom:15px; font-size:1.4rem; font-weight:bold;" oninput="sfx.type()">
+                
                 <span style="font-size: 0.8rem; color: var(--text-muted);">ASSIGN LABELS:</span>
                 <div class="swipe-labels" style="margin-top: 5px;">
                     ${state.labels.map(l => `<span onclick="toggleLabelDraft('${l}')" class="${note.labels.includes(l) ? 'active-tag' : ''}">[${l}]</span>`).join('')}
                 </div>
+
                 <div class="editor-container">
                     <div id="edit-content" contenteditable="true" spellcheck="false" oninput="handleInput(event)">${note.content}</div>
                 </div>
+                
                 <div class="flex-between" style="margin-top:10px;">
-                    <div><button onclick="execUndo()" style="padding: 8px; margin-right: 5px;">&lt; UNDO</button><button onclick="execRedo()" style="padding: 8px;">REDO &gt;</button></div>
+                    <div>
+                        <button onclick="execUndo()" style="padding: 8px; margin-right: 5px;">&lt; UNDO</button>
+                        <button onclick="execRedo()" style="padding: 8px;">REDO &gt;</button>
+                    </div>
                     <button style="color:red; border-color:red; font-size:1rem; padding: 8px;" onclick="requestDelete(${note.id})">PURGE</button>
                 </div>
                 <div style="font-size: 0.75rem; color: var(--text-muted); margin-top:5px; text-align:right;"><span id="editor-stats">W: ${words} | C: ${rawText.length}</span></div>
@@ -521,9 +559,9 @@
             const ta = document.getElementById('edit-content');
             ta.addEventListener('keyup', handleSmartList);
             document.addEventListener('selectionchange', handleSelectionPos);
-            ta.addEventListener('scroll', handleSelectionPos); // Track scroll
+            ta.addEventListener('scroll', handleSelectionPos); 
             
-            // BLOCK NATIVE ANDROID POPUP (Context Menu & Long Press)
+            // BLOCK NATIVE ANDROID POPUP (Context Menu)
             ta.addEventListener('contextmenu', (e) => { e.preventDefault(); return false; });
         };
 
@@ -542,7 +580,7 @@
             }
         };
 
-        // KORDINAT FLOATING TOOLBAR LOGIC
+        // KORDINAT DYNAMIC TOOLBAR (BOUNDARY DETECTION)
         const handleSelectionPos = () => {
             if(state.currentView !== 'editor') return;
             const ta = document.getElementById('edit-content'); const toolbar = document.getElementById('format-toolbar');
@@ -552,15 +590,30 @@
                 const rect = range.getBoundingClientRect();
                 toolbar.style.display = 'flex';
                 
-                // Calculate posisi melayang
-                let topPos = rect.top;
-                let leftPos = rect.left + (rect.width / 2);
-                
-                // Batas atas (Biar ga nabrak notch/layar)
-                if(topPos < 100) topPos = rect.bottom + 50; 
-                
-                toolbar.style.top = `${topPos}px`;
-                toolbar.style.left = `${leftPos}px`;
+                // SetTimeout 0 buat nunggu display:flex ngerender ukuran asli toolbar-nya
+                setTimeout(() => {
+                    const tbWidth = toolbar.offsetWidth;
+                    const tbHeight = toolbar.offsetHeight;
+                    
+                    let topPos = rect.top;
+                    let leftPos = rect.left + (rect.width / 2);
+                    
+                    // Boundary Limit X (Kiri-Kanan) Biar ga kepotong layar
+                    const margin = 15;
+                    if (leftPos - (tbWidth / 2) < margin) { leftPos = (tbWidth / 2) + margin; }
+                    if (leftPos + (tbWidth / 2) > window.innerWidth - margin) { leftPos = window.innerWidth - (tbWidth / 2) - margin; }
+                    
+                    // Boundary Limit Y (Atas) kalau mepet layar, dibalik posisinya ke bawah teks
+                    if(topPos < 100) {
+                        topPos = rect.bottom;
+                        toolbar.classList.add('flip-down');
+                    } else {
+                        toolbar.classList.remove('flip-down');
+                    }
+                    
+                    toolbar.style.top = `${topPos}px`;
+                    toolbar.style.left = `${leftPos}px`;
+                }, 0);
             } 
             else { toolbar.style.display = 'none'; }
         };
