@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- PWA & Fullscreen Meta Tags -->
+    <!-- PWA Meta Tags -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,12 +16,11 @@
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Share+Tech+Mono&display=swap');
 
         :root {
-            /* Theme 1: Pip-Boy Terminal */
             --bg-color: #030a03;
             --text-color: #14ff14;
             --text-muted: #086b08;
             --accent: #22ff22;
-            --glow: 0 0 5px rgba(20, 255, 20, 0.4);
+            --glow: 0 0 8px rgba(20, 255, 20, 0.6);
             --crt-line: rgba(20, 255, 20, 0.08);
             --chart-fill: rgba(20, 255, 20, 0.2);
             --font-main: 'Share Tech Mono', monospace;
@@ -30,7 +29,6 @@
         }
 
         [data-theme="linux"] {
-            /* Theme 2: Linux Solarized Light Terminal */
             --bg-color: #fdf6e3;
             --text-color: #073642; 
             --text-muted: #93a1a1;
@@ -50,152 +48,151 @@
             background-color: var(--bg-color); height: 100vh; width: 100vw; overflow: hidden;
             display: flex; flex-direction: column;
             font-family: var(--font-main); color: var(--text-color);
-            letter-spacing: var(--letter-space); text-transform: uppercase;
+            letter-spacing: var(--letter-space); text-transform: uppercase; font-size: 16px;
         }
 
-        /* Fullscreen CRT Glass */
-        #screen-glass {
-            flex: 1; position: relative; background-color: var(--bg-color);
-            overflow: hidden; display: flex; flex-direction: column;
-            padding-top: env(safe-area-inset-top);
-        }
+        #screen-base { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); z-index: 1; }
 
-        /* CRT Scanline Effects */
-        #screen-glass::after {
-            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, var(--crt-line) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            z-index: 10; background-size: 100% 4px, 6px 100%; pointer-events: none;
+        #screen-base::after {
+            content: " "; display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, var(--crt-line) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 4px, 6px 100%; pointer-events: none; z-index: 10;
         }
 
         .scanline {
-            width: 100%; height: 100px; z-index: 9; position: absolute; pointer-events: none;
+            width: 100%; height: 150px; z-index: 9; position: absolute; pointer-events: none;
             background: linear-gradient(0deg, rgba(0,0,0,0) 0%, var(--crt-line) 50%, rgba(0,0,0,0) 100%);
-            animation: scan 8s linear infinite; opacity: 0.6;
+            animation: scan 5s linear infinite; opacity: 0.8;
+        }
+        @keyframes scan { 0% { top: -150px; } 100% { top: 100%; } }
+
+        #crt-vignette {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.8) 120%);
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.9); pointer-events: none; z-index: 99;
         }
 
-        @keyframes scan { 0% { top: -100px; } 100% { top: 100%; } }
-
-        /* Viewport */
-        #viewport {
-            flex: 1; overflow-y: auto; overflow-x: hidden; padding: 15px; padding-bottom: 90px;
-            text-shadow: var(--glow); z-index: 5; position: relative;
+        .glitch-fx { animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both; }
+        @keyframes glitch {
+            0% { transform: translate(0) }
+            20% { transform: translate(-3px, 3px) skewX(3deg); filter: contrast(1.5); }
+            40% { transform: translate(3px, -3px) skewX(-3deg); filter: contrast(0.8); }
+            60% { transform: translate(-2px, 0px) skewX(1deg); }
+            80% { transform: translate(2px, 2px) skewX(-1deg); filter: contrast(1.2); }
+            100% { transform: translate(0); filter: contrast(1); }
         }
 
-        /* Bottom Header / Navigation */
+        .safe-area-wrapper {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; z-index: 20;
+            padding-top: max(env(safe-area-inset-top), 20px);
+        }
+
+        #viewport { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; padding-bottom: 110px; text-shadow: var(--glow); position: relative; }
+
         #bottom-nav {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 70px;
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
             background: var(--bg-color); border-top: 2px var(--border-style) var(--text-color);
             display: flex; justify-content: space-around; align-items: center;
-            z-index: 20; padding-bottom: env(safe-area-inset-bottom);
+            padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -5px 15px rgba(0,0,0,0.5); z-index: 50;
         }
 
-        .nav-btn {
-            background: none; border: none; color: var(--text-muted); font-family: var(--font-main);
-            font-size: 1.2rem; cursor: pointer; padding: 10px; transition: 0.1s; text-transform: uppercase; font-weight: bold;
-        }
-        .nav-btn.active { color: var(--text-color); text-shadow: var(--glow); border-bottom: 4px solid var(--text-color); }
+        .nav-btn { background: none; border: none; color: var(--text-muted); font-family: var(--font-main); font-size: 1.4rem; cursor: pointer; padding: 15px 10px; font-weight: bold; flex: 1; transition: 0.1s; }
+        .nav-btn.active { color: var(--text-color); text-shadow: var(--glow); border-bottom: 5px solid var(--text-color); }
 
-        /* General Elements */
-        h1, h2, h3 { border-bottom: 2px var(--border-style) var(--text-color); padding-bottom: 5px; margin-bottom: 15px; font-size: 1.2rem; }
-        button, input {
-            font-family: var(--font-main); color: var(--text-color); background: transparent;
-            border: 2px var(--border-style) var(--text-color); outline: none; padding: 10px; text-shadow: var(--glow); text-transform: uppercase;
-        }
+        h1, h2, h3 { border-bottom: 2px var(--border-style) var(--text-color); padding-bottom: 8px; margin-bottom: 18px; font-size: 1.4rem; }
+        button, input { font-family: var(--font-main); color: var(--text-color); background: transparent; border: 2px var(--border-style) var(--text-color); outline: none; padding: 14px; text-shadow: var(--glow); text-transform: uppercase; font-size: 1.1rem; }
         button { cursor: pointer; font-weight: bold; }
         button:active { background: var(--text-color); color: var(--bg-color); }
         input::placeholder { color: var(--text-muted); opacity: 0.6; text-transform: uppercase; }
         input { user-select: auto; }
 
         .fab-btn {
-            position: fixed; bottom: 85px; right: 20px; z-index: 15;
-            width: 55px; height: 55px; font-size: 1.8rem; font-weight: bold;
-            background: var(--bg-color); box-shadow: -4px 4px 0px var(--text-muted);
-            border: 2px solid var(--text-color); display: flex; justify-content: center; align-items: center;
+            position: fixed; bottom: 100px; right: 20px; z-index: 15;
+            width: 65px; height: 65px; font-size: 2.2rem; font-weight: bold; background: var(--bg-color);
+            box-shadow: -5px 5px 0px var(--text-muted); border: 2px solid var(--text-color); display: flex; justify-content: center; align-items: center;
         }
-        .fab-btn:active { box-shadow: 0 0 0 transparent; transform: translate(-4px, 4px); }
+        .fab-btn:active { box-shadow: 0 0 0 transparent; transform: translate(-5px, 5px); }
 
-        /* Editor Component */
         .editor-container { position: relative; width: 100%; height: 50vh; margin-top: 10px; }
-        
         #edit-content, #edit-replica {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            font-family: var(--font-main); font-size: 1.1rem; line-height: 1.4;
-            padding: 10px; border: 2px var(--border-style) var(--text-color);
-            white-space: pre-wrap; word-break: break-word; overflow-y: auto; margin: 0;
-            background: transparent; outline: none; border-radius: 0; text-transform: none;
+            font-family: var(--font-main); font-size: 1.3rem; line-height: 1.4; padding: 15px; border: 2px var(--border-style) var(--text-color);
+            white-space: pre-wrap; word-break: break-word; overflow-y: auto; margin: 0; background: transparent; outline: none; border-radius: 0; text-transform: none;
         }
-        
         #edit-content { color: transparent; caret-color: transparent; z-index: 2; user-select: auto; }
         #edit-content::selection { background: var(--chart-fill); color: transparent; }
         #edit-replica { color: var(--text-color); z-index: 1; pointer-events: none; text-transform: none; }
-        
-        .thick-cursor {
-            display: inline-block; width: 0.6em; height: 1.2em;
-            background-color: var(--text-color); vertical-align: text-bottom;
-            animation: blink 1s step-end infinite; margin-left: 2px;
-        }
+        .thick-cursor { display: inline-block; width: 0.6em; height: 1.2em; background-color: var(--text-color); vertical-align: text-bottom; animation: blink 1s step-end infinite; margin-left: 2px; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* Visualizations */
-        .chart-box { border: 2px var(--border-style) var(--text-color); padding: 5px; margin-bottom: 15px; position: relative; background: rgba(0,0,0,0.05); }
+        /* Format Toolbar UI */
+        #format-toolbar {
+            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+            background: var(--text-color); border: 2px solid var(--bg-color); box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+            display: none; flex-direction: row; align-items: center; z-index: 80; border-radius: 4px; padding: 2px;
+        }
+        .fmt-btn {
+            background: transparent; color: var(--bg-color); border: none; font-size: 1.1rem; padding: 8px 12px; margin: 0; font-weight: bold; text-shadow: none; border-right: 2px solid var(--bg-color); border-radius: 0;
+        }
+        .fmt-btn:last-child { border-right: none; }
+        .fmt-btn:active { background: var(--bg-color); color: var(--text-color); }
+
+        .chart-box { border: 2px var(--border-style) var(--text-color); padding: 10px; margin-top: 25px; margin-bottom: 10px; position: relative; background: rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; }
+        .chart-label { position: absolute; top: -14px; left: 10px; font-size: 0.9rem; background: var(--bg-color); padding: 0 8px; font-weight: bold; border-left: 2px solid var(--text-color); border-right: 2px solid var(--text-color); color: var(--text-color); z-index: 2; }
         canvas { display: block; width: 100%; }
-        .chart-label { position: absolute; top: 0; left: 5px; font-size: 0.8rem; background: var(--bg-color); padding: 0 5px; font-weight: bold; transform: translateY(-50%); border: 1px solid var(--text-color); }
 
-        /* Specific Classes */
-        .note-card { border: 2px var(--border-style) var(--text-color); padding: 12px; margin-bottom: 10px; cursor: pointer; position: relative; display: block; width: 100%; text-align: left;}
+        .note-card { border: 2px var(--border-style) var(--text-color); padding: 15px; margin-bottom: 15px; cursor: pointer; position: relative; display: block; width: 100%; text-align: left;}
         .note-card:active { background: var(--chart-fill); }
-        .note-date { font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;}
-        .pin-badge { position: absolute; top: 0; right: 0; background: var(--text-color); color: var(--bg-color); font-size: 0.7rem; padding: 2px 5px; font-weight: bold;}
+        .note-date { font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; display: block;}
+        .pin-badge { position: absolute; top: 0; right: 0; background: var(--text-color); color: var(--bg-color); font-size: 0.8rem; padding: 2px 8px; font-weight: bold;}
         
-        .label-badge {
-            display: inline-block; padding: 2px 6px; font-size: 0.7rem;
-            border: 1px solid var(--text-color); color: var(--text-color); margin-right: 5px;
-            background: var(--chart-fill);
-        }
+        .label-badge { display: inline-block; padding: 4px 8px; font-size: 0.8rem; border: 1px solid var(--text-color); color: var(--text-color); margin-right: 5px; margin-top: 5px; background: var(--chart-fill); }
 
-        .timeline-item { border-left: 2px var(--border-style) var(--text-color); padding-left: 15px; margin-bottom: 15px; position: relative; font-size: 0.9rem;}
-        .timeline-item::before {
-            content: ''; position: absolute; left: -7px; top: 0;
-            width: 12px; height: 12px; background: var(--bg-color); border: 2px solid var(--text-color);
-        }
+        /* Swipeable Label Container */
+        .swipe-labels { display: flex; overflow-x: auto; white-space: nowrap; padding-bottom: 10px; align-items: center; scrollbar-width: none; }
+        .swipe-labels::-webkit-scrollbar { display: none; }
+        .swipe-labels span { display: inline-block; cursor: pointer; border: 2px dashed var(--text-muted); padding: 6px 12px; margin-right: 8px; font-weight: bold; flex-shrink: 0; }
+        .swipe-labels span.active-tag { border: 2px solid var(--accent); background: var(--chart-fill); color: var(--text-color); }
 
-        .flex-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: center;}
+        .timeline-item { border-left: 2px var(--border-style) var(--text-color); padding-left: 20px; margin-bottom: 20px; position: relative; font-size: 1rem; line-height: 1.4;}
+        .timeline-item::before { content: ''; position: absolute; left: -8px; top: 0; width: 14px; height: 14px; background: var(--bg-color); border: 2px solid var(--text-color); }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; align-items: stretch;}
+        .flex-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; align-items: stretch;}
         .flex-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 
-        .stat-block { flex: 1; border: 2px var(--border-style) var(--text-color); padding: 10px; text-align: center; }
-        .stat-val { font-size: 1.4rem; font-weight: bold; }
-        .stat-lbl { font-size: 0.7rem; color: var(--text-muted); }
+        .stat-block { flex: 1; border: 2px var(--border-style) var(--text-color); padding: 15px 10px; text-align: center; display: flex; flex-direction: column; justify-content: center;}
+        .stat-val { font-size: 1.6rem; font-weight: bold; }
+        .stat-lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;}
+        .hex-anim { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px; word-break: break-all;}
+        .blink-fast { animation: blink 0.5s step-end infinite; }
 
-        /* Modal & Toast */
-        #modal-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-color); z-index: 50; display: none;
-            justify-content: center; align-items: center; padding: 20px;
-        }
-        .modal-box {
-            border: 2px solid var(--text-color); background: var(--bg-color);
-            padding: 20px; width: 100%; max-width: 400px; text-align: center;
-            box-shadow: -8px 8px 0px var(--chart-fill);
-        }
-        .modal-box input { width: 100%; margin: 15px 0; text-align: center; font-size: 1.5rem; text-transform: uppercase; }
+        #modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .modal-box { border: 2px solid var(--text-color); background: var(--bg-color); padding: 25px; width: 100%; max-width: 400px; text-align: center; box-shadow: -10px 10px 0px var(--chart-fill); z-index: 101; }
+        .modal-box input { width: 100%; margin: 20px 0; text-align: center; font-size: 1.8rem; text-transform: uppercase; }
 
-        #toast {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--text-color); color: var(--bg-color);
-            padding: 8px 15px; font-weight: bold; z-index: 100; opacity: 0; pointer-events: none;
-            transition: opacity 0.2s; border: 2px solid var(--bg-color); box-shadow: 0 0 10px var(--glow);
-        }
+        #toast { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); background: var(--text-color); color: var(--bg-color); padding: 10px 20px; font-weight: bold; font-size: 1.2rem; z-index: 120; opacity: 0; pointer-events: none; transition: opacity 0.2s; border: 2px solid var(--bg-color); box-shadow: 0 0 20px var(--glow); }
     </style>
 </head>
 <body data-theme="pipboy">
 
-    <div id="screen-glass">
-        <div class="scanline"></div>
-        <div id="toast">[ SYS MSG ]</div>
+    <div id="screen-base"><div class="scanline"></div></div>
+    <div id="crt-vignette"></div>
+    <div id="toast">[ SYS MSG ]</div>
 
+    <div class="safe-area-wrapper">
         <div id="viewport">
-            <!-- Content injected by JS -->
+            <!-- Content -->
+        </div>
+
+        <!-- Custom Format Toolbar -->
+        <div id="format-toolbar">
+            <button class="fmt-btn" onclick="applyFormat('# ', '')">H1</button>
+            <button class="fmt-btn" onclick="applyFormat('## ', '')">H2</button>
+            <button class="fmt-btn" onclick="applyFormat('**', '**')">B</button>
+            <button class="fmt-btn" onclick="applyFormat('*', '*')">I</button>
+            <button class="fmt-btn" onclick="execCopy()">COPY</button>
         </div>
 
         <div id="bottom-nav">
@@ -206,13 +203,12 @@
         </div>
     </div>
 
-    <!-- System Modal -->
     <div id="modal-overlay">
         <div class="modal-box">
             <h3 id="modal-title">SUDO COMMIT</h3>
-            <p id="modal-desc" style="font-size: 0.8rem; color: var(--text-muted);">Authentication required.</p>
+            <p id="modal-desc" style="font-size: 0.9rem; color: var(--text-muted);">Auth Required.</p>
             <input type="text" id="modal-input" autocomplete="off" placeholder="> TYPE 'OK'">
-            <div class="flex-row" style="justify-content: center;">
+            <div class="grid-2" style="margin-top: 20px; margin-bottom: 0;">
                 <button onclick="closeModal()" style="border-style: dashed;">ABORT</button>
                 <button id="modal-confirm" style="background: var(--text-color); color: var(--bg-color);">EXEC</button>
             </div>
@@ -221,39 +217,28 @@
 
     <script>
         /** * OS-NXT CORE LOGIC
-         * Absolute logic. Protected Memory. Memory-Leak Free.
+         * Absolute UX Control. Vertical Stack. Auto-Format. History Engine.
          */
 
-        // --- PWA SETUP ---
         const setupPWA = () => {
             const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#030a03"/><text x="50" y="65" font-family="monospace" font-size="50" font-weight="bold" fill="#14ff14" text-anchor="middle">&gt;_</text></svg>`;
             const encodedIcon = "data:image/svg+xml;base64," + btoa(svgIcon);
             const link = document.createElement('link'); link.rel = 'icon'; link.href = encodedIcon; document.head.appendChild(link);
-            const appleLink = document.createElement('link'); appleLink.rel = 'apple-touch-icon'; appleLink.href = encodedIcon; document.head.appendChild(appleLink);
-            const manifest = { name: "OS-NXT", short_name: "OS-NXT", display: "fullscreen", orientation: "portrait", background_color: "#030a03", theme_color: "#030a03", icons: [{ src: encodedIcon, sizes: "192x192", type: "image/svg+xml" }] };
+            const manifest = { name: "OS-NXT", short_name: "OS-NXT", display: "fullscreen", orientation: "portrait", background_color: "#030a03", theme_color: "#030a03" };
             const manifestLink = document.createElement('link'); manifestLink.rel = 'manifest'; manifestLink.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest)); document.head.appendChild(manifestLink);
         };
         setupPWA();
 
-        // --- SAFE STATE INITIALIZATION (Anti-Blank Screen) ---
-        let state = {
-            notes: [], labels: ['TUGAS', 'PRIBADI', 'IDE'], logs: [],
-            settings: { theme: 'pipboy', sound: true }, currentView: 'dashboard', activeNoteId: null, filterLabel: null
-        };
-        
+        let state = { notes: [], labels: ['TUGAS', 'PRIBADI', 'IDE'], logs: [], settings: { theme: 'pipboy', sound: true }, currentView: 'dashboard', activeNoteId: null, filterLabel: null };
+        let pristineEditorState = ""; 
+        let editorHistory = []; let historyIndex = -1; // Engine Undo/Redo Custom
+
         try {
-            const memNotes = localStorage.getItem('os-nxt-notes');
-            if(memNotes) state.notes = JSON.parse(memNotes);
-            const memLabels = localStorage.getItem('os-nxt-labels');
-            if(memLabels) state.labels = JSON.parse(memLabels);
-            const memLogs = localStorage.getItem('os-nxt-logs');
-            if(memLogs) state.logs = JSON.parse(memLogs);
-            const memSettings = localStorage.getItem('os-nxt-settings');
-            if(memSettings) state.settings = JSON.parse(memSettings);
-        } catch (e) {
-            console.error("CORRUPT MEMORY DETECTED. Resetting to default parameters.");
-            localStorage.clear(); // Wipe bad data to save the UI
-        }
+            const memNotes = localStorage.getItem('os-nxt-notes'); if(memNotes) state.notes = JSON.parse(memNotes);
+            const memLabels = localStorage.getItem('os-nxt-labels'); if(memLabels) state.labels = JSON.parse(memLabels);
+            const memLogs = localStorage.getItem('os-nxt-logs'); if(memLogs) state.logs = JSON.parse(memLogs);
+            const memSettings = localStorage.getItem('os-nxt-settings'); if(memSettings) state.settings = JSON.parse(memSettings);
+        } catch (e) { localStorage.clear(); }
 
         let sessionStartTime = Date.now();
 
@@ -264,407 +249,365 @@
             localStorage.setItem('os-nxt-settings', JSON.stringify(state.settings));
         };
 
-        const addLog = (action, details) => {
-            state.logs.unshift({ id: Date.now(), action, details, time: new Date().toISOString() });
-            if(state.logs.length > 200) state.logs.pop();
-            saveState();
-        };
-
-        const getStorageSize = () => {
-            let total = 0;
-            for(let x in localStorage) { if(localStorage.hasOwnProperty(x)) total += ((localStorage[x].length + x.length) * 2); }
-            return (total / 1024).toFixed(1); 
-        };
-
-        const fmtDate = (iso) => {
-            const d = new Date(iso);
-            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-        };
+        const addLog = (action, details) => { state.logs.unshift({ id: Date.now(), action, details, time: new Date().toISOString() }); if(state.logs.length > 100) state.logs.pop(); saveState(); };
+        const getStorageSize = () => { let total = 0; for(let x in localStorage) { if(localStorage.hasOwnProperty(x)) total += ((localStorage[x].length + x.length) * 2); } return (total / 1024).toFixed(1); };
+        const fmtDate = (iso) => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
         const escapeHTML = (str) => str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
 
-        const showToast = (msg) => {
-            const t = document.getElementById('toast');
-            t.innerText = `[ ${msg} ]`; t.style.opacity = 1;
-            setTimeout(() => t.style.opacity = 0, 2000);
-        };
+        const showToast = (msg) => { const t = document.getElementById('toast'); t.innerText = `[ ${msg} ]`; t.style.opacity = 1; setTimeout(() => t.style.opacity = 0, 2000); };
 
-        // --- AUDIO ---
+        // --- AUDIO ENGINE ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
-        let audioCtx;
-        const initAudio = () => { if (!audioCtx && AudioContext) audioCtx = new AudioContext(); };
+        let audioCtx, bgmOsc, bgmGain;
+        const initAudio = () => { if (!audioCtx && AudioContext) audioCtx = new AudioContext(); if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); manageHumFX(); };
+        const manageHumFX = () => {
+            if(!audioCtx) return;
+            if(state.settings.sound && !bgmOsc) {
+                bgmOsc = audioCtx.createOscillator(); bgmGain = audioCtx.createGain();
+                bgmOsc.type = 'sine'; bgmOsc.frequency.value = 55; bgmGain.gain.value = 0.03;
+                bgmOsc.connect(bgmGain); bgmGain.connect(audioCtx.destination); bgmOsc.start();
+            } else if (!state.settings.sound && bgmOsc) { bgmOsc.stop(); bgmOsc = null; }
+        };
         const playTone = (freq, type, duration, vol) => {
             if (!state.settings.sound || !audioCtx) return;
-            if(audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
             osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + duration);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + duration);
         };
         const sfx = {
-            type: () => playTone(Math.random() * 100 + 300, 'square', 0.05, 0.02),
-            enter: () => playTone(600, 'triangle', 0.1, 0.05),
-            error: () => playTone(150, 'sawtooth', 0.3, 0.1),
-            commit: () => { playTone(800, 'square', 0.1, 0.05); setTimeout(() => playTone(1200, 'square', 0.15, 0.05), 100); }
+            type: () => playTone(Math.random() * 150 + 200, 'square', 0.04, 0.02),
+            enter: () => playTone(500, 'triangle', 0.1, 0.05), error: () => playTone(120, 'sawtooth', 0.3, 0.1),
+            commit: () => { playTone(800, 'square', 0.1, 0.05); setTimeout(() => playTone(1200, 'square', 0.15, 0.05), 100); },
+            boot: () => { playTone(400,'square',0.1,0.05); setTimeout(()=>playTone(600,'square',0.1,0.05),100); setTimeout(()=>playTone(1000,'square',0.3,0.05),200); }
         };
 
-        // --- NAVIGATION & ANIMATION CONTROL ---
+        // --- NAVIGATION ---
         let activeAnimations = [];
-        // Absolute logic: clear ALL running requestAnimationFrames before starting new ones
-        const clearAnimations = () => { 
-            activeAnimations.forEach(id => cancelAnimationFrame(id)); 
-            activeAnimations = []; 
-        };
+        const clearAnimations = () => { activeAnimations.forEach(id => cancelAnimationFrame(id)); activeAnimations = []; document.getElementById('format-toolbar').style.display = 'none'; };
+        const triggerGlitch = () => { const vp = document.getElementById('viewport'); vp.classList.remove('glitch-fx'); void vp.offsetWidth; vp.classList.add('glitch-fx'); };
 
         const navigate = (view, silent = false) => {
-            if (!silent) sfx.enter();
-            state.currentView = view; 
-            
+            if (!silent) sfx.enter(); state.currentView = view; clearAnimations(); triggerGlitch();
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.innerText.includes(view === 'notes' || view === 'editor' ? 'DATA' : (view === 'log' ? 'LOG' : (view === 'settings' ? 'CFG' : 'SYS'))));
             if(activeBtn) activeBtn.classList.add('active');
 
-            if(view === 'dashboard') renderDashboard();
-            else if(view === 'notes') renderNotes();
-            else if(view === 'editor') renderEditor();
-            else if(view === 'log') renderLog();
-            else if(view === 'settings') renderSettings();
-
+            if(view === 'dashboard') renderDashboard(); else if(view === 'notes') renderNotes(); else if(view === 'editor') renderEditor(); else if(view === 'log') renderLog(); else if(view === 'settings') renderSettings();
             if(!silent) history.pushState({ view: view }, "", `#${view}`);
         };
 
         window.addEventListener('popstate', (e) => {
-            if(e.state && e.state.view) navigate(e.state.view, true); else navigate('dashboard', true);
+            if (state.currentView === 'editor') { history.pushState({ view: 'editor' }, "", "#editor"); checkSmartDiscard(); } 
+            else { if(e.state && e.state.view) navigate(e.state.view, true); else navigate('dashboard', true); }
         });
 
         // --- 1. DASHBOARD (SYS) ---
         const renderDashboard = () => {
-            clearAnimations(); // Prevent overlapping animations immediately
-            
-            const storageKB = getStorageSize();
-            const recentNotes = [...state.notes].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 2);
-            const viewport = document.getElementById('viewport');
+            const storageKB = getStorageSize(); const recentNotes = [...state.notes].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 2);
+            const vp = document.getElementById('viewport');
+            let hexString = ""; for(let i=0; i<8; i++) hexString += Math.floor(Math.random()*16777215).toString(16).padStart(6, '0').toUpperCase() + " ";
 
-            viewport.innerHTML = `
+            vp.innerHTML = `
                 <h2>SYS.DIAGNOSTICS</h2>
+                <div class="hex-anim"><span class="blink-fast">_></span> 0x${hexString}</div>
                 
                 <div class="flex-row">
-                    <div class="stat-block">
-                        <div class="stat-val">${state.notes.length}</div>
-                        <div class="stat-lbl">BLOCKS</div>
-                    </div>
-                    <div class="stat-block">
-                        <div class="stat-val" id="mem-usage-val">${storageKB}k</div>
-                        <div class="stat-lbl">MEM USAGE</div>
-                    </div>
-                    <div class="stat-block">
-                        <div class="stat-val" id="uptime-val">00:00</div>
-                        <div class="stat-lbl">UPTIME</div>
-                    </div>
+                    <div class="stat-block"><div class="stat-val">${state.notes.length}</div><div class="stat-lbl">BLOCKS</div></div>
+                    <div class="stat-block"><div class="stat-val" id="mem-usage-val">${storageKB}k</div><div class="stat-lbl">MEM</div></div>
+                    <div class="stat-block"><div class="stat-val" id="uptime-val">00:00</div><div class="stat-lbl">UPTIME</div></div>
                 </div>
 
-                <div class="flex-row" style="align-items: stretch; margin-top: 15px;">
-                    <div class="chart-box" style="flex: 1; height: 130px; display:flex; justify-content:center; align-items:center; overflow:hidden; position:relative;">
-                        <span class="chart-label">MEM SCAN</span>
-                        <canvas id="radar-chart" width="110" height="110"></canvas>
-                    </div>
-                    <div class="chart-box" style="flex: 1; height: 130px; display:flex; justify-content:center; align-items:center; position:relative;">
-                        <span class="chart-label">DATA DIST</span>
-                        <canvas id="pie-chart" width="110" height="110"></canvas>
-                    </div>
+                <!-- DITUMPUK VERTIKAL SESUAI REQUEST -->
+                <div class="chart-box" style="height: 180px;">
+                    <span class="chart-label">MEM SCAN</span>
+                    <canvas id="radar-chart"></canvas>
+                </div>
+                <div class="chart-box" style="height: 180px;">
+                    <span class="chart-label">DATA DIST</span>
+                    <canvas id="pie-chart"></canvas>
                 </div>
 
                 <h3>RECENT I/O</h3>
-                ${recentNotes.length === 0 ? '<p style="font-size:0.8rem">NO RECENT ACTIVITY.</p>' : recentNotes.map(n => `
-                    <button class="note-card" onclick="openNote(${n.id})">
-                        <span style="font-weight:bold;">${n.title || 'UNTITLED_BLOCK'}</span><br>
-                        <span class="note-date">MODIFIED: ${fmtDate(n.timestamp)}</span>
-                    </button>
+                ${recentNotes.length === 0 ? '<p style="font-size:0.9rem">NO ACTIVITY.</p>' : recentNotes.map(n => `
+                    <button class="note-card" onclick="openNote(${n.id})"><span style="font-weight:bold; font-size:1.2rem;">${n.title || 'UNTITLED_BLOCK'}</span><br><span class="note-date">MODIFIED: ${fmtDate(n.timestamp)}</span></button>
                 `).join('')}
 
-                <h3 style="margin-top: 15px;">QUICK COMMANDS</h3>
-                <div class="flex-row">
-                    <button style="flex:1" onclick="addNote()">[+] NEW DATA</button>
-                    <button style="flex:1; border-color:red; color:red;" onclick="requestClearLogs()">FLUSH LOGS</button>
-                </div>
+                <h3 style="margin-top: 25px;">QUICK COMMANDS</h3>
+                <div class="grid-2"><button onclick="addNote()">[+] NEW</button><button style="border-color:red; color:red;" onclick="requestClearLogs()">FLUSH</button></div>
             `;
-            
-            drawPieChart(); 
-            drawRadarScanner(storageKB); 
-            updateUptime();
-            
-            // Log logic just once per visit
-            if(!state.logs.length || state.logs[0].action !== 'SYSTEM') {
-                addLog('SYSTEM', 'Accessed SYS Diagnostics');
-            }
+            setTimeout(() => { if(state.currentView !== 'dashboard') return; drawPieChart(); drawRadarScanner(storageKB); }, 50);
+            updateUptime(); if(!state.logs.length || state.logs[0].action !== 'SYSTEM') addLog('SYSTEM', 'SYS Diagnostics Active');
         };
 
         const updateUptime = () => {
             if(state.currentView !== 'dashboard') return;
-            const el = document.getElementById('uptime-val');
-            if(!el) return;
+            const el = document.getElementById('uptime-val'); if(!el) return;
             const diff = Math.floor((Date.now() - sessionStartTime) / 1000);
-            const m = String(Math.floor(diff / 60)).padStart(2, '0');
-            const s = String(diff % 60).padStart(2, '0');
-            el.innerText = `${m}:${s}`;
+            el.innerText = `${String(Math.floor(diff / 60)).padStart(2, '0')}:${String(diff % 60).padStart(2, '0')}`;
             activeAnimations.push(requestAnimationFrame(updateUptime));
         };
 
         const drawPieChart = () => {
             const canvas = document.getElementById('pie-chart'); if(!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const color = getComputedStyle(document.body).getPropertyValue('--text-color').trim();
-            const dist = { 'UNLABELED': 0 };
-            state.labels.forEach(l => dist[l] = 0);
+            canvas.width = canvas.parentElement.clientWidth - 20; canvas.height = canvas.parentElement.clientHeight - 20;
+            const ctx = canvas.getContext('2d'); const color = getComputedStyle(document.body).getPropertyValue('--text-color').trim();
+            const dist = { 'UNLABELED': 0 }; state.labels.forEach(l => dist[l] = 0);
             state.notes.forEach(n => { if(n.labels.length === 0) dist['UNLABELED']++; else n.labels.forEach(l => { if(dist[l] !== undefined) dist[l]++; }); });
-            const validDist = Object.entries(dist).filter(([k,v]) => v > 0);
-            const total = validDist.reduce((a, [k,v]) => a + v, 0);
+            const validDist = Object.entries(dist).filter(([k,v]) => v > 0); const total = validDist.reduce((a, [k,v]) => a + v, 0);
 
-            if(total === 0) { ctx.fillStyle = color; ctx.font = "12px monospace"; ctx.textAlign="center"; ctx.fillText("NO DATA", canvas.width/2, canvas.height/2); return; }
+            if(total === 0) { ctx.fillStyle = color; ctx.font = "14px monospace"; ctx.textAlign="center"; ctx.fillText("NO DATA", canvas.width/2, canvas.height/2); return; }
 
-            let startAngle = 0; const cx = canvas.width / 2; const cy = canvas.height / 2; const radius = cy - 10;
+            let startAngle = 0; const cx = canvas.width / 2; const cy = canvas.height / 2; const radius = Math.min(cx, cy) - 10;
             validDist.forEach(([label, count], index) => {
                 const sliceAngle = (count / total) * 2 * Math.PI;
                 ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, radius, startAngle, startAngle + sliceAngle); ctx.closePath();
-                ctx.fillStyle = color; ctx.globalAlpha = Math.max(1 - (index * 0.25), 0.2); ctx.fill();
-                ctx.globalAlpha = 1.0; ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--bg-color').trim();
-                ctx.lineWidth = 1; ctx.stroke(); startAngle += sliceAngle;
+                ctx.fillStyle = color; ctx.globalAlpha = Math.max(1 - (index * 0.2), 0.2); ctx.fill();
+                ctx.globalAlpha = 1.0; ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--bg-color').trim(); ctx.lineWidth = 2; ctx.stroke(); startAngle += sliceAngle;
             });
         };
 
-        // FIXED RADAR SCANNER - NO MORE OVERLAP
         const drawRadarScanner = (storage) => {
             const canvas = document.getElementById('radar-chart'); if(!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const cx = canvas.width / 2; const cy = canvas.height / 2; const radius = cx - 10; 
-            let angle = 0;
-            
-            const color = getComputedStyle(document.body).getPropertyValue('--text-color').trim();
-            const bgColor = getComputedStyle(document.body).getPropertyValue('--bg-color').trim();
-            const fill = getComputedStyle(document.body).getPropertyValue('--chart-fill').trim();
-            const crtLine = getComputedStyle(document.body).getPropertyValue('--crt-line').trim();
+            canvas.width = canvas.parentElement.clientWidth - 20; canvas.height = canvas.parentElement.clientHeight - 20;
+            const ctx = canvas.getContext('2d'); const cx = canvas.width / 2; const cy = canvas.height / 2; const radius = Math.min(cx, cy) - 10; let angle = 0;
+            const color = getComputedStyle(document.body).getPropertyValue('--text-color').trim(); const bgColor = getComputedStyle(document.body).getPropertyValue('--bg-color').trim();
+            const crtLine = getComputedStyle(document.body).getPropertyValue('--crt-line').trim(); const chartFill = getComputedStyle(document.body).getPropertyValue('--chart-fill').trim();
             
             const animate = () => {
                 if(state.currentView !== 'dashboard') return;
-                
-                // 1. CLEAR ENTIRE CANVAS (Solusi murni anti tumpang-tindih)
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // 2. DRAW BASE GRID
-                ctx.strokeStyle = crtLine;
-                ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy); ctx.stroke();
-
-                // 3. DRAW ROTATING SCANNER
-                ctx.save(); 
-                ctx.translate(cx, cy); 
-                ctx.rotate(angle);
-                ctx.beginPath(); 
-                ctx.moveTo(0, 0); 
-                ctx.arc(0, 0, radius, 0, 0.5); // Lebar kerucut scanner
-                ctx.lineTo(0,0);
-                ctx.fillStyle = fill; 
-                ctx.fill();
-                ctx.strokeStyle = color; 
-                ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(radius, 0); ctx.stroke();
-                ctx.restore();
-
-                // 4. DRAW INFO BOX IN CENTER
-                ctx.fillStyle = bgColor;
-                ctx.fillRect(cx - 24, cy - 10, 48, 20);
-                ctx.strokeStyle = color;
-                ctx.strokeRect(cx - 24, cy - 10, 48, 20);
-                ctx.fillStyle = color; 
-                ctx.font = "10px monospace"; 
-                ctx.textAlign="center";
-                
-                const displaySize = storage > 1000 ? (storage/1024).toFixed(1)+'M' : storage+'K';
-                ctx.fillText(displaySize, cx, cy + 4);
-
-                angle += 0.04; // Speed putaran
-                activeAnimations.push(requestAnimationFrame(animate));
-            }; 
-            animate();
+                ctx.strokeStyle = crtLine; ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.arc(cx, cy, radius*0.5, 0, Math.PI*2); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy); ctx.stroke();
+                ctx.save(); ctx.translate(cx, cy); ctx.rotate(angle);
+                ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, radius, -0.05, 0.4); ctx.lineTo(0,0);
+                ctx.fillStyle = chartFill; ctx.fill(); ctx.strokeStyle = color; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(radius, 0); ctx.stroke(); ctx.restore();
+                ctx.fillStyle = bgColor; ctx.fillRect(cx - 30, cy - 12, 60, 24); ctx.strokeStyle = color; ctx.strokeRect(cx - 30, cy - 12, 60, 24);
+                ctx.fillStyle = color; ctx.font = "14px monospace"; ctx.textAlign="center";
+                ctx.fillText(storage > 1000 ? (storage/1024).toFixed(1)+'M' : storage+'K', cx, cy + 5);
+                angle += 0.04; activeAnimations.push(requestAnimationFrame(animate));
+            }; animate();
         };
 
-        const requestClearLogs = () => {
-            openCommit('FLUSH SYS LOGS', 'Erase all trace data? Type "ok".', () => {
-                state.logs = []; saveState(); showToast('LOGS FLUSHED'); 
-                renderDashboard(); // This will now safely clear animations first
-            });
-        };
+        const requestClearLogs = () => { openCommit('FLUSH SYS LOGS', 'Erase all trace data?', () => { state.logs = []; saveState(); showToast('LOGS FLUSHED'); renderDashboard(); }); };
 
         // --- 2. NOTES LIST (DATA) ---
         const renderNotes = () => {
-            clearAnimations();
-            const viewport = document.getElementById('viewport');
-            const searchTerm = document.getElementById('search-box')?.value.toLowerCase() || '';
-            let filteredNotes = state.notes;
-            if(state.filterLabel) filteredNotes = filteredNotes.filter(n => n.labels.includes(state.filterLabel));
-            if(searchTerm) filteredNotes = filteredNotes.filter(n => n.title.toLowerCase().includes(searchTerm) || n.content.toLowerCase().includes(searchTerm));
-
-            const pinned = filteredNotes.filter(n => n.pinned);
-            const unpinned = filteredNotes.filter(n => !n.pinned);
-            const sortedNotes = [...pinned, ...unpinned];
-
-            viewport.innerHTML = `
+            const vp = document.getElementById('viewport'); const term = document.getElementById('search-box')?.value.toLowerCase() || '';
+            
+            vp.innerHTML = `
                 <h2>SECURE.DATA</h2>
-                <input type="text" id="search-box" placeholder="> QUERY KEYWORDS..." value="${searchTerm}" style="width:100%; margin-bottom:10px;" onkeyup="sfx.type(); renderNotes()">
-                
-                <div style="overflow-x: auto; white-space: nowrap; margin-bottom: 15px; padding-bottom: 5px;">
-                    <button style="border: ${!state.filterLabel ? '2px solid' : '2px dashed'}; padding: 5px;" onclick="setFilter(null)">[ALL]</button>
-                    ${state.labels.map(l => `
-                        <button style="border: ${state.filterLabel === l ? '2px solid' : '2px dashed'}; padding: 5px; margin-left:5px;" onclick="setFilter('${l}')">[${l}]</button>
-                    `).join('')}
+                <input type="text" id="search-box" placeholder="> QUICK SEARCH..." value="${term}" style="width:100%; margin-bottom:15px;" oninput="executeQuickSearch(); sfx.type()">
+                <div class="swipe-labels">
+                    <span onclick="setFilter(null)" style="${!state.filterLabel ? 'border:2px solid var(--text-color); background:var(--chart-fill);' : ''}">[ALL]</span>
+                    ${state.labels.map(l => `<span onclick="setFilter('${l}')" class="${state.filterLabel === l ? 'active-tag' : ''}">[${l}]</span>`).join('')}
                 </div>
-
-                <div id="notes-list">
-                    ${sortedNotes.length === 0 ? '<p>NO DATA BLOCKS FOUND.</p>' : sortedNotes.map(n => `
-                        <div class="note-card" onclick="openNote(${n.id})">
-                            ${n.pinned ? '<div class="pin-badge">PINNED</div>' : ''}
-                            <div class="flex-between" style="margin-bottom:8px;">
-                                <strong style="font-size:1.1rem">${n.title || 'UNTITLED_BLOCK'}</strong>
-                            </div>
-                            <div style="margin-bottom:8px;">${n.labels.map(l => `<span class="label-badge">${l}</span>`).join('')}</div>
-                            <div class="note-date">${fmtDate(n.timestamp)}</div>
-                        </div>
-                    `).join('')}
-                </div>
+                <div id="notes-list-container"></div>
                 <button class="fab-btn" onclick="addNote()">[+]</button>
             `;
+            buildNotesDOM();
         };
 
+        const buildNotesDOM = () => {
+            const container = document.getElementById('notes-list-container'); if(!container) return;
+            let filteredNotes = state.notes; if(state.filterLabel) filteredNotes = filteredNotes.filter(n => n.labels.includes(state.filterLabel));
+            const sortedNotes = [...filteredNotes.filter(n => n.pinned), ...filteredNotes.filter(n => !n.pinned)];
+            container.innerHTML = sortedNotes.length === 0 ? '<p>NO DATA BLOCKS FOUND.</p>' : sortedNotes.map(n => `
+                <div class="note-card note-item-dom" data-title="${(n.title||'').toLowerCase()}" data-content="${(n.content||'').toLowerCase()}" onclick="openNote(${n.id})">
+                    ${n.pinned ? '<div class="pin-badge">PINNED</div>' : ''}
+                    <div style="margin-bottom:8px;"><strong style="font-size:1.3rem">${n.title || 'UNTITLED_BLOCK'}</strong></div>
+                    <div style="margin-bottom:8px;">${n.labels.map(l => `<span class="label-badge">${l}</span>`).join('')}</div>
+                    <div class="note-date">${fmtDate(n.timestamp)}</div>
+                </div>
+            `).join('');
+            executeQuickSearch();
+        };
         const setFilter = (lbl) => { sfx.enter(); state.filterLabel = lbl; renderNotes(); };
-
-        // --- 3. EDITOR (STRICT SAVE/DISCARD LOGIC) ---
-        const addNote = () => {
-            const id = Date.now();
-            const newNote = { id, title: '', content: '', labels: [], pinned: false, timestamp: new Date().toISOString(), _isNew: true };
-            state.notes.unshift(newNote); // Temp push
-            state.activeNoteId = id; 
-            navigate('editor');
+        const executeQuickSearch = () => {
+            const term = document.getElementById('search-box').value.toLowerCase();
+            document.querySelectorAll('.note-item-dom').forEach(card => {
+                card.style.display = (card.getAttribute('data-title').includes(term) || card.getAttribute('data-content').includes(term)) ? 'block' : 'none';
+            });
         };
 
+        // --- 3. EDITOR (Smart Input & Custom Toolbar) ---
+        const addNote = () => { const id = Date.now(); state.notes.unshift({ id, title: '', content: '', labels: [], pinned: false, timestamp: new Date().toISOString(), _isNew: true }); state.activeNoteId = id; navigate('editor'); };
         const openNote = (id) => { state.activeNoteId = id; navigate('editor'); };
 
+        let saveTimeout;
+        const pushHistory = (val) => {
+            if(editorHistory[historyIndex] === val) return;
+            editorHistory = editorHistory.slice(0, historyIndex + 1);
+            editorHistory.push(val); historyIndex++;
+        };
+
         const renderEditor = () => {
-            clearAnimations();
-            const viewport = document.getElementById('viewport');
-            const note = state.notes.find(n => n.id === state.activeNoteId);
-            if(!note) return navigate('notes');
+            const vp = document.getElementById('viewport'); const note = state.notes.find(n => n.id === state.activeNoteId); if(!note) return navigate('notes');
+            pristineEditorState = JSON.stringify({ t: note.title, c: note.content });
+            editorHistory = [note.content]; historyIndex = 0; // Init History
 
-            const words = note.content.trim().split(/\s+/).filter(w=>w.length>0).length;
-
-            viewport.innerHTML = `
+            vp.innerHTML = `
                 <div class="flex-between">
-                    <button onclick="requestDiscard()" style="border-style:dashed; color:var(--text-muted);">&lt; DISCARD</button>
-                    <button style="background:var(--text-color); color:var(--bg-color);" onclick="requestSave()">SAVE &gt;</button>
+                    <button onclick="checkSmartDiscard()" style="border-style:dashed; color:var(--text-muted);">&lt; DISCARD</button>
+                    <div>
+                        <button onclick="togglePinDraft()" style="margin-right:10px; ${note.pinned ? 'background:var(--text-color); color:var(--bg-color);' : ''}">PIN</button>
+                        <button style="background:var(--text-color); color:var(--bg-color);" onclick="requestSave()">SAVE &gt;</button>
+                    </div>
                 </div>
                 
-                <input type="text" id="edit-title" value="${note.title}" placeholder="> TITLE_BLOCK" style="width:100%; margin-bottom:5px; font-size:1.2rem; font-weight:bold;" oninput="sfx.type()">
+                <input type="text" id="edit-title" value="${note.title}" placeholder="> TITLE_BLOCK" style="width:100%; margin-bottom:15px; font-size:1.4rem; font-weight:bold;" oninput="sfx.type()">
                 
-                <div class="flex-between" style="font-size: 0.75rem; color: var(--text-muted); border-bottom: 1px dashed var(--text-muted); padding-bottom: 5px; margin-bottom: 10px;">
-                    <span id="editor-stats">W: ${words} | C: ${note.content.length}</span>
-                    <span>
-                        <span onclick="togglePinDraft()" style="cursor:pointer; border:${note.pinned?'1px solid var(--accent)':'1px dashed'}; padding:2px 5px; margin-right:5px; font-weight:bold;">PIN</span>
-                        ${state.labels.map(l => `
-                        <span onclick="toggleLabelDraft('${l}')" style="cursor:pointer; border:${note.labels.includes(l)?'1px solid var(--accent)':'1px dashed'}; padding:2px 4px; margin-left:3px;">${l}</span>
-                        `).join('')}
-                    </span>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">ASSIGN LABELS:</span>
+                <div class="swipe-labels" style="margin-top: 5px;">
+                    ${state.labels.map(l => `<span onclick="toggleLabelDraft('${l}')" class="${note.labels.includes(l) ? 'active-tag' : ''}">[${l}]</span>`).join('')}
                 </div>
 
                 <div class="editor-container">
                     <div id="edit-replica"></div>
-                    <textarea id="edit-content" placeholder="> AWAITING INPUT SEQUENCE..." oninput="syncReplica(); sfx.type()">${note.content}</textarea>
+                    <textarea id="edit-content" placeholder="> AWAITING INPUT SEQUENCE..." oninput="handleInput(event)">${note.content}</textarea>
                 </div>
-                <div style="text-align:right; margin-top:10px;">
-                    <button style="color:red; border-color:red; font-size:0.8rem;" onclick="requestDelete(${note.id})">PURGE BLOCK</button>
+                
+                <div class="flex-between" style="margin-top:10px;">
+                    <div>
+                        <button onclick="execUndo()" style="padding: 8px; margin-right: 5px;">&lt; UNDO</button>
+                        <button onclick="execRedo()" style="padding: 8px;">REDO &gt;</button>
+                    </div>
+                    <button style="color:red; border-color:red; font-size:1rem; padding: 8px;" onclick="requestDelete(${note.id})">PURGE</button>
                 </div>
             `;
             
             syncReplica();
-            const textarea = document.getElementById('edit-content');
-            textarea.addEventListener('scroll', (e) => { document.getElementById('edit-replica').scrollTop = e.target.scrollTop; });
+            const ta = document.getElementById('edit-content');
+            ta.addEventListener('scroll', (e) => { document.getElementById('edit-replica').scrollTop = e.target.scrollTop; });
+            
+            // Auto-list Engine & Selection Toolbar trigger
+            ta.addEventListener('keydown', handleKeydown);
+            document.addEventListener('selectionchange', handleSelection);
         };
 
-        const captureDraft = () => {
-            const note = state.notes.find(n => n.id === state.activeNoteId);
-            if(note) {
-                note.title = document.getElementById('edit-title').value;
-                note.content = document.getElementById('edit-content').value;
+        const handleInput = (e) => {
+            sfx.type(); syncReplica();
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => pushHistory(e.target.value), 600); // Debounce history save
+        };
+
+        // AUTO-LIST ENGINE LOGIC
+        const handleKeydown = (e) => {
+            const ta = e.target;
+            if(e.key === 'Enter') {
+                const start = ta.selectionStart;
+                const val = ta.value;
+                const lineBefore = val.substring(0, start).split('\n').pop();
+                const match = lineBefore.match(/^(\d+)\.\s(.*)/);
+                
+                if(match) {
+                    e.preventDefault();
+                    if(match[2].trim() === '') {
+                        // Kalo kosong, hapus nomornya biar bisa keluar dari mode list
+                        ta.value = val.substring(0, start - lineBefore.length) + val.substring(start);
+                        ta.selectionStart = ta.selectionEnd = start - lineBefore.length;
+                    } else {
+                        // Kalo ada isinya, lanjutin nomor
+                        const nextNum = parseInt(match[1]) + 1;
+                        const insert = `\n${nextNum}. `;
+                        ta.value = val.substring(0, start) + insert + val.substring(start);
+                        ta.selectionStart = ta.selectionEnd = start + insert.length;
+                    }
+                    syncReplica(); pushHistory(ta.value); sfx.type();
+                }
             }
         };
 
-        const toggleLabelDraft = (lbl) => {
-            sfx.enter(); captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId);
-            if(note.labels.includes(lbl)) note.labels = note.labels.filter(l => l !== lbl); else note.labels.push(lbl);
-            renderEditor(); 
+        // FORMATTING TOOLBAR LOGIC
+        const handleSelection = () => {
+            if(state.currentView !== 'editor') return;
+            const ta = document.getElementById('edit-content');
+            const toolbar = document.getElementById('format-toolbar');
+            if(document.activeElement === ta && ta.selectionStart !== ta.selectionEnd) {
+                toolbar.style.display = 'flex';
+            } else {
+                toolbar.style.display = 'none';
+            }
         };
 
-        const togglePinDraft = () => {
-            sfx.enter(); captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId);
-            note.pinned = !note.pinned; renderEditor();
+        const applyFormat = (prefix, suffix) => {
+            const ta = document.getElementById('edit-content');
+            const start = ta.selectionStart; const end = ta.selectionEnd; const text = ta.value;
+            if(start === end) return;
+            const selectedText = text.substring(start, end);
+            const newText = text.substring(0, start) + prefix + selectedText + suffix + text.substring(end);
+            ta.value = newText;
+            syncReplica(); pushHistory(newText);
+            ta.selectionStart = start + prefix.length; ta.selectionEnd = end + prefix.length;
+            ta.focus(); showToast('FORMAT APPLIED'); sfx.commit();
         };
 
+        const execCopy = () => {
+            const ta = document.getElementById('edit-content');
+            const text = ta.value.substring(ta.selectionStart, ta.selectionEnd);
+            if(navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => { showToast('TEXT COPIED'); sfx.commit(); });
+            } else {
+                document.execCommand('copy'); showToast('TEXT COPIED'); sfx.commit(); // Fallback jadul
+            }
+        };
+
+        const execUndo = () => {
+            if(historyIndex > 0) {
+                historyIndex--; const ta = document.getElementById('edit-content');
+                ta.value = editorHistory[historyIndex]; syncReplica(); sfx.type();
+            } else { sfx.error(); showToast('HISTORY LIMIT'); }
+        };
+
+        const execRedo = () => {
+            if(historyIndex < editorHistory.length - 1) {
+                historyIndex++; const ta = document.getElementById('edit-content');
+                ta.value = editorHistory[historyIndex]; syncReplica(); sfx.type();
+            } else { sfx.error(); showToast('NEWEST STATE'); }
+        };
+
+        const captureDraft = () => { const note = state.notes.find(n => n.id === state.activeNoteId); if(note) { note.title = document.getElementById('edit-title').value; note.content = document.getElementById('edit-content').value; } };
+        const toggleLabelDraft = (lbl) => { sfx.enter(); captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId); if(note.labels.includes(lbl)) note.labels = note.labels.filter(l => l !== lbl); else note.labels.push(lbl); renderEditor(); };
+        const togglePinDraft = () => { sfx.enter(); captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId); note.pinned = !note.pinned; renderEditor(); };
+        
         const syncReplica = () => {
-            const textarea = document.getElementById('edit-content'); const replica = document.getElementById('edit-replica');
-            if(!textarea || !replica) return;
-            let text = textarea.value; if (text.endsWith('\n')) text += ' '; 
-            replica.innerHTML = escapeHTML(text) + '<span class="thick-cursor"></span>';
-            const words = text.trim().split(/\s+/).filter(w=>w.length>0).length;
-            const stats = document.getElementById('editor-stats'); if(stats) stats.innerText = `W: ${words} | C: ${text.length}`;
+            const ta = document.getElementById('edit-content'); const rep = document.getElementById('edit-replica'); if(!ta || !rep) return;
+            let text = ta.value; if (text.endsWith('\n')) text += ' '; rep.innerHTML = escapeHTML(text) + '<span class="thick-cursor"></span>';
         };
 
-        // --- DISCARD DENGAN COMMIT OK ---
-        const requestDiscard = () => {
-            openCommit('DISCARD DRAFT', 'Type "ok" to purge unsaved changes.', () => {
-                const note = state.notes.find(n => n.id === state.activeNoteId);
-                if(note && note._isNew) {
-                    state.notes = state.notes.filter(n => n.id !== state.activeNoteId);
-                } else {
-                    // Safe reload from memory
-                    const savedNotes = localStorage.getItem('os-nxt-notes');
-                    state.notes = savedNotes ? JSON.parse(savedNotes) : [];
-                }
-                showToast('CHANGES PURGED');
-                navigate('notes');
-            });
+        const checkSmartDiscard = () => {
+            const note = state.notes.find(n => n.id === state.activeNoteId);
+            const currentState = JSON.stringify({ t: document.getElementById('edit-title').value, c: document.getElementById('edit-content').value });
+            if (currentState === pristineEditorState && !(note._isNew && (note.title !== '' || note.content !== ''))) {
+                sfx.enter(); if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId); navigate('notes');
+            } else {
+                openCommit('DISCARD CHANGES', 'Data modified. Purge changes?', () => {
+                    if(note && note._isNew) { state.notes = state.notes.filter(n => n.id !== state.activeNoteId); } 
+                    else { const savedNotes = localStorage.getItem('os-nxt-notes'); state.notes = savedNotes ? JSON.parse(savedNotes) : []; }
+                    showToast('CHANGES PURGED'); navigate('notes');
+                });
+            }
         };
 
-        // --- SAVE DENGAN COMMIT OK ---
         const requestSave = () => {
-            openCommit('SAVE TO MEMORY', 'Type "ok" to commit changes to database.', () => {
-                captureDraft();
-                const note = state.notes.find(n => n.id === state.activeNoteId);
-                note.timestamp = new Date().toISOString();
-                delete note._isNew; 
-                saveState();
-                showToast('DATA SAVED');
-                addLog('DATA', `Committed changes to block ID:${note.id}`);
-                navigate('notes');
+            openCommit('SAVE TO MEMORY', 'Commit changes to database?', () => {
+                captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId);
+                note.timestamp = new Date().toISOString(); delete note._isNew; 
+                saveState(); showToast('DATA SAVED'); addLog('DATA', `Saved block ID:${note.id}`); navigate('notes');
             });
         };
 
-        const requestDelete = (id) => openCommit('PURGE DATA', `Delete ID:${id}? Type "ok".`, () => {
-            state.notes = state.notes.filter(n => n.id !== id); saveState(); showToast('BLOCK PURGED'); 
-            addLog('DATA', `Purged block ID:${id}`); navigate('notes');
-        });
+        const requestDelete = (id) => openCommit('PURGE DATA', `Delete ID:${id}?`, () => { state.notes = state.notes.filter(n => n.id !== id); saveState(); showToast('BLOCK PURGED'); addLog('DATA', `Purged block ID:${id}`); navigate('notes'); });
 
         // --- 4. LOG ---
         const renderLog = () => {
-            clearAnimations();
-            const viewport = document.getElementById('viewport');
-            viewport.innerHTML = `
+            document.getElementById('viewport').innerHTML = `
                 <h2>TRACE.LOG</h2>
+                <div class="hex-anim"><span class="blink-fast">_></span> MONITORING_EVENTS...</div>
                 <div style="border-left: 2px var(--border-style) var(--text-color); margin-left: 10px;">
                     ${state.logs.length === 0 ? '<p style="padding-left:10px;">NO LOGS.</p>' : state.logs.map(l => `
-                        <div class="timeline-item">
-                            <span class="note-date">${fmtDate(l.time)}</span><br>
-                            <strong>[${l.action}]</strong> ${l.details}
-                        </div>
+                        <div class="timeline-item"><span class="note-date">${fmtDate(l.time)}</span><br><strong>[${l.action}]</strong> ${l.details}</div>
                     `).join('')}
                 </div>
             `;
@@ -672,112 +615,55 @@
 
         // --- 5. SETTINGS (CFG) ---
         const renderSettings = () => {
-            clearAnimations();
-            const viewport = document.getElementById('viewport');
-            viewport.innerHTML = `
+            document.getElementById('viewport').innerHTML = `
                 <h2>SYS.CONFIG</h2>
-                
-                <div class="flex-between" style="border:2px var(--border-style) var(--text-color); padding:10px; margin-bottom:15px;">
-                    <span style="font-weight:bold;">UI ENVIRONMENT</span>
+                <div class="hex-anim"><span class="blink-fast">_></span> ROOT_ACCESS: GRANTED</div>
+                <div class="flex-between" style="border:2px var(--border-style) var(--text-color); padding:15px; margin-bottom:15px;">
+                    <span style="font-weight:bold; font-size:1.1rem;">UI ENVIRONMENT</span>
                     <button onclick="toggleTheme()" style="border-style:dashed;">${state.settings.theme === 'pipboy' ? 'DARK (PIPBOY)' : 'LIGHT (LINUX)'}</button>
                 </div>
-
-                <div class="flex-between" style="border:2px var(--border-style) var(--text-color); padding:10px; margin-bottom:15px;">
-                    <span style="font-weight:bold;">AUDIO FEEDBACK</span>
+                <div class="flex-between" style="border:2px var(--border-style) var(--text-color); padding:15px; margin-bottom:15px;">
+                    <span style="font-weight:bold; font-size:1.1rem;">AUDIO FEEDBACK</span>
                     <button onclick="toggleSound()" style="border-style:dashed;">${state.settings.sound ? 'ENABLED' : 'MUTED'}</button>
                 </div>
-
                 <h3>LABEL DATABASE</h3>
-                <div style="border: 2px dashed var(--text-color); padding: 10px; margin-bottom: 15px;">
-                    <div style="margin-bottom: 10px;">
-                        ${state.labels.length === 0 ? '<p style="font-size:0.8rem">NO LABELS.</p>' : ''}
+                <div style="border: 2px dashed var(--text-color); padding: 15px; margin-bottom: 20px;">
+                    <div style="margin-bottom: 15px;">
+                        ${state.labels.length === 0 ? '<p style="font-size:0.9rem">NO LABELS.</p>' : ''}
                         ${state.labels.map(l => `
-                            <div class="flex-between" style="border-bottom: 1px dashed var(--crt-line); padding: 5px 0;">
-                                <span>[${l}]</span>
-                                <button style="padding: 2px 5px; font-size: 0.7rem; border-color: red; color: red;" onclick="requestDeleteLabel('${l}')">DEL</button>
-                            </div>
+                            <div class="flex-between" style="border-bottom: 1px dashed var(--crt-line); padding: 8px 0;"><span style="font-size:1.1rem;">[${l}]</span><button style="padding: 4px 10px; font-size: 0.9rem; border-color: red; color: red;" onclick="requestDeleteLabel('${l}')">DEL</button></div>
                         `).join('')}
                     </div>
-                    <div class="flex-row">
-                        <input type="text" id="new-label-input" placeholder="> NEW_LABEL" style="flex: 1;" onkeyup="sfx.type()">
-                        <button onclick="addNewLabel()">[+]</button>
-                    </div>
+                    <div class="flex-row"><input type="text" id="new-label-input" placeholder="> NEW_LABEL" style="flex: 1;" onkeyup="sfx.type()"><button onclick="addNewLabel()">[+]</button></div>
                 </div>
-
                 <h3>DATA.IO</h3>
-                <div class="flex-row">
-                    <button style="flex:1" onclick="exportData()">EXPORT</button>
-                    <button style="flex:1" onclick="document.getElementById('import-file').click()">IMPORT</button>
-                    <input type="file" id="import-file" style="display:none" accept=".json" onchange="handleImport(event)">
-                </div>
+                <div class="grid-2"><button onclick="exportData()">EXPORT</button><button onclick="document.getElementById('import-file').click()">IMPORT</button><input type="file" id="import-file" style="display:none" accept=".json" onchange="handleImport(event)"></div>
             `;
         };
 
-        const toggleTheme = () => {
-            sfx.enter(); state.settings.theme = state.settings.theme === 'pipboy' ? 'linux' : 'pipboy';
-            document.body.setAttribute('data-theme', state.settings.theme);
-            document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#030a03' : '#fdf6e3';
-            saveState(); renderSettings(); addLog('CFG', `Environment set to ${state.settings.theme}`);
-        };
+        const toggleTheme = () => { sfx.enter(); state.settings.theme = state.settings.theme === 'pipboy' ? 'linux' : 'pipboy'; document.body.setAttribute('data-theme', state.settings.theme); document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#030a03' : '#fdf6e3'; saveState(); renderSettings(); addLog('CFG', `Environment set to ${state.settings.theme}`); };
+        const toggleSound = () => { state.settings.sound = !state.settings.sound; if(state.settings.sound) sfx.enter(); manageHumFX(); saveState(); renderSettings(); };
+        const addNewLabel = () => { const input = document.getElementById('new-label-input'); const val = input.value.trim().toUpperCase().replace(/\s+/g, '_'); if(val && !state.labels.includes(val)) { sfx.commit(); state.labels.push(val); saveState(); addLog('CFG', `Created label [${val}]`); renderSettings(); } else { sfx.error(); showToast("INVALID LABEL"); } };
+        const requestDeleteLabel = (lbl) => openCommit('PURGE LABEL', `Remove [${lbl}]?`, () => { state.labels = state.labels.filter(l => l !== lbl); saveState(); showToast('LABEL PURGED'); renderSettings(); });
 
-        const toggleSound = () => { state.settings.sound = !state.settings.sound; if(state.settings.sound) sfx.enter(); saveState(); renderSettings(); };
+        const exportData = () => { sfx.enter(); const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(JSON.stringify(state)); const link = document.createElement('a'); link.href = dataUri; link.download = `OS_NXT_${Date.now()}.json`; link.click(); showToast('EXPORT SUCCESS'); addLog('DATA', 'Exported memory state'); };
+        const handleImport = (e) => { const file = e.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (event) => { try { const tempImport = JSON.parse(event.target.result); if(tempImport.notes) openCommit('OVERWRITE SYS', 'Current data will be destroyed.', () => { state = tempImport; saveState(); document.body.setAttribute('data-theme', state.settings.theme); showToast('RESTORE SUCCESS'); addLog('SYS', 'Memory restored'); navigate('dashboard'); }); } catch(err) { sfx.error(); showToast('IMPORT FAIL'); } }; reader.readAsText(file); e.target.value = ''; };
 
-        const addNewLabel = () => {
-            const input = document.getElementById('new-label-input'); const val = input.value.trim().toUpperCase().replace(/\s+/g, '_');
-            if(val && !state.labels.includes(val)) { sfx.commit(); state.labels.push(val); saveState(); addLog('CFG', `Created label [${val}]`); renderSettings(); } 
-            else { sfx.error(); showToast("INVALID LABEL"); }
-        };
-
-        const requestDeleteLabel = (lbl) => openCommit('PURGE LABEL', `Remove [${lbl}]? Type 'ok'.`, () => {
-            state.labels = state.labels.filter(l => l !== lbl); saveState(); showToast('LABEL PURGED'); renderSettings();
-        });
-
-        // --- I/O ---
-        const exportData = () => {
-            sfx.enter(); const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(JSON.stringify(state));
-            const link = document.createElement('a'); link.href = dataUri; link.download = `OS_NXT_${Date.now()}.json`; link.click();
-            showToast('EXPORT SUCCESS'); addLog('DATA', 'Exported memory state');
-        };
-
-        let tempImport = null;
-        const handleImport = (e) => {
-            const file = e.target.files[0]; if(!file) return; const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    tempImport = JSON.parse(event.target.result);
-                    if(tempImport.notes) openCommit('OVERWRITE SYS', 'Warning: Current data destroyed. Type "ok".', () => {
-                        state = tempImport; saveState(); document.body.setAttribute('data-theme', state.settings.theme);
-                        showToast('RESTORE SUCCESS'); addLog('SYS', 'Memory restored'); navigate('dashboard');
-                    });
-                } catch(err) { sfx.error(); showToast('IMPORT FAIL'); }
-            }; reader.readAsText(file); e.target.value = '';
-        };
-
-        // --- COMMIT MODAL ---
-        let commitCallback = null;
-        const modal = document.getElementById('modal-overlay'); const modalInput = document.getElementById('modal-input');
-        
+        // --- COMMIT MODAL UX ---
+        let commitCallback = null; const modal = document.getElementById('modal-overlay'); const modalInput = document.getElementById('modal-input');
         const openCommit = (title, desc, callback) => {
-            sfx.error(); document.getElementById('modal-title').innerText = title; document.getElementById('modal-desc').innerText = desc;
-            modalInput.value = ''; commitCallback = callback; modal.style.display = 'flex'; setTimeout(() => modalInput.focus(), 100);
+            sfx.error(); document.getElementById('modal-title').innerText = title; document.getElementById('modal-desc').innerText = desc; modalInput.value = ''; commitCallback = callback; modal.style.display = 'flex'; 
+            modal.querySelector('.modal-box').classList.remove('glitch-fx'); void modal.offsetWidth; modal.querySelector('.modal-box').classList.add('glitch-fx'); setTimeout(() => modalInput.focus(), 100);
         };
         const closeModal = () => { sfx.enter(); modal.style.display = 'none'; commitCallback = null; };
+        document.getElementById('modal-confirm').addEventListener('click', () => { if(modalInput.value.toLowerCase() === 'ok') { sfx.commit(); modal.style.display = 'none'; if(commitCallback) commitCallback(); } else { sfx.error(); modalInput.value = ''; modalInput.placeholder = "INVALID."; } });
 
-        document.getElementById('modal-confirm').addEventListener('click', () => {
-            if(modalInput.value.toLowerCase() === 'ok') { sfx.commit(); modal.style.display = 'none'; if(commitCallback) commitCallback(); } 
-            else { sfx.error(); modalInput.value = ''; modalInput.placeholder = "INVALID."; }
-        });
-
-        // --- SYSTEM BOOT INIT ---
         window.onload = () => {
-            document.body.setAttribute('data-theme', state.settings.theme);
-            document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#030a03' : '#fdf6e3';
-            history.replaceState({ view: 'dashboard' }, "", "#dashboard");
-            renderDashboard();
-            document.body.addEventListener('click', initAudio, { once: true });
+            document.body.setAttribute('data-theme', state.settings.theme); document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#030a03' : '#fdf6e3'; history.replaceState({ view: 'dashboard' }, "", "#dashboard"); renderDashboard();
+            document.body.addEventListener('click', () => { if(!audioCtx) { initAudio(); sfx.boot(); } }, { once: true });
         };
-
     </script>
 </body>
 </html>
+
 
