@@ -8,7 +8,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" id="meta-theme-color" content="#020802">
+    <meta name="theme-color" id="meta-theme-color" content="#030a03">
     
     <title>OS-NXT // SYS</title>
     
@@ -16,16 +16,19 @@
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Share+Tech+Mono&display=swap');
 
         :root {
-            --bg-color: #020802;
+            --bg-color: #030a03;
             --text-color: #14ff14;
             --text-muted: #086b08;
             --accent: #22ff22;
-            /* CHROMATIC HALUS: 0.8px (Nyaman dibaca, tetap retro) + GLOW */
-            --glow: 0.8px 0px 0px rgba(255, 0, 0, 0.6), -0.8px 0px 0px rgba(0, 255, 255, 0.6), 0 0 6px rgba(20, 255, 20, 0.5);
-            --crt-line: rgba(20, 255, 20, 0.1);
+            
+            /* Chromatic Aberration Halus + Glow */
+            --glow-light: 0.8px 0px 0px rgba(255, 0, 0, 0.6), -0.8px 0px 0px rgba(0, 255, 255, 0.6), 0 0 4px rgba(20, 255, 20, 0.3);
+            --glow-heavy: 1.5px 0px 0px rgba(255, 0, 0, 0.7), -1.5px 0px 0px rgba(0, 255, 255, 0.7), 0 0 8px rgba(20, 255, 20, 0.7);
+            
+            --crt-line: rgba(20, 255, 20, 0.08);
             --chart-fill: rgba(20, 255, 20, 0.2);
             --font-main: 'Share Tech Mono', monospace;
-            --letter-space: 0.5px;
+            --letter-space: 0px;
             --border-style: solid;
         }
 
@@ -34,9 +37,10 @@
             --text-color: #073642; 
             --text-muted: #93a1a1;
             --accent: #dc322f; 
-            /* Linux Light: Sangat halus */
-            --glow: 0.5px 0px 0px rgba(220, 50, 47, 0.4), -0.5px 0px 0px rgba(42, 161, 152, 0.4);
-            --crt-line: rgba(0, 0, 0, 0.05);
+            /* Linux Light: Tipis banget */
+            --glow-light: 0.5px 0px 0px rgba(220, 50, 47, 0.3), -0.5px 0px 0px rgba(42, 161, 152, 0.3);
+            --glow-heavy: 1px 0px 0px rgba(220, 50, 47, 0.5), -1px 0px 0px rgba(42, 161, 152, 0.5), 0 0 5px rgba(7, 54, 66, 0.2);
+            --crt-line: rgba(0, 0, 0, 0.04);
             --chart-fill: rgba(7, 54, 66, 0.15);
             --font-main: 'Fira Code', monospace;
             --letter-space: -0.5px;
@@ -51,86 +55,96 @@
             display: flex; flex-direction: column;
             font-family: var(--font-main); color: var(--text-color);
             letter-spacing: var(--letter-space); text-transform: uppercase; font-size: 16px;
+            -webkit-font-smoothing: none; text-rendering: optimizeSpeed;
         }
 
         /* 1. Base Monitor Layer */
-        #screen-base { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); z-index: 1; transform: translateZ(0); }
+        #screen-base { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background-color: var(--bg-color); z-index: 1; transform: translateZ(0); 
+        }
 
-        /* 2. LOW-RES PIXEL MATRIX (Grid 4x4 bikin ilusi resolusi rendah) */
+        /* 2. TRUE DOT-MATRIX GRID */
         #crt-matrix {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(0, 0, 0, 0.2) 50%, transparent 50%),
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.03), rgba(0, 0, 255, 0.05));
-            background-size: 100% 4px, 4px 100%;
-            pointer-events: none; z-index: 2; transform: translateZ(0);
+            background: linear-gradient(rgba(0, 0, 0, 0.15) 50%, transparent 50%),
+                        linear-gradient(90deg, rgba(0, 0, 0, 0.15) 50%, transparent 50%);
+            background-size: 3px 3px; pointer-events: none; z-index: 2; transform: translateZ(0);
         }
 
         /* 3. VCR Tracking Line */
         .vcr-tracking {
-            width: 100%; height: 10px; z-index: 9; position: absolute; pointer-events: none;
-            background: rgba(255,255,255,0.02); box-shadow: 0 0 10px rgba(255,255,255,0.01);
-            animation: tracking 8s infinite linear; transform: translateZ(0);
+            width: 100%; height: 12px; z-index: 9; position: absolute; pointer-events: none;
+            background: rgba(255,255,255,0.02); box-shadow: 0 0 5px rgba(255,255,255,0.01);
+            animation: tracking 7s infinite linear; will-change: transform, top; transform: translateZ(0);
         }
         @keyframes tracking { 0% { top: -20px; } 100% { top: 110%; } }
 
-        /* 4. Fast Scanline */
+        /* Fast Scanline */
         .scanline {
             width: 100%; height: 150px; z-index: 10; position: absolute; pointer-events: none;
             background: linear-gradient(0deg, rgba(0,0,0,0) 0%, var(--crt-line) 50%, rgba(0,0,0,0) 100%);
-            animation: scan 4s linear infinite; transform: translateZ(0);
+            animation: scan 4s linear infinite; will-change: transform, top; transform: translateZ(0);
         }
         @keyframes scan { 0% { top: -150px; } 100% { top: 100%; } }
 
-        /* 5. Vignette (FLAT BORDERS) */
+        /* 4. POST-PROCESSING OVERLAY (KUNCI RAHASIA BLUR ANTI-LAG) */
         #crt-vignette {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, transparent 45%, rgba(0,0,0,0.85) 120%);
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.9);
-            border-radius: 0px; 
+            background: radial-gradient(circle at 50% 50%, transparent 45%, rgba(0,0,0,0.85) 110%);
             pointer-events: none; z-index: 99; transform: translateZ(0);
+            transition: backdrop-filter 0.3s ease;
+        }
+
+        /* Toggle Blur via Data Attribute di Body */
+        body[data-blur="true"] #crt-vignette {
+            backdrop-filter: blur(0.6px);
+            -webkit-backdrop-filter: blur(0.6px);
         }
 
         /* Phosphor Burst */
         .crt-flash { animation: burst 0.25s ease-out forwards; }
         @keyframes burst {
-            0% { filter: brightness(1.8) contrast(1.2); }
+            0% { filter: brightness(1.6) contrast(1.2); }
             100% { filter: brightness(1) contrast(1); }
         }
 
-        /* 6. Safe Area Container + ANALOG BLUR/LOW-RES FX */
+        /* Safe Area Container */
         .safe-area-wrapper {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; z-index: 20;
             padding-top: max(env(safe-area-inset-top), 15px);
-            /* FILTER BLUR HALUS: Bikin teks kelihatan nyatu sama layar jadul tanpa lag */
-            filter: blur(0.3px) contrast(1.1);
-            transform: translateZ(0);
         }
 
-        #viewport { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; padding-bottom: 110px; text-shadow: var(--glow); position: relative; }
+        #viewport { 
+            flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; padding-bottom: 110px; 
+            text-shadow: var(--glow-light); position: relative; will-change: transform; 
+        }
 
         #bottom-nav {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
             background: var(--bg-color); border-top: 2px var(--border-style) var(--text-color);
             display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -10px 20px rgba(0,0,0,0.8); z-index: 50;
+            padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -5px 15px rgba(0,0,0,0.8); z-index: 50;
+            text-shadow: var(--glow-heavy); 
         }
 
-        .nav-btn { background: none; border: none; color: var(--text-muted); font-family: var(--font-main); font-size: 1.4rem; cursor: pointer; padding: 15px 10px; font-weight: bold; flex: 1; transition: 0.1s; user-select: none;}
-        .nav-btn.active { color: var(--text-color); text-shadow: var(--glow); border-bottom: 5px solid var(--text-color); }
+        .nav-btn { background: none; border: none; color: var(--text-muted); font-family: var(--font-main); font-size: 1.4rem; cursor: pointer; padding: 15px 10px; font-weight: bold; flex: 1; transition: 0.1s; user-select: none; text-shadow: none;}
+        .nav-btn.active { color: var(--text-color); text-shadow: var(--glow-heavy); border-bottom: 5px solid var(--text-color); }
 
-        h1, h2, h3 { border-bottom: 2px var(--border-style) var(--text-color); padding-bottom: 8px; margin-bottom: 18px; font-size: 1.4rem; font-weight: bold; }
-        button, input { font-family: var(--font-main); color: var(--text-color); background: transparent; border: 2px var(--border-style) var(--text-color); outline: none; padding: 14px; text-shadow: var(--glow); text-transform: uppercase; font-size: 1.1rem; }
-        button { cursor: pointer; font-weight: bold; user-select: none;}
+        h1, h2, h3 { border-bottom: 2px var(--border-style) var(--text-color); padding-bottom: 8px; margin-bottom: 18px; font-size: 1.4rem; font-weight: bold; text-shadow: var(--glow-heavy); }
+        button, input { font-family: var(--font-main); color: var(--text-color); background: transparent; border: 2px var(--border-style) var(--text-color); outline: none; padding: 14px; text-transform: uppercase; font-size: 1.1rem; text-shadow: var(--glow-light);}
+        button { cursor: pointer; font-weight: bold; user-select: none; text-shadow: var(--glow-heavy);}
         button:active { background: var(--text-color); color: var(--bg-color); }
         input::placeholder { color: var(--text-muted); opacity: 0.6; text-transform: uppercase; }
 
+        /* THE FLOATING FAB */
         .fab-btn {
             position: absolute; bottom: 100px; right: 20px; z-index: 40;
             width: 65px; height: 65px; font-size: 2.2rem; font-weight: bold; background: var(--bg-color);
             box-shadow: -4px 4px 0px var(--text-muted); border: 2px solid var(--text-color); 
             display: flex; justify-content: center; align-items: center;
-            color: var(--text-color); cursor: pointer; user-select: none;
+            color: var(--text-color); cursor: pointer; user-select: none; text-shadow: var(--glow-heavy);
         }
         .fab-btn:active { box-shadow: 0 0 0 transparent; transform: translate(-4px, 4px); background: var(--text-color); color: var(--bg-color); }
 
@@ -138,19 +152,19 @@
         .editor-container { 
             position: relative; width: 100%; height: 50vh; margin-top: 10px; 
             border: 2px var(--border-style) var(--text-color); background: rgba(0,0,0,0.3);
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.7);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
         }
         
         #edit-content {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             font-family: var(--font-main); font-size: 1.2rem; line-height: 1.5; padding: 15px; 
             overflow-y: auto; outline: none; text-transform: none; user-select: text;
-            caret-color: var(--text-color);
+            caret-color: var(--text-color); text-shadow: var(--glow-light);
         }
         
-        #edit-content h1 { font-size: 2.2rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; text-shadow: var(--glow); }
-        #edit-content h2 { font-size: 1.8rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; text-shadow: var(--glow); }
-        #edit-content b, #edit-content strong { font-weight: bold; color: var(--text-color); text-shadow: var(--glow); }
+        #edit-content h1 { font-size: 2.2rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; text-shadow: var(--glow-heavy); }
+        #edit-content h2 { font-size: 1.8rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; text-shadow: var(--glow-heavy); }
+        #edit-content b, #edit-content strong { font-weight: bold; color: var(--accent); text-shadow: var(--glow-heavy); }
         #edit-content i, #edit-content em { font-style: italic; opacity: 0.9; }
         #edit-content ol, #edit-content ul { padding-left: 25px; margin-bottom: 10px; list-style-position: outside; }
         #edit-content li { margin-bottom: 5px; }
@@ -159,7 +173,7 @@
         #format-toolbar {
             position: fixed; 
             background: var(--bg-color); border: 2px solid var(--text-color); 
-            box-shadow: 0 15px 25px rgba(0,0,0,0.9), 0 0 15px var(--glow);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.9);
             display: none; flex-direction: row; align-items: center; z-index: 80; padding: 2px;
             transition: top 0.1s ease, left 0.1s ease; 
             transform: translate(-50%, -100%); 
@@ -180,19 +194,19 @@
         .fmt-btn:active { background: var(--text-color); color: var(--bg-color); }
 
         .chart-box { border: 2px var(--border-style) var(--text-color); padding: 10px; margin-top: 25px; margin-bottom: 10px; position: relative; background: rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; }
-        .chart-label { position: absolute; top: -14px; left: 10px; font-size: 0.9rem; background: var(--bg-color); padding: 0 8px; font-weight: bold; border-left: 2px solid var(--text-color); border-right: 2px solid var(--text-color); color: var(--text-color); z-index: 2; }
-        canvas { display: block; width: 100%; image-rendering: pixelated; } /* Bikin canvas agak kotak2 jadul */
+        .chart-label { position: absolute; top: -14px; left: 10px; font-size: 0.9rem; background: var(--bg-color); padding: 0 8px; font-weight: bold; border-left: 2px solid var(--text-color); border-right: 2px solid var(--text-color); color: var(--text-color); z-index: 2; text-shadow: var(--glow-heavy);}
+        canvas { display: block; width: 100%; image-rendering: pixelated; }
 
         .note-card { border: 2px var(--border-style) var(--text-color); padding: 15px; margin-bottom: 15px; cursor: pointer; position: relative; display: block; width: 100%; text-align: left; user-select: none;}
         .note-card:active { background: var(--chart-fill); }
         .note-date { font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; display: block;}
-        .pin-badge { position: absolute; top: 0; right: 0; background: var(--text-color); color: var(--bg-color); font-size: 0.8rem; padding: 2px 8px; font-weight: bold;}
+        .pin-badge { position: absolute; top: 0; right: 0; background: var(--text-color); color: var(--bg-color); font-size: 0.8rem; padding: 2px 8px; font-weight: bold; text-shadow: none;}
         
         .label-badge { display: inline-block; padding: 4px 8px; font-size: 0.8rem; border: 1px solid var(--text-color); color: var(--text-color); margin-right: 5px; margin-top: 5px; background: var(--chart-fill); }
         .swipe-labels { display: flex; overflow-x: auto; white-space: nowrap; padding-bottom: 10px; align-items: center; scrollbar-width: none; user-select: none; }
         .swipe-labels::-webkit-scrollbar { display: none; }
         .swipe-labels span { display: inline-block; cursor: pointer; border: 2px dashed var(--text-muted); padding: 6px 12px; margin-right: 8px; font-weight: bold; flex-shrink: 0; }
-        .swipe-labels span.active-tag { border: 2px solid var(--accent); background: var(--chart-fill); color: var(--text-color); }
+        .swipe-labels span.active-tag { border: 2px solid var(--accent); background: var(--chart-fill); color: var(--text-color); text-shadow: var(--glow-heavy);}
 
         .timeline-item { border-left: 2px var(--border-style) var(--text-color); padding-left: 20px; margin-bottom: 20px; position: relative; font-size: 1rem; line-height: 1.4;}
         .timeline-item::before { content: ''; position: absolute; left: -8px; top: 0; width: 14px; height: 14px; background: var(--bg-color); border: 2px solid var(--text-color); }
@@ -202,19 +216,19 @@
         .flex-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 
         .stat-block { flex: 1; border: 2px var(--border-style) var(--text-color); padding: 15px 10px; text-align: center; display: flex; flex-direction: column; justify-content: center;}
-        .stat-val { font-size: 1.6rem; font-weight: bold; }
+        .stat-val { font-size: 1.6rem; font-weight: bold; text-shadow: var(--glow-heavy);}
         .stat-lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;}
         .hex-anim { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px; word-break: break-all;}
         .blink-fast { animation: blink 0.5s step-end infinite; }
 
         #modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; display: none; justify-content: center; align-items: center; padding: 20px; transform: translateZ(0);}
         .modal-box { border: 2px solid var(--text-color); background: var(--bg-color); padding: 25px; width: 100%; max-width: 400px; text-align: center; box-shadow: -10px 10px 0px var(--chart-fill); z-index: 101; }
-        .modal-box input { width: 100%; margin: 20px 0; text-align: center; font-size: 1.8rem; text-transform: uppercase; user-select: auto; }
+        .modal-box input { width: 100%; margin: 20px 0; text-align: center; font-size: 1.8rem; text-transform: uppercase; user-select: auto; text-shadow: var(--glow-light); }
 
-        #toast { position: absolute; top: 50px; left: 50%; transform: translateX(-50%); background: var(--text-color); color: var(--bg-color); padding: 12px 25px; font-weight: bold; font-size: 1.2rem; z-index: 120; opacity: 0; pointer-events: none; transition: opacity 0.2s; border: 2px solid var(--bg-color); box-shadow: 0 0 20px var(--glow); }
+        #toast { position: absolute; top: 50px; left: 50%; transform: translateX(-50%); background: var(--text-color); color: var(--bg-color); padding: 12px 25px; font-weight: bold; font-size: 1.2rem; z-index: 120; opacity: 0; pointer-events: none; transition: opacity 0.2s; border: 2px solid var(--bg-color); box-shadow: 0 0 20px rgba(0,0,0,0.9); }
     </style>
 </head>
-<body data-theme="pipboy">
+<body data-theme="pipboy" data-blur="true">
 
     <div id="screen-base">
         <div id="crt-matrix"></div>
@@ -222,6 +236,7 @@
         <div class="scanline"></div>
     </div>
     
+    <!-- Lensa Tabung dengan Post-Processing Blur -->
     <div id="crt-vignette"></div>
     
     <div id="toast">[ SYS MSG ]</div>
@@ -264,26 +279,35 @@
 
     <script>
         /** * OS-NXT CORE LOGIC
-         * Hardware Accelerated VHS + Subtle Chromatic. Analog Softness.
+         * Ultra-optimized Rendering. Hardware Accelerated Blur Filter.
          */
 
         const setupPWA = () => {
-            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#020802"/><text x="50" y="65" font-family="monospace" font-size="50" font-weight="bold" fill="#14ff14" text-anchor="middle">&gt;_</text></svg>`;
+            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#030a03"/><text x="50" y="65" font-family="monospace" font-size="50" font-weight="bold" fill="#14ff14" text-anchor="middle">&gt;_</text></svg>`;
             const encodedIcon = "data:image/svg+xml;base64," + btoa(svgIcon);
             const link = document.createElement('link'); link.rel = 'icon'; link.href = encodedIcon; document.head.appendChild(link);
-            const manifest = { name: "OS-NXT", short_name: "OS-NXT", display: "fullscreen", orientation: "portrait", background_color: "#020802", theme_color: "#020802" };
+            const manifest = { name: "OS-NXT", short_name: "OS-NXT", display: "fullscreen", orientation: "portrait", background_color: "#030a03", theme_color: "#030a03" };
             const manifestLink = document.createElement('link'); manifestLink.rel = 'manifest'; manifestLink.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest)); document.head.appendChild(manifestLink);
         };
         setupPWA();
 
-        let state = { notes: [], labels: ['TUGAS', 'PRIBADI', 'IDE'], logs: [], settings: { theme: 'pipboy', sound: true }, currentView: 'dashboard', activeNoteId: null, filterLabel: null };
+        let state = { 
+            notes: [], labels: ['TUGAS', 'PRIBADI', 'IDE'], logs: [], 
+            settings: { theme: 'pipboy', sound: true, blur: true }, // Added blur to settings
+            currentView: 'dashboard', activeNoteId: null, filterLabel: null 
+        };
+        
         let pristineEditorState = ""; let editorHistory = []; let historyIndex = -1;
 
         try {
             const memNotes = localStorage.getItem('os-nxt-notes'); if(memNotes) state.notes = JSON.parse(memNotes);
             const memLabels = localStorage.getItem('os-nxt-labels'); if(memLabels) state.labels = JSON.parse(memLabels);
             const memLogs = localStorage.getItem('os-nxt-logs'); if(memLogs) state.logs = JSON.parse(memLogs);
-            const memSettings = localStorage.getItem('os-nxt-settings'); if(memSettings) state.settings = JSON.parse(memSettings);
+            const memSettings = localStorage.getItem('os-nxt-settings'); 
+            if(memSettings) {
+                const parsed = JSON.parse(memSettings);
+                state.settings = { ...state.settings, ...parsed }; // Merge to keep default blur if missing
+            }
         } catch (e) { localStorage.clear(); }
 
         let sessionStartTime = Date.now();
@@ -473,7 +497,7 @@
             const animate = (time) => {
                 if(state.currentView !== 'dashboard') return;
                 activeFrames.push(requestAnimationFrame(animate));
-                if(time - lastTime < 50) return; // 20fps
+                if(time - lastTime < 50) return; // OPTIMIZED: Throttle to ~20fps
                 lastTime = time;
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -668,14 +692,26 @@
             document.getElementById('viewport').innerHTML = `
                 <h2>SYS.CONFIG</h2>
                 <div class="hex-anim"><span class="blink-fast">_></span> ROOT_ACCESS: GRANTED</div>
+                
                 <div class="flex-between" style="border:2px var(--border-style) var(--text-color); padding:15px; margin-bottom:15px;">
                     <span style="font-weight:bold; font-size:1.1rem;">UI ENVIRONMENT</span>
                     <button onclick="toggleTheme()" style="border-style:dashed;">${state.settings.theme === 'pipboy' ? 'DARK (PIPBOY)' : 'LIGHT (LINUX)'}</button>
                 </div>
+                
                 <div class="flex-between" style="border:2px var(--border-style) var(--text-color); padding:15px; margin-bottom:15px;">
                     <span style="font-weight:bold; font-size:1.1rem;">AUDIO FEEDBACK</span>
                     <button onclick="toggleSound()" style="border-style:dashed;">${state.settings.sound ? 'ENABLED' : 'MUTED'}</button>
                 </div>
+                
+                <!-- NEW OPTION: CRT BLUR -->
+                <div class="flex-between" style="border:2px var(--border-style) var(--text-color); padding:15px; margin-bottom:15px;">
+                    <div>
+                        <span style="font-weight:bold; font-size:1.1rem; display:block;">CRT LENS BLUR</span>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Toggle if UI feels heavy</span>
+                    </div>
+                    <button onclick="toggleBlur()" style="border-style:dashed;">${state.settings.blur ? 'ACTIVE' : 'DISABLED'}</button>
+                </div>
+
                 <h3>LABEL DATABASE</h3>
                 <div style="border: 2px dashed var(--text-color); padding: 15px; margin-bottom: 20px;">
                     <div style="margin-bottom: 15px;">
@@ -691,11 +727,13 @@
 
         const toggleTheme = () => { sfx.enter(); state.settings.theme = state.settings.theme === 'pipboy' ? 'linux' : 'pipboy'; document.body.setAttribute('data-theme', state.settings.theme); document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#020802' : '#fdf6e3'; saveState(); renderSettings(); addLog('CFG', `Environment set to ${state.settings.theme}`); };
         const toggleSound = () => { state.settings.sound = !state.settings.sound; if(state.settings.sound) sfx.enter(); manageHumFX(); saveState(); renderSettings(); };
+        const toggleBlur = () => { sfx.enter(); state.settings.blur = !state.settings.blur; document.body.setAttribute('data-blur', state.settings.blur); saveState(); renderSettings(); };
+
         const addNewLabel = () => { const input = document.getElementById('new-label-input'); const val = input.value.trim().toUpperCase().replace(/\s+/g, '_'); if(val && !state.labels.includes(val)) { sfx.commit(); state.labels.push(val); saveState(); addLog('CFG', `Created label [${val}]`); renderSettings(); } else { sfx.error(); showToast("INVALID LABEL"); } };
         const requestDeleteLabel = (lbl) => openCommit('PURGE LABEL', `Remove [${lbl}]?`, () => { state.labels = state.labels.filter(l => l !== lbl); saveState(); showToast('LABEL PURGED'); renderSettings(); });
 
         const exportData = () => { sfx.enter(); const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(JSON.stringify(state)); const link = document.createElement('a'); link.href = dataUri; link.download = `OS_NXT_${Date.now()}.json`; link.click(); showToast('EXPORT SUCCESS'); addLog('DATA', 'Exported memory state'); };
-        const handleImport = (e) => { const file = e.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (event) => { try { const tempImport = JSON.parse(event.target.result); if(tempImport.notes) openCommit('OVERWRITE SYS', 'Current data will be destroyed.', () => { state = tempImport; saveState(); document.body.setAttribute('data-theme', state.settings.theme); showToast('RESTORE SUCCESS'); addLog('SYS', 'Memory restored'); forceNavigate('dashboard'); }); } catch(err) { sfx.error(); showToast('IMPORT FAIL'); } }; reader.readAsText(file); e.target.value = ''; };
+        const handleImport = (e) => { const file = e.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (event) => { try { const tempImport = JSON.parse(event.target.result); if(tempImport.notes) openCommit('OVERWRITE SYS', 'Current data will be destroyed.', () => { state = tempImport; saveState(); document.body.setAttribute('data-theme', state.settings.theme); document.body.setAttribute('data-blur', state.settings.blur); showToast('RESTORE SUCCESS'); addLog('SYS', 'Memory restored'); forceNavigate('dashboard'); }); } catch(err) { sfx.error(); showToast('IMPORT FAIL'); } }; reader.readAsText(file); e.target.value = ''; };
 
         // --- STRICT MODAL UX ---
         let commitCallback = null; const modal = document.getElementById('modal-overlay'); const modalInput = document.getElementById('modal-input');
@@ -707,7 +745,13 @@
         document.getElementById('modal-confirm').addEventListener('click', () => { if(modalInput.value.toLowerCase() === 'ok') { sfx.commit(); modal.style.display = 'none'; if(commitCallback) commitCallback(); } else { sfx.error(); modalInput.value = ''; modalInput.placeholder = "INVALID. TYPE 'OK'"; } });
 
         window.onload = () => {
-            document.body.setAttribute('data-theme', state.settings.theme); document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#020802' : '#fdf6e3'; history.replaceState({ view: 'dashboard' }, "", "#dashboard"); forceNavigate('dashboard');
+            document.body.setAttribute('data-theme', state.settings.theme); 
+            // Setting Default Blur Logic
+            if(state.settings.blur === undefined) state.settings.blur = true;
+            document.body.setAttribute('data-blur', state.settings.blur);
+            document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#020802' : '#fdf6e3'; 
+            
+            history.replaceState({ view: 'dashboard' }, "", "#dashboard"); forceNavigate('dashboard');
             document.body.addEventListener('click', () => { if(!audioCtx) { initAudio(); sfx.boot(); } }, { once: true });
         };
     </script>
