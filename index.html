@@ -20,7 +20,8 @@
             --text-color: #14ff14;
             --text-muted: #086b08;
             --accent: #22ff22;
-            --glow: 1px 0px 1px rgba(255,0,0,0.5), -1px 0px 1px rgba(0,0,255,0.5), 0 0 10px rgba(20, 255, 20, 0.7);
+            /* Glow dioptimalkan: 1 layer ringan */
+            --glow: 0 0 8px rgba(20, 255, 20, 0.5);
             --crt-line: rgba(20, 255, 20, 0.1);
             --chart-fill: rgba(20, 255, 20, 0.2);
             --font-main: 'Share Tech Mono', monospace;
@@ -51,51 +52,52 @@
             letter-spacing: var(--letter-space); text-transform: uppercase; font-size: 16px;
         }
 
-        /* Base Monitor Layer */
-        #screen-base { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); z-index: 1; }
+        /* 1. Base Monitor Layer (Hardware Accelerated) */
+        #screen-base { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background-color: var(--bg-color); z-index: 1; 
+            transform: translateZ(0); /* Paksa GPU rendering */
+        }
 
-        /* RGB Sub-Pixel Matrix */
+        /* 2. RGB Sub-Pixel Matrix (Sangat ringan) */
         #crt-matrix {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(90deg, rgba(255,0,0,0.03), rgba(0,255,0,0.02), rgba(0,0,255,0.03));
             background-size: 3px 100%; pointer-events: none; z-index: 2;
+            transform: translateZ(0);
         }
 
-        /* SVG Static Noise & Scanline */
+        /* 3. Pre-baked Noise Texture (NO MATH, NO LAG) */
         #noise-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-            opacity: 0.04; pointer-events: none; z-index: 11;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyAQMAAAAk8RryAAAABlBMVEUAAAD///+l2Z/dAAAAEklEQVQI12P4//8/AxJgo1z//8HwP4EMAAARuF3/q8wRzQAAAABJRU5ErkJggg==');
+            background-repeat: repeat; opacity: 0.15; pointer-events: none; z-index: 11;
+            transform: translateZ(0); mix-blend-mode: overlay;
         }
 
         .scanline {
             width: 100%; height: 150px; z-index: 9; position: absolute; pointer-events: none;
             background: linear-gradient(0deg, rgba(0,0,0,0) 0%, var(--crt-line) 50%, rgba(0,0,0,0) 100%);
-            animation: scan 5s linear infinite; opacity: 0.9;
+            animation: scan 6s linear infinite; opacity: 0.7; transform: translateZ(0);
         }
         @keyframes scan { 0% { top: -150px; } 100% { top: 100%; } }
 
-        /* Layar Cembung Ekstrem */
+        /* 4. Layar Cembung Ekstrem */
         #crt-vignette {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(0,0,0,0.95) 130%);
-            box-shadow: inset 0 0 60px rgba(0,0,0,0.95); 
-            border-radius: 20px; pointer-events: none; z-index: 99;
-        }
-        #crt-glare {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(120deg, rgba(255,255,255,0.03) 0%, transparent 30%, transparent 60%, rgba(255,255,255,0.01) 100%);
-            pointer-events: none; z-index: 98;
+            box-shadow: inset 0 0 60px rgba(0,0,0,0.9); 
+            border-radius: 20px; pointer-events: none; z-index: 99; transform: translateZ(0);
         }
 
-        /* Phosphor Burst */
-        .crt-flash { animation: burst 0.3s ease-out forwards; }
+        /* Phosphor Burst (Optimized) */
+        .crt-flash { animation: burst 0.25s ease-out forwards; }
         @keyframes burst {
-            0% { filter: brightness(2) contrast(1.5) saturate(1.5); }
-            100% { filter: brightness(1) contrast(1) saturate(1); }
+            0% { filter: brightness(2) contrast(1.2); }
+            100% { filter: brightness(1) contrast(1); }
         }
 
-        /* Safe Area Container */
+        /* 5. Safe Area Container */
         .safe-area-wrapper {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; z-index: 20;
@@ -120,12 +122,15 @@
         button:active { background: var(--text-color); color: var(--bg-color); }
         input::placeholder { color: var(--text-muted); opacity: 0.6; text-transform: uppercase; }
 
+        /* THE FLOATING FAB */
         .fab-btn {
-            position: fixed; bottom: 100px; right: 20px; z-index: 15;
+            position: absolute; bottom: 100px; right: 20px; z-index: 40;
             width: 65px; height: 65px; font-size: 2.2rem; font-weight: bold; background: var(--bg-color);
-            box-shadow: -5px 5px 0px var(--text-muted); border: 2px solid var(--text-color); display: flex; justify-content: center; align-items: center;
+            box-shadow: -5px 5px 0px var(--text-muted); border: 2px solid var(--text-color); 
+            display: flex; justify-content: center; align-items: center;
+            color: var(--text-color); cursor: pointer; user-select: none;
         }
-        .fab-btn:active { box-shadow: 0 0 0 transparent; transform: translate(-5px, 5px); }
+        .fab-btn:active { box-shadow: 0 0 0 transparent; transform: translate(-5px, 5px); background: var(--text-color); color: var(--bg-color); }
 
         /* ADVANCED EDITOR */
         .editor-container { 
@@ -141,14 +146,14 @@
             caret-color: var(--text-color);
         }
         
-        #edit-content h1 { font-size: 2.2rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; text-shadow: var(--glow); }
-        #edit-content h2 { font-size: 1.8rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; text-shadow: var(--glow); }
-        #edit-content b, #edit-content strong { font-weight: bold; text-shadow: var(--glow); color: var(--accent); }
+        #edit-content h1 { font-size: 2.2rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; }
+        #edit-content h2 { font-size: 1.8rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; }
+        #edit-content b, #edit-content strong { font-weight: bold; color: var(--accent); }
         #edit-content i, #edit-content em { font-style: italic; opacity: 0.9; }
         #edit-content ol, #edit-content ul { padding-left: 25px; margin-bottom: 10px; list-style-position: outside; }
         #edit-content li { margin-bottom: 5px; }
 
-        /* DYNAMIC FLOATING TOOLBAR (SMART BOUNDARY) */
+        /* DYNAMIC FLOATING TOOLBAR */
         #format-toolbar {
             position: fixed; 
             background: var(--bg-color); border: 2px solid var(--text-color); 
@@ -158,17 +163,13 @@
             transform: translate(-50%, -100%); 
             margin-top: -15px; 
         }
-        /* Arrow default (nunjuk ke bawah) */
         #format-toolbar::after {
             content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
             border-width: 8px 8px 0; border-style: solid;
             border-color: var(--text-color) transparent transparent transparent; display: block; width: 0;
         }
 
-        /* Class kalau nabrak plafon, jungkir balik ke bawah teks */
-        #format-toolbar.flip-down {
-            transform: translate(-50%, 0); margin-top: 15px;
-        }
+        #format-toolbar.flip-down { transform: translate(-50%, 0); margin-top: 15px; }
         #format-toolbar.flip-down::after {
             top: -8px; bottom: auto;
             border-width: 0 8px 8px; border-style: solid;
@@ -207,9 +208,8 @@
         .hex-anim { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px; word-break: break-all;}
         .blink-fast { animation: blink 0.5s step-end infinite; }
 
-        #modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; display: none; justify-content: center; align-items: center; padding: 20px; }
+        #modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; display: none; justify-content: center; align-items: center; padding: 20px; transform: translateZ(0);}
         .modal-box { border: 2px solid var(--text-color); background: var(--bg-color); padding: 25px; width: 100%; max-width: 400px; text-align: center; box-shadow: -10px 10px 0px var(--chart-fill); z-index: 101; }
-        
         .modal-box input { width: 100%; margin: 20px 0; text-align: center; font-size: 1.8rem; text-transform: uppercase; user-select: auto; }
 
         #toast { position: absolute; top: 50px; left: 50%; transform: translateX(-50%); background: var(--text-color); color: var(--bg-color); padding: 12px 25px; font-weight: bold; font-size: 1.2rem; z-index: 120; opacity: 0; pointer-events: none; transition: opacity 0.2s; border: 2px solid var(--bg-color); box-shadow: 0 0 20px var(--glow); }
@@ -223,15 +223,15 @@
         <div class="scanline"></div>
     </div>
     
-    <div id="crt-glare"></div>
     <div id="crt-vignette"></div>
-    
     <div id="toast">[ SYS MSG ]</div>
 
     <div class="safe-area-wrapper">
         <div id="viewport">
             <!-- Content injected here -->
         </div>
+
+        <button id="main-fab" class="fab-btn" onclick="addNote()" style="display:none;">[+]</button>
 
         <!-- Custom DYNAMIC Format Toolbar -->
         <div id="format-toolbar">
@@ -264,7 +264,7 @@
 
     <script>
         /** * OS-NXT CORE LOGIC
-         * Absolute Nav Intercept (Save on back). Boundary Toolbar.
+         * Absolute Optimization. 60FPS UI. Smart Memory.
          */
 
         const setupPWA = () => {
@@ -297,9 +297,16 @@
         const getStorageSize = () => { let total = 0; for(let x in localStorage) { if(localStorage.hasOwnProperty(x)) total += ((localStorage[x].length + x.length) * 2); } return (total / 1024).toFixed(1); };
         const fmtDate = (iso) => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
         const stripHTML = (html) => { const tmp = document.createElement("DIV"); tmp.innerHTML = html; return tmp.textContent || tmp.innerText || ""; };
-        const showToast = (msg) => { const t = document.getElementById('toast'); t.innerText = `[ ${msg} ]`; t.style.opacity = 1; setTimeout(() => t.style.opacity = 0, 2000); };
+        
+        let toastTimeout;
+        const showToast = (msg) => { 
+            const t = document.getElementById('toast'); 
+            t.innerText = `[ ${msg} ]`; t.style.opacity = 1; 
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => t.style.opacity = 0, 2000); 
+        };
 
-        // --- HEAVY ANALOG AUDIO ENGINE ---
+        // --- AUDIO ENGINE ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx, humOsc, humGain, noiseSource, noiseFilter, noiseGain;
         
@@ -339,9 +346,13 @@
             boot: () => { analogHit(200, 600, 0.2, 0.1); setTimeout(()=>analogHit(600, 1000, 0.3, 0.1), 200); }
         };
 
-        // --- NAVIGATION & ANIMATIONS ---
-        let activeAnimations = [];
-        const clearAnimations = () => { activeAnimations.forEach(id => cancelAnimationFrame(id)); activeAnimations = []; document.getElementById('format-toolbar').style.display = 'none'; };
+        // --- OPTIMIZED ANIMATION ENGINE ---
+        let activeFrames = []; let activeTimeouts = [];
+        const clearAnimations = () => { 
+            activeFrames.forEach(id => cancelAnimationFrame(id)); activeFrames = []; 
+            activeTimeouts.forEach(id => clearTimeout(id)); activeTimeouts = [];
+            document.getElementById('format-toolbar').style.display = 'none'; 
+        };
         const triggerFlash = () => { const vp = document.getElementById('viewport'); vp.classList.remove('crt-flash'); void vp.offsetWidth; vp.classList.add('crt-flash'); };
 
         const forceNavigate = (view, silent = false) => {
@@ -351,11 +362,14 @@
             const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.innerText.includes(view === 'notes' || view === 'editor' ? 'DATA' : (view === 'log' ? 'LOG' : (view === 'settings' ? 'CFG' : 'SYS'))));
             if(activeBtn) activeBtn.classList.add('active');
 
+            const fab = document.getElementById('main-fab');
+            if(fab) fab.style.display = (view === 'notes') ? 'flex' : 'none';
+
             if(view === 'dashboard') renderDashboard(); else if(view === 'notes') renderNotes(); else if(view === 'editor') renderEditor(); else if(view === 'log') renderLog(); else if(view === 'settings') renderSettings();
             if(!silent) history.pushState({ view: view }, "", `#${view}`);
         };
 
-        // THE ABSOLUTE NAV INTERCEPTOR (SAVE DEFAULT)
+        // NAV INTERCEPTOR
         const navigate = (view, silent = false) => {
             if (state.currentView === 'editor' && view !== 'editor') {
                 const note = state.notes.find(n => n.id === state.activeNoteId);
@@ -363,7 +377,6 @@
                 
                 if (currentState !== pristineEditorState || (note._isNew && (note.title !== '' || document.getElementById('edit-content').innerHTML !== ''))) {
                     sfx.error(); showToast("WARN: UNSAVED DATA!");
-                    // LOGIKA BERUBAH: Paksa SAVE bukan Discard
                     openCommit('SAVE CHANGES', 'Unsaved data detected. Type "ok" to SAVE.', () => {
                         captureDraft(); const n = state.notes.find(n => n.id === state.activeNoteId);
                         n.timestamp = new Date().toISOString(); delete n._isNew; 
@@ -377,16 +390,14 @@
             forceNavigate(view, silent);
         };
 
-        // HARDWARE BACK BUTTON INTERCEPTOR (SAVE DEFAULT)
         window.addEventListener('popstate', (e) => {
             if (state.currentView === 'editor') { 
-                history.pushState({ view: 'editor' }, "", "#editor"); // Tahan paksa
+                history.pushState({ view: 'editor' }, "", "#editor"); 
                 const note = state.notes.find(n => n.id === state.activeNoteId);
                 const currentState = JSON.stringify({ t: document.getElementById('edit-title').value, c: document.getElementById('edit-content').innerHTML });
                 
                 if (currentState !== pristineEditorState || (note._isNew && (note.title !== '' || document.getElementById('edit-content').innerHTML !== ''))) {
                     sfx.error(); showToast("WARN: UNSAVED DATA!");
-                    // LOGIKA BERUBAH: Paksa SAVE bukan Discard
                     openCommit('SAVE CHANGES', 'Unsaved data detected. Type "ok" to SAVE.', () => {
                         captureDraft(); const n = state.notes.find(n => n.id === state.activeNoteId);
                         n.timestamp = new Date().toISOString(); delete n._isNew; 
@@ -421,7 +432,7 @@
                 <h3 style="margin-top: 25px;">QUICK COMMANDS</h3>
                 <div class="grid-2"><button onclick="addNote()">[+] NEW</button><button style="border-color:red; color:red;" onclick="requestClearLogs()">FLUSH</button></div>
             `;
-            setTimeout(() => { if(state.currentView !== 'dashboard') return; drawPieChart(); drawRadarScanner(storageKB); }, 50);
+            activeTimeouts.push(setTimeout(() => { if(state.currentView !== 'dashboard') return; drawPieChart(); drawRadarScanner(storageKB); }, 50));
             updateUptime(); if(!state.logs.length || state.logs[0].action !== 'SYSTEM') addLog('SYSTEM', 'SYS Diagnostics Active');
         };
 
@@ -429,7 +440,7 @@
             if(state.currentView !== 'dashboard') return;
             const el = document.getElementById('uptime-val'); if(!el) return;
             const diff = Math.floor((Date.now() - sessionStartTime) / 1000); el.innerText = `${String(Math.floor(diff / 60)).padStart(2, '0')}:${String(diff % 60).padStart(2, '0')}`;
-            activeAnimations.push(requestAnimationFrame(updateUptime));
+            activeTimeouts.push(setTimeout(updateUptime, 1000)); 
         };
 
         const drawPieChart = () => {
@@ -458,8 +469,13 @@
             const color = getComputedStyle(document.body).getPropertyValue('--text-color').trim(); const bgColor = getComputedStyle(document.body).getPropertyValue('--bg-color').trim();
             const crtLine = getComputedStyle(document.body).getPropertyValue('--crt-line').trim(); const chartFill = getComputedStyle(document.body).getPropertyValue('--chart-fill').trim();
             
-            const animate = () => {
+            let lastTime = 0;
+            const animate = (time) => {
                 if(state.currentView !== 'dashboard') return;
+                activeFrames.push(requestAnimationFrame(animate));
+                if(time - lastTime < 50) return; // OPTIMIZED: Throttle to ~20fps
+                lastTime = time;
+
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.strokeStyle = crtLine; ctx.lineWidth = 1;
                 ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.arc(cx, cy, radius*0.5, 0, Math.PI*2); ctx.stroke();
@@ -470,8 +486,9 @@
                 ctx.fillStyle = bgColor; ctx.fillRect(cx - 30, cy - 12, 60, 24); ctx.strokeStyle = color; ctx.strokeRect(cx - 30, cy - 12, 60, 24);
                 ctx.fillStyle = color; ctx.font = "14px monospace"; ctx.textAlign="center";
                 ctx.fillText(storage > 1000 ? (storage/1024).toFixed(1)+'M' : storage+'K', cx, cy + 5);
-                angle += 0.04; activeAnimations.push(requestAnimationFrame(animate));
-            }; animate();
+                angle += 0.05; 
+            }; 
+            activeFrames.push(requestAnimationFrame(animate));
         };
 
         const requestClearLogs = () => { openCommit('FLUSH SYS LOGS', 'Erase all trace data?', () => { state.logs = []; saveState(); showToast('LOGS FLUSHED'); renderDashboard(); }); };
@@ -487,7 +504,6 @@
                     ${state.labels.map(l => `<span onclick="setFilter('${l}')" class="${state.filterLabel === l ? 'active-tag' : ''}">[${l}]</span>`).join('')}
                 </div>
                 <div id="notes-list-container"></div>
-                <button class="fab-btn" onclick="addNote()">[+]</button>
             `;
             buildNotesDOM();
         };
@@ -509,11 +525,11 @@
         const setFilter = (lbl) => { sfx.enter(); state.filterLabel = lbl; renderNotes(); };
         const executeQuickSearch = () => { sfx.type(); const term = document.getElementById('search-box').value.toLowerCase(); document.querySelectorAll('.note-item-dom').forEach(card => { card.style.display = (card.getAttribute('data-title').includes(term) || card.getAttribute('data-content').includes(term)) ? 'block' : 'none'; }); };
 
-        // --- 3. EDITOR & DYNAMIC BOUNDARY TOOLBAR ---
+        // --- 3. EDITOR ---
         const addNote = () => { const id = Date.now(); state.notes.unshift({ id, title: '', content: '', labels: [], pinned: false, timestamp: new Date().toISOString(), _isNew: true }); state.activeNoteId = id; forceNavigate('editor'); };
         const openNote = (id) => { state.activeNoteId = id; forceNavigate('editor'); };
 
-        let saveTimeout;
+        let saveDraftTimeout;
         const pushHistory = (val) => {
             if(editorHistory[historyIndex] === val) return;
             editorHistory = editorHistory.slice(0, historyIndex + 1);
@@ -560,15 +576,13 @@
             ta.addEventListener('keyup', handleSmartList);
             document.addEventListener('selectionchange', handleSelectionPos);
             ta.addEventListener('scroll', handleSelectionPos); 
-            
-            // BLOCK NATIVE ANDROID POPUP (Context Menu)
             ta.addEventListener('contextmenu', (e) => { e.preventDefault(); return false; });
         };
 
         const handleInput = (e) => { 
             sfx.type(); const html = e.target.innerHTML; const raw = stripHTML(html); const words = raw.trim().split(/\s+/).filter(w=>w.length>0).length;
             document.getElementById('editor-stats').innerText = `W: ${words} | C: ${raw.length}`;
-            clearTimeout(saveTimeout); saveTimeout = setTimeout(() => pushHistory(html), 600); 
+            clearTimeout(saveDraftTimeout); saveDraftTimeout = setTimeout(() => pushHistory(html), 600); 
         };
 
         const handleSmartList = (e) => {
@@ -580,40 +594,28 @@
             }
         };
 
-        // KORDINAT DYNAMIC TOOLBAR (BOUNDARY DETECTION)
         const handleSelectionPos = () => {
             if(state.currentView !== 'editor') return;
             const ta = document.getElementById('edit-content'); const toolbar = document.getElementById('format-toolbar');
             const sel = window.getSelection();
             if(sel.rangeCount > 0 && ta.contains(sel.anchorNode) && !sel.isCollapsed) { 
-                const range = sel.getRangeAt(0);
-                const rect = range.getBoundingClientRect();
+                const range = sel.getRangeAt(0); const rect = range.getBoundingClientRect();
                 toolbar.style.display = 'flex';
                 
-                // SetTimeout 0 buat nunggu display:flex ngerender ukuran asli toolbar-nya
-                setTimeout(() => {
+                activeTimeouts.push(setTimeout(() => {
                     const tbWidth = toolbar.offsetWidth;
-                    const tbHeight = toolbar.offsetHeight;
-                    
                     let topPos = rect.top;
                     let leftPos = rect.left + (rect.width / 2);
                     
-                    // Boundary Limit X (Kiri-Kanan) Biar ga kepotong layar
                     const margin = 15;
                     if (leftPos - (tbWidth / 2) < margin) { leftPos = (tbWidth / 2) + margin; }
                     if (leftPos + (tbWidth / 2) > window.innerWidth - margin) { leftPos = window.innerWidth - (tbWidth / 2) - margin; }
                     
-                    // Boundary Limit Y (Atas) kalau mepet layar, dibalik posisinya ke bawah teks
-                    if(topPos < 100) {
-                        topPos = rect.bottom;
-                        toolbar.classList.add('flip-down');
-                    } else {
-                        toolbar.classList.remove('flip-down');
-                    }
+                    if(topPos < 100) { topPos = rect.bottom; toolbar.classList.add('flip-down'); } 
+                    else { toolbar.classList.remove('flip-down'); }
                     
-                    toolbar.style.top = `${topPos}px`;
-                    toolbar.style.left = `${leftPos}px`;
-                }, 0);
+                    toolbar.style.top = `${topPos}px`; toolbar.style.left = `${leftPos}px`;
+                }, 0));
             } 
             else { toolbar.style.display = 'none'; }
         };
