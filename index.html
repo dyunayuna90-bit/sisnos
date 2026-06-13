@@ -8,7 +8,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" id="meta-theme-color" content="#030a03">
+    <meta name="theme-color" id="meta-theme-color" content="#020802">
     
     <title>OS-NXT // SYS</title>
     
@@ -16,16 +16,16 @@
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Share+Tech+Mono&display=swap');
 
         :root {
-            --bg-color: #030a03;
+            --bg-color: #020802;
             --text-color: #14ff14;
             --text-muted: #086b08;
             --accent: #22ff22;
-            /* Glow dioptimalkan: 1 layer ringan */
-            --glow: 0 0 8px rgba(20, 255, 20, 0.5);
+            /* CHROMATIC HALUS: 0.8px (Nyaman dibaca, tetap retro) + GLOW */
+            --glow: 0.8px 0px 0px rgba(255, 0, 0, 0.6), -0.8px 0px 0px rgba(0, 255, 255, 0.6), 0 0 6px rgba(20, 255, 20, 0.5);
             --crt-line: rgba(20, 255, 20, 0.1);
             --chart-fill: rgba(20, 255, 20, 0.2);
             --font-main: 'Share Tech Mono', monospace;
-            --letter-space: 0px;
+            --letter-space: 0.5px;
             --border-style: solid;
         }
 
@@ -34,7 +34,8 @@
             --text-color: #073642; 
             --text-muted: #93a1a1;
             --accent: #dc322f; 
-            --glow: none;
+            /* Linux Light: Sangat halus */
+            --glow: 0.5px 0px 0px rgba(220, 50, 47, 0.4), -0.5px 0px 0px rgba(42, 161, 152, 0.4);
             --crt-line: rgba(0, 0, 0, 0.05);
             --chart-fill: rgba(7, 54, 66, 0.15);
             --font-main: 'Fira Code', monospace;
@@ -52,65 +53,67 @@
             letter-spacing: var(--letter-space); text-transform: uppercase; font-size: 16px;
         }
 
-        /* 1. Base Monitor Layer (Hardware Accelerated) */
-        #screen-base { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background-color: var(--bg-color); z-index: 1; 
-            transform: translateZ(0); /* Paksa GPU rendering */
-        }
+        /* 1. Base Monitor Layer */
+        #screen-base { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); z-index: 1; transform: translateZ(0); }
 
-        /* 2. RGB Sub-Pixel Matrix (Sangat ringan) */
+        /* 2. LOW-RES PIXEL MATRIX (Grid 4x4 bikin ilusi resolusi rendah) */
         #crt-matrix {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(90deg, rgba(255,0,0,0.03), rgba(0,255,0,0.02), rgba(0,0,255,0.03));
-            background-size: 3px 100%; pointer-events: none; z-index: 2;
-            transform: translateZ(0);
+            background: linear-gradient(rgba(0, 0, 0, 0.2) 50%, transparent 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.03), rgba(0, 0, 255, 0.05));
+            background-size: 100% 4px, 4px 100%;
+            pointer-events: none; z-index: 2; transform: translateZ(0);
         }
 
-        /* 3. Pre-baked Noise Texture (NO MATH, NO LAG) */
-        #noise-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyAQMAAAAk8RryAAAABlBMVEUAAAD///+l2Z/dAAAAEklEQVQI12P4//8/AxJgo1z//8HwP4EMAAARuF3/q8wRzQAAAABJRU5ErkJggg==');
-            background-repeat: repeat; opacity: 0.15; pointer-events: none; z-index: 11;
-            transform: translateZ(0); mix-blend-mode: overlay;
+        /* 3. VCR Tracking Line */
+        .vcr-tracking {
+            width: 100%; height: 10px; z-index: 9; position: absolute; pointer-events: none;
+            background: rgba(255,255,255,0.02); box-shadow: 0 0 10px rgba(255,255,255,0.01);
+            animation: tracking 8s infinite linear; transform: translateZ(0);
         }
+        @keyframes tracking { 0% { top: -20px; } 100% { top: 110%; } }
 
+        /* 4. Fast Scanline */
         .scanline {
-            width: 100%; height: 150px; z-index: 9; position: absolute; pointer-events: none;
+            width: 100%; height: 150px; z-index: 10; position: absolute; pointer-events: none;
             background: linear-gradient(0deg, rgba(0,0,0,0) 0%, var(--crt-line) 50%, rgba(0,0,0,0) 100%);
-            animation: scan 6s linear infinite; opacity: 0.7; transform: translateZ(0);
+            animation: scan 4s linear infinite; transform: translateZ(0);
         }
         @keyframes scan { 0% { top: -150px; } 100% { top: 100%; } }
 
-        /* 4. Layar Cembung Ekstrem */
+        /* 5. Vignette (FLAT BORDERS) */
         #crt-vignette {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(0,0,0,0.95) 130%);
-            box-shadow: inset 0 0 60px rgba(0,0,0,0.9); 
-            border-radius: 20px; pointer-events: none; z-index: 99; transform: translateZ(0);
+            background: radial-gradient(circle at center, transparent 45%, rgba(0,0,0,0.85) 120%);
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.9);
+            border-radius: 0px; 
+            pointer-events: none; z-index: 99; transform: translateZ(0);
         }
 
-        /* Phosphor Burst (Optimized) */
+        /* Phosphor Burst */
         .crt-flash { animation: burst 0.25s ease-out forwards; }
         @keyframes burst {
-            0% { filter: brightness(2) contrast(1.2); }
+            0% { filter: brightness(1.8) contrast(1.2); }
             100% { filter: brightness(1) contrast(1); }
         }
 
-        /* 5. Safe Area Container */
+        /* 6. Safe Area Container + ANALOG BLUR/LOW-RES FX */
         .safe-area-wrapper {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; z-index: 20;
-            padding-top: max(env(safe-area-inset-top), 20px);
+            padding-top: max(env(safe-area-inset-top), 15px);
+            /* FILTER BLUR HALUS: Bikin teks kelihatan nyatu sama layar jadul tanpa lag */
+            filter: blur(0.3px) contrast(1.1);
+            transform: translateZ(0);
         }
 
-        #viewport { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 25px; padding-bottom: 110px; text-shadow: var(--glow); position: relative; }
+        #viewport { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; padding-bottom: 110px; text-shadow: var(--glow); position: relative; }
 
         #bottom-nav {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
             background: var(--bg-color); border-top: 2px var(--border-style) var(--text-color);
             display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -10px 20px rgba(0,0,0,0.6); z-index: 50;
+            padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -10px 20px rgba(0,0,0,0.8); z-index: 50;
         }
 
         .nav-btn { background: none; border: none; color: var(--text-muted); font-family: var(--font-main); font-size: 1.4rem; cursor: pointer; padding: 15px 10px; font-weight: bold; flex: 1; transition: 0.1s; user-select: none;}
@@ -122,21 +125,20 @@
         button:active { background: var(--text-color); color: var(--bg-color); }
         input::placeholder { color: var(--text-muted); opacity: 0.6; text-transform: uppercase; }
 
-        /* THE FLOATING FAB */
         .fab-btn {
             position: absolute; bottom: 100px; right: 20px; z-index: 40;
             width: 65px; height: 65px; font-size: 2.2rem; font-weight: bold; background: var(--bg-color);
-            box-shadow: -5px 5px 0px var(--text-muted); border: 2px solid var(--text-color); 
+            box-shadow: -4px 4px 0px var(--text-muted); border: 2px solid var(--text-color); 
             display: flex; justify-content: center; align-items: center;
             color: var(--text-color); cursor: pointer; user-select: none;
         }
-        .fab-btn:active { box-shadow: 0 0 0 transparent; transform: translate(-5px, 5px); background: var(--text-color); color: var(--bg-color); }
+        .fab-btn:active { box-shadow: 0 0 0 transparent; transform: translate(-4px, 4px); background: var(--text-color); color: var(--bg-color); }
 
         /* ADVANCED EDITOR */
         .editor-container { 
             position: relative; width: 100%; height: 50vh; margin-top: 10px; 
-            border: 2px var(--border-style) var(--text-color); background: rgba(0,0,0,0.2);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            border: 2px var(--border-style) var(--text-color); background: rgba(0,0,0,0.3);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.7);
         }
         
         #edit-content {
@@ -146,9 +148,9 @@
             caret-color: var(--text-color);
         }
         
-        #edit-content h1 { font-size: 2.2rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; }
-        #edit-content h2 { font-size: 1.8rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; }
-        #edit-content b, #edit-content strong { font-weight: bold; color: var(--accent); }
+        #edit-content h1 { font-size: 2.2rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; text-shadow: var(--glow); }
+        #edit-content h2 { font-size: 1.8rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; text-shadow: var(--glow); }
+        #edit-content b, #edit-content strong { font-weight: bold; color: var(--text-color); text-shadow: var(--glow); }
         #edit-content i, #edit-content em { font-style: italic; opacity: 0.9; }
         #edit-content ol, #edit-content ul { padding-left: 25px; margin-bottom: 10px; list-style-position: outside; }
         #edit-content li { margin-bottom: 5px; }
@@ -165,15 +167,12 @@
         }
         #format-toolbar::after {
             content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
-            border-width: 8px 8px 0; border-style: solid;
-            border-color: var(--text-color) transparent transparent transparent; display: block; width: 0;
+            border-width: 8px 8px 0; border-style: solid; border-color: var(--text-color) transparent transparent transparent; display: block; width: 0;
         }
 
         #format-toolbar.flip-down { transform: translate(-50%, 0); margin-top: 15px; }
         #format-toolbar.flip-down::after {
-            top: -8px; bottom: auto;
-            border-width: 0 8px 8px; border-style: solid;
-            border-color: transparent transparent var(--text-color) transparent;
+            top: -8px; bottom: auto; border-width: 0 8px 8px; border-style: solid; border-color: transparent transparent var(--text-color) transparent;
         }
 
         .fmt-btn { background: transparent; color: var(--text-color); border: none; font-size: 1.1rem; padding: 12px 18px; margin: 0; font-weight: bold; border-right: 2px solid var(--text-muted); border-radius: 0; user-select: none; text-shadow: none;}
@@ -182,7 +181,7 @@
 
         .chart-box { border: 2px var(--border-style) var(--text-color); padding: 10px; margin-top: 25px; margin-bottom: 10px; position: relative; background: rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; }
         .chart-label { position: absolute; top: -14px; left: 10px; font-size: 0.9rem; background: var(--bg-color); padding: 0 8px; font-weight: bold; border-left: 2px solid var(--text-color); border-right: 2px solid var(--text-color); color: var(--text-color); z-index: 2; }
-        canvas { display: block; width: 100%; }
+        canvas { display: block; width: 100%; image-rendering: pixelated; } /* Bikin canvas agak kotak2 jadul */
 
         .note-card { border: 2px var(--border-style) var(--text-color); padding: 15px; margin-bottom: 15px; cursor: pointer; position: relative; display: block; width: 100%; text-align: left; user-select: none;}
         .note-card:active { background: var(--chart-fill); }
@@ -219,11 +218,12 @@
 
     <div id="screen-base">
         <div id="crt-matrix"></div>
-        <div id="noise-overlay"></div>
+        <div class="vcr-tracking"></div>
         <div class="scanline"></div>
     </div>
     
     <div id="crt-vignette"></div>
+    
     <div id="toast">[ SYS MSG ]</div>
 
     <div class="safe-area-wrapper">
@@ -264,14 +264,14 @@
 
     <script>
         /** * OS-NXT CORE LOGIC
-         * Absolute Optimization. 60FPS UI. Smart Memory.
+         * Hardware Accelerated VHS + Subtle Chromatic. Analog Softness.
          */
 
         const setupPWA = () => {
-            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#030a03"/><text x="50" y="65" font-family="monospace" font-size="50" font-weight="bold" fill="#14ff14" text-anchor="middle">&gt;_</text></svg>`;
+            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#020802"/><text x="50" y="65" font-family="monospace" font-size="50" font-weight="bold" fill="#14ff14" text-anchor="middle">&gt;_</text></svg>`;
             const encodedIcon = "data:image/svg+xml;base64," + btoa(svgIcon);
             const link = document.createElement('link'); link.rel = 'icon'; link.href = encodedIcon; document.head.appendChild(link);
-            const manifest = { name: "OS-NXT", short_name: "OS-NXT", display: "fullscreen", orientation: "portrait", background_color: "#030a03", theme_color: "#030a03" };
+            const manifest = { name: "OS-NXT", short_name: "OS-NXT", display: "fullscreen", orientation: "portrait", background_color: "#020802", theme_color: "#020802" };
             const manifestLink = document.createElement('link'); manifestLink.rel = 'manifest'; manifestLink.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest)); document.head.appendChild(manifestLink);
         };
         setupPWA();
@@ -473,7 +473,7 @@
             const animate = (time) => {
                 if(state.currentView !== 'dashboard') return;
                 activeFrames.push(requestAnimationFrame(animate));
-                if(time - lastTime < 50) return; // OPTIMIZED: Throttle to ~20fps
+                if(time - lastTime < 50) return; // 20fps
                 lastTime = time;
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -689,7 +689,7 @@
             `;
         };
 
-        const toggleTheme = () => { sfx.enter(); state.settings.theme = state.settings.theme === 'pipboy' ? 'linux' : 'pipboy'; document.body.setAttribute('data-theme', state.settings.theme); document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#030a03' : '#fdf6e3'; saveState(); renderSettings(); addLog('CFG', `Environment set to ${state.settings.theme}`); };
+        const toggleTheme = () => { sfx.enter(); state.settings.theme = state.settings.theme === 'pipboy' ? 'linux' : 'pipboy'; document.body.setAttribute('data-theme', state.settings.theme); document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#020802' : '#fdf6e3'; saveState(); renderSettings(); addLog('CFG', `Environment set to ${state.settings.theme}`); };
         const toggleSound = () => { state.settings.sound = !state.settings.sound; if(state.settings.sound) sfx.enter(); manageHumFX(); saveState(); renderSettings(); };
         const addNewLabel = () => { const input = document.getElementById('new-label-input'); const val = input.value.trim().toUpperCase().replace(/\s+/g, '_'); if(val && !state.labels.includes(val)) { sfx.commit(); state.labels.push(val); saveState(); addLog('CFG', `Created label [${val}]`); renderSettings(); } else { sfx.error(); showToast("INVALID LABEL"); } };
         const requestDeleteLabel = (lbl) => openCommit('PURGE LABEL', `Remove [${lbl}]?`, () => { state.labels = state.labels.filter(l => l !== lbl); saveState(); showToast('LABEL PURGED'); renderSettings(); });
@@ -707,7 +707,7 @@
         document.getElementById('modal-confirm').addEventListener('click', () => { if(modalInput.value.toLowerCase() === 'ok') { sfx.commit(); modal.style.display = 'none'; if(commitCallback) commitCallback(); } else { sfx.error(); modalInput.value = ''; modalInput.placeholder = "INVALID. TYPE 'OK'"; } });
 
         window.onload = () => {
-            document.body.setAttribute('data-theme', state.settings.theme); document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#030a03' : '#fdf6e3'; history.replaceState({ view: 'dashboard' }, "", "#dashboard"); forceNavigate('dashboard');
+            document.body.setAttribute('data-theme', state.settings.theme); document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#020802' : '#fdf6e3'; history.replaceState({ view: 'dashboard' }, "", "#dashboard"); forceNavigate('dashboard');
             document.body.addEventListener('click', () => { if(!audioCtx) { initAudio(); sfx.boot(); } }, { once: true });
         };
     </script>
