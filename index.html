@@ -20,8 +20,9 @@
             --text-color: #14ff14;
             --text-muted: #086b08;
             --accent: #22ff22;
-            --glow: 0 0 10px rgba(20, 255, 20, 0.6);
-            --crt-line: rgba(20, 255, 20, 0.08);
+            /* Efek Chromatic Aberration (RGB pisah) + Neon Glow */
+            --glow: 1px 0px 1px rgba(255,0,0,0.5), -1px 0px 1px rgba(0,0,255,0.5), 0 0 10px rgba(20, 255, 20, 0.7);
+            --crt-line: rgba(20, 255, 20, 0.1);
             --chart-fill: rgba(20, 255, 20, 0.2);
             --font-main: 'Share Tech Mono', monospace;
             --letter-space: 0px;
@@ -33,15 +34,15 @@
             --text-color: #073642; 
             --text-muted: #93a1a1;
             --accent: #dc322f; 
-            --glow: none;
-            --crt-line: rgba(0, 0, 0, 0.03);
-            --chart-fill: rgba(7, 54, 66, 0.1);
+            --glow: none; /* Linux murni flat, tanpa glow/aberasi */
+            --crt-line: rgba(0, 0, 0, 0.05);
+            --chart-fill: rgba(7, 54, 66, 0.15);
             --font-main: 'Fira Code', monospace;
             --letter-space: -0.5px;
             --border-style: solid;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; scrollbar-width: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: auto; -webkit-tap-highlight-color: transparent; scrollbar-width: none; }
         ::-webkit-scrollbar { display: none; }
 
         body {
@@ -51,59 +52,76 @@
             letter-spacing: var(--letter-space); text-transform: uppercase; font-size: 16px;
         }
 
+        /* 1. Base Monitor Layer */
         #screen-base { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); z-index: 1; }
 
-        #screen-base::after {
-            content: " "; display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, var(--crt-line) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            background-size: 100% 4px, 6px 100%; pointer-events: none; z-index: 10;
+        /* 2. RGB Sub-Pixel Matrix */
+        #crt-matrix {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, rgba(255,0,0,0.03), rgba(0,255,0,0.02), rgba(0,0,255,0.03));
+            background-size: 3px 100%; pointer-events: none; z-index: 2;
+        }
+
+        /* 3. Scanline & SVG Static Noise */
+        #noise-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.04; pointer-events: none; z-index: 11;
         }
 
         .scanline {
             width: 100%; height: 150px; z-index: 9; position: absolute; pointer-events: none;
             background: linear-gradient(0deg, rgba(0,0,0,0) 0%, var(--crt-line) 50%, rgba(0,0,0,0) 100%);
-            animation: scan 6s linear infinite; opacity: 0.8;
+            animation: scan 5s linear infinite; opacity: 0.9;
         }
         @keyframes scan { 0% { top: -150px; } 100% { top: 100%; } }
 
+        /* 4. Layar Cembung Ekstrem (Kaca Tabung 3D) */
         #crt-vignette {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.8) 120%);
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.9); pointer-events: none; z-index: 99;
+            background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(0,0,0,0.95) 130%);
+            box-shadow: inset 0 0 60px rgba(0,0,0,0.95); 
+            border-radius: 20px; /* Lengkungan sudut monitor jadul */
+            pointer-events: none; z-index: 99;
+        }
+        
+        #crt-glare {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(120deg, rgba(255,255,255,0.03) 0%, transparent 30%, transparent 60%, rgba(255,255,255,0.01) 100%);
+            pointer-events: none; z-index: 98;
         }
 
-        /* NEW: CRT Phosphor Flash (Elegan, tidak miring) */
-        .crt-flash { animation: flash-fx 0.25s ease-out; }
-        @keyframes flash-fx {
-            0% { filter: brightness(2) contrast(1.5); }
-            50% { filter: brightness(0.8) contrast(1.2); }
-            100% { filter: brightness(1) contrast(1); }
+        /* Phosphor Burst (Solid, NO wobble) */
+        .crt-flash { animation: burst 0.3s ease-out forwards; }
+        @keyframes burst {
+            0% { filter: brightness(2) contrast(1.5) saturate(1.5); }
+            100% { filter: brightness(1) contrast(1) saturate(1); }
         }
 
+        /* 5. Safe Area Container (Isi OS) */
         .safe-area-wrapper {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; z-index: 20;
             padding-top: max(env(safe-area-inset-top), 20px);
         }
 
-        #viewport { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; padding-bottom: 110px; text-shadow: var(--glow); position: relative; }
+        #viewport { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 25px; padding-bottom: 110px; text-shadow: var(--glow); position: relative; }
 
         #bottom-nav {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
             background: var(--bg-color); border-top: 2px var(--border-style) var(--text-color);
             display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -5px 15px rgba(0,0,0,0.5); z-index: 50;
+            padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -10px 20px rgba(0,0,0,0.6); z-index: 50;
         }
 
-        .nav-btn { background: none; border: none; color: var(--text-muted); font-family: var(--font-main); font-size: 1.4rem; cursor: pointer; padding: 15px 10px; font-weight: bold; flex: 1; transition: 0.1s; }
+        .nav-btn { background: none; border: none; color: var(--text-muted); font-family: var(--font-main); font-size: 1.4rem; cursor: pointer; padding: 15px 10px; font-weight: bold; flex: 1; transition: 0.1s; user-select: none;}
         .nav-btn.active { color: var(--text-color); text-shadow: var(--glow); border-bottom: 5px solid var(--text-color); }
 
         h1, h2, h3 { border-bottom: 2px var(--border-style) var(--text-color); padding-bottom: 8px; margin-bottom: 18px; font-size: 1.4rem; font-weight: bold; }
         button, input { font-family: var(--font-main); color: var(--text-color); background: transparent; border: 2px var(--border-style) var(--text-color); outline: none; padding: 14px; text-shadow: var(--glow); text-transform: uppercase; font-size: 1.1rem; }
-        button { cursor: pointer; font-weight: bold; }
+        button { cursor: pointer; font-weight: bold; user-select: none;}
         button:active { background: var(--text-color); color: var(--bg-color); }
         input::placeholder { color: var(--text-muted); opacity: 0.6; text-transform: uppercase; }
-        input { user-select: auto; }
 
         .fab-btn {
             position: fixed; bottom: 100px; right: 20px; z-index: 15;
@@ -115,34 +133,42 @@
         /* ADVANCED EDITOR (ContentEditable) */
         .editor-container { 
             position: relative; width: 100%; height: 50vh; margin-top: 10px; 
-            border: 2px var(--border-style) var(--text-color); background: rgba(0,0,0,0.1);
+            border: 2px var(--border-style) var(--text-color); background: rgba(0,0,0,0.2);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
         }
         
         #edit-content {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             font-family: var(--font-main); font-size: 1.2rem; line-height: 1.5; padding: 15px; 
-            overflow-y: auto; outline: none; text-transform: none; user-select: auto;
-            caret-color: var(--text-color); /* Native caret */
+            overflow-y: auto; outline: none; text-transform: none; user-select: text;
+            caret-color: var(--text-color);
         }
         
-        /* WYSIWYG Styles */
-        #edit-content h1 { font-size: 2rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; }
-        #edit-content h2 { font-size: 1.6rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; }
+        #edit-content h1 { font-size: 2.2rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; text-shadow: var(--glow); }
+        #edit-content h2 { font-size: 1.8rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; text-shadow: var(--glow); }
         #edit-content b, #edit-content strong { font-weight: bold; text-shadow: var(--glow); color: var(--accent); }
         #edit-content i, #edit-content em { font-style: italic; opacity: 0.9; }
-        /* Auto-List Hanging Indent Styling */
         #edit-content ol, #edit-content ul { padding-left: 25px; margin-bottom: 10px; list-style-position: outside; }
         #edit-content li { margin-bottom: 5px; }
 
-        /* Custom Floating Format Toolbar */
+        /* DYNAMIC FLOATING TOOLBAR (Native Replacement) */
         #format-toolbar {
-            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
-            background: var(--bg-color); border: 2px solid var(--text-color); box-shadow: 0 5px 15px rgba(0,0,0,0.9), 0 0 10px var(--glow);
+            position: fixed; /* Bounded to viewport */
+            background: var(--bg-color); border: 2px solid var(--text-color); 
+            box-shadow: 0 15px 25px rgba(0,0,0,0.9), 0 0 15px var(--glow);
             display: none; flex-direction: row; align-items: center; z-index: 80; padding: 2px;
+            transition: top 0.1s ease, left 0.1s ease; /* Gerakan transisi halus pas nempel */
+            transform: translate(-50%, -100%); /* Center pivot ke posisi yg di-set JS */
+            margin-top: -15px; /* Jarak aman di atas teks */
         }
-        .fmt-btn {
-            background: transparent; color: var(--text-color); border: none; font-size: 1rem; padding: 10px 15px; margin: 0; font-weight: bold; border-right: 2px solid var(--text-muted); border-radius: 0;
+        /* Segitiga panah ke bawah */
+        #format-toolbar::after {
+            content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+            border-width: 8px 8px 0; border-style: solid;
+            border-color: var(--text-color) transparent transparent transparent; display: block; width: 0;
         }
+
+        .fmt-btn { background: transparent; color: var(--text-color); border: none; font-size: 1.1rem; padding: 10px 14px; margin: 0; font-weight: bold; border-right: 2px solid var(--text-muted); border-radius: 0; user-select: none; text-shadow: none;}
         .fmt-btn:last-child { border-right: none; }
         .fmt-btn:active { background: var(--text-color); color: var(--bg-color); }
 
@@ -150,14 +176,13 @@
         .chart-label { position: absolute; top: -14px; left: 10px; font-size: 0.9rem; background: var(--bg-color); padding: 0 8px; font-weight: bold; border-left: 2px solid var(--text-color); border-right: 2px solid var(--text-color); color: var(--text-color); z-index: 2; }
         canvas { display: block; width: 100%; }
 
-        .note-card { border: 2px var(--border-style) var(--text-color); padding: 15px; margin-bottom: 15px; cursor: pointer; position: relative; display: block; width: 100%; text-align: left;}
+        .note-card { border: 2px var(--border-style) var(--text-color); padding: 15px; margin-bottom: 15px; cursor: pointer; position: relative; display: block; width: 100%; text-align: left; user-select: none;}
         .note-card:active { background: var(--chart-fill); }
         .note-date { font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; display: block;}
         .pin-badge { position: absolute; top: 0; right: 0; background: var(--text-color); color: var(--bg-color); font-size: 0.8rem; padding: 2px 8px; font-weight: bold;}
         
         .label-badge { display: inline-block; padding: 4px 8px; font-size: 0.8rem; border: 1px solid var(--text-color); color: var(--text-color); margin-right: 5px; margin-top: 5px; background: var(--chart-fill); }
-
-        .swipe-labels { display: flex; overflow-x: auto; white-space: nowrap; padding-bottom: 10px; align-items: center; scrollbar-width: none; }
+        .swipe-labels { display: flex; overflow-x: auto; white-space: nowrap; padding-bottom: 10px; align-items: center; scrollbar-width: none; user-select: none; }
         .swipe-labels::-webkit-scrollbar { display: none; }
         .swipe-labels span { display: inline-block; cursor: pointer; border: 2px dashed var(--text-muted); padding: 6px 12px; margin-right: 8px; font-weight: bold; flex-shrink: 0; }
         .swipe-labels span.active-tag { border: 2px solid var(--accent); background: var(--chart-fill); color: var(--text-color); }
@@ -177,29 +202,36 @@
 
         #modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; display: none; justify-content: center; align-items: center; padding: 20px; }
         .modal-box { border: 2px solid var(--text-color); background: var(--bg-color); padding: 25px; width: 100%; max-width: 400px; text-align: center; box-shadow: -10px 10px 0px var(--chart-fill); z-index: 101; }
-        .modal-box input { width: 100%; margin: 20px 0; text-align: center; font-size: 1.8rem; text-transform: uppercase; }
+        .modal-box input { width: 100%; margin: 20px 0; text-align: center; font-size: 1.8rem; text-transform: uppercase; user-select: auto; }
 
-        #toast { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); background: var(--text-color); color: var(--bg-color); padding: 10px 20px; font-weight: bold; font-size: 1.2rem; z-index: 120; opacity: 0; pointer-events: none; transition: opacity 0.2s; border: 2px solid var(--bg-color); box-shadow: 0 0 20px var(--glow); }
+        #toast { position: absolute; top: 50px; left: 50%; transform: translateX(-50%); background: var(--text-color); color: var(--bg-color); padding: 12px 25px; font-weight: bold; font-size: 1.2rem; z-index: 120; opacity: 0; pointer-events: none; transition: opacity 0.2s; border: 2px solid var(--bg-color); box-shadow: 0 0 20px var(--glow); }
     </style>
 </head>
 <body data-theme="pipboy">
 
-    <div id="screen-base"><div class="scanline"></div></div>
+    <div id="screen-base">
+        <div id="crt-matrix"></div>
+        <div id="noise-overlay"></div>
+        <div class="scanline"></div>
+    </div>
+    
+    <div id="crt-glare"></div>
     <div id="crt-vignette"></div>
+    
     <div id="toast">[ SYS MSG ]</div>
 
     <div class="safe-area-wrapper">
         <div id="viewport">
-            <!-- Content -->
+            <!-- Content injected here -->
         </div>
 
-        <!-- Custom Format Toolbar -->
+        <!-- Custom DYNAMIC Format Toolbar -->
         <div id="format-toolbar">
-            <button class="fmt-btn" onclick="execFormat('formatBlock', 'H1')">H1</button>
-            <button class="fmt-btn" onclick="execFormat('formatBlock', 'H2')">H2</button>
-            <button class="fmt-btn" onclick="execFormat('bold')">B</button>
-            <button class="fmt-btn" onclick="execFormat('italic')">I</button>
-            <button class="fmt-btn" onclick="execCopy()">COPY</button>
+            <button class="fmt-btn" onmousedown="execFormat('formatBlock', 'H1'); return false;">H1</button>
+            <button class="fmt-btn" onmousedown="execFormat('formatBlock', 'H2'); return false;">H2</button>
+            <button class="fmt-btn" onmousedown="execFormat('bold'); return false;">B</button>
+            <button class="fmt-btn" onmousedown="execFormat('italic'); return false;">I</button>
+            <button class="fmt-btn" onmousedown="execCopy(); return false;">COPY</button>
         </div>
 
         <div id="bottom-nav">
@@ -224,7 +256,7 @@
 
     <script>
         /** * OS-NXT CORE LOGIC
-         * Analog Synths. True WYSIWYG. Strict Intercepts.
+         * Floating Selection Toolbar. Pure Chromatic CRT.
          */
 
         const setupPWA = () => {
@@ -237,8 +269,7 @@
         setupPWA();
 
         let state = { notes: [], labels: ['TUGAS', 'PRIBADI', 'IDE'], logs: [], settings: { theme: 'pipboy', sound: true }, currentView: 'dashboard', activeNoteId: null, filterLabel: null };
-        let pristineEditorState = ""; 
-        let editorHistory = []; let historyIndex = -1;
+        let pristineEditorState = ""; let editorHistory = []; let historyIndex = -1;
 
         try {
             const memNotes = localStorage.getItem('os-nxt-notes'); if(memNotes) state.notes = JSON.parse(memNotes);
@@ -250,95 +281,60 @@
         let sessionStartTime = Date.now();
 
         const saveState = () => {
-            localStorage.setItem('os-nxt-notes', JSON.stringify(state.notes));
-            localStorage.setItem('os-nxt-labels', JSON.stringify(state.labels));
-            localStorage.setItem('os-nxt-logs', JSON.stringify(state.logs));
-            localStorage.setItem('os-nxt-settings', JSON.stringify(state.settings));
+            localStorage.setItem('os-nxt-notes', JSON.stringify(state.notes)); localStorage.setItem('os-nxt-labels', JSON.stringify(state.labels));
+            localStorage.setItem('os-nxt-logs', JSON.stringify(state.logs)); localStorage.setItem('os-nxt-settings', JSON.stringify(state.settings));
         };
 
         const addLog = (action, details) => { state.logs.unshift({ id: Date.now(), action, details, time: new Date().toISOString() }); if(state.logs.length > 100) state.logs.pop(); saveState(); };
         const getStorageSize = () => { let total = 0; for(let x in localStorage) { if(localStorage.hasOwnProperty(x)) total += ((localStorage[x].length + x.length) * 2); } return (total / 1024).toFixed(1); };
         const fmtDate = (iso) => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
-        
-        // Bersihin tag HTML buat ngitung kata murni
         const stripHTML = (html) => { const tmp = document.createElement("DIV"); tmp.innerHTML = html; return tmp.textContent || tmp.innerText || ""; };
-        
         const showToast = (msg) => { const t = document.getElementById('toast'); t.innerText = `[ ${msg} ]`; t.style.opacity = 1; setTimeout(() => t.style.opacity = 0, 2000); };
 
-        // --- TRUE ANALOG AUDIO ENGINE ---
+        // --- HEAVY ANALOG AUDIO ENGINE ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx, humOsc, humGain, noiseSource, noiseFilter, noiseGain;
         
         const initAudio = () => { if (!audioCtx && AudioContext) audioCtx = new AudioContext(); if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); manageHumFX(); };
-        
         const manageHumFX = () => {
             if(!audioCtx) return;
             if(state.settings.sound && !humOsc) {
-                // Background VHS Tape Hiss (LOUDER)
-                const bufferSize = audioCtx.sampleRate * 2;
-                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                const data = buffer.getChannelData(0);
+                const bufferSize = audioCtx.sampleRate * 2; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const data = buffer.getChannelData(0);
                 for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-                noiseSource = audioCtx.createBufferSource();
-                noiseSource.buffer = buffer; noiseSource.loop = true;
-                noiseFilter = audioCtx.createBiquadFilter();
-                noiseFilter.type = 'lowpass'; noiseFilter.frequency.value = 1200; 
-                noiseGain = audioCtx.createGain(); noiseGain.gain.value = 0.03; // Tambah volume hiss
-                noiseSource.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
-                noiseSource.start();
+                noiseSource = audioCtx.createBufferSource(); noiseSource.buffer = buffer; noiseSource.loop = true;
+                noiseFilter = audioCtx.createBiquadFilter(); noiseFilter.type = 'lowpass'; noiseFilter.frequency.value = 1800; 
+                noiseGain = audioCtx.createGain(); noiseGain.gain.value = 0.055; 
+                noiseSource.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(audioCtx.destination); noiseSource.start();
 
-                // 50Hz CRT Hum
                 humOsc = audioCtx.createOscillator(); humGain = audioCtx.createGain();
-                humOsc.type = 'sine'; humOsc.frequency.value = 55; humGain.gain.value = 0.02;
+                humOsc.type = 'sine'; humOsc.frequency.value = 55; humGain.gain.value = 0.045;
                 humOsc.connect(humGain); humGain.connect(audioCtx.destination); humOsc.start();
             } else if (!state.settings.sound && humOsc) { 
-                humOsc.stop(); humOsc = null; 
-                if(noiseSource) { noiseSource.stop(); noiseSource = null; }
+                humOsc.stop(); humOsc = null; if(noiseSource) { noiseSource.stop(); noiseSource = null; }
             }
         };
 
-        // Analog Synthesizer for Mechanical Chunks & Thuds
-        const analogHit = (startFreq, endFreq, dur, vol) => {
-            if (!state.settings.sound || !audioCtx) return;
-            const t = audioCtx.currentTime;
+        const analogHit = (startFreq, endFreq, dur, vol, type='square') => {
+            if (!state.settings.sound || !audioCtx) return; const t = audioCtx.currentTime;
             const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.type = 'square'; 
-            osc.frequency.setValueAtTime(startFreq, t);
-            osc.frequency.exponentialRampToValueAtTime(endFreq, t + dur);
-            gain.gain.setValueAtTime(vol, t); 
-            gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
-            osc.connect(gain); gain.connect(audioCtx.destination); 
-            osc.start(t); osc.stop(t + dur);
+            osc.type = type; osc.frequency.setValueAtTime(startFreq, t); osc.frequency.exponentialRampToValueAtTime(endFreq, t + dur);
+            gain.gain.setValueAtTime(vol, t); gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(t); osc.stop(t + dur);
         };
 
         const sfx = {
-            // Typing: Suara mesin tik / switch relay mantap
-            type: () => { analogHit(100, 20, 0.04, 0.1); analogHit(400, 100, 0.02, 0.05); },
-            // Button Click: Thud berat analog
-            nav: () => { analogHit(200, 30, 0.08, 0.1); },
-            enter: () => { analogHit(300, 50, 0.1, 0.1); },
-            error: () => { analogHit(150, 40, 0.3, 0.2); analogHit(100, 20, 0.4, 0.2); },
-            commit: () => { playTone(800, 'square', 0.1, 0.05); setTimeout(() => playTone(1200, 'square', 0.15, 0.05), 100); },
-            boot: () => { playTone(400,'square',0.1,0.05); setTimeout(()=>playTone(600,'square',0.1,0.05),100); setTimeout(()=>playTone(1000,'square',0.3,0.05),200); }
+            type: () => { analogHit(100, 20, 0.05, 0.15, 'sawtooth'); analogHit(500, 100, 0.02, 0.05, 'square'); },
+            nav: () => { analogHit(300, 40, 0.1, 0.15, 'square'); },
+            enter: () => { analogHit(400, 50, 0.15, 0.15, 'triangle'); },
+            error: () => { analogHit(150, 40, 0.3, 0.2, 'sawtooth'); analogHit(100, 20, 0.4, 0.2, 'sawtooth'); },
+            commit: () => { analogHit(800, 1200, 0.1, 0.1, 'square'); setTimeout(() => analogHit(1200, 1500, 0.15, 0.1, 'square'), 100); },
+            boot: () => { analogHit(200, 600, 0.2, 0.1); setTimeout(()=>analogHit(600, 1000, 0.3, 0.1), 200); }
         };
 
-        // Bantuan playTone untuk nada digital (commit)
-        const playTone = (freq, type, duration, vol) => {
-            if (!state.settings.sound || !audioCtx) return;
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(vol, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + duration);
-        };
-
-        // --- NAVIGATION & INTERCEPT LOGIC ---
+        // --- NAVIGATION ---
         let activeAnimations = [];
         const clearAnimations = () => { activeAnimations.forEach(id => cancelAnimationFrame(id)); activeAnimations = []; document.getElementById('format-toolbar').style.display = 'none'; };
-        
-        const triggerFlash = () => { 
-            const vp = document.getElementById('viewport'); 
-            vp.classList.remove('crt-flash'); void vp.offsetWidth; vp.classList.add('crt-flash'); 
-        };
+        const triggerFlash = () => { const vp = document.getElementById('viewport'); vp.classList.remove('crt-flash'); void vp.offsetWidth; vp.classList.add('crt-flash'); };
 
         const forceNavigate = (view, silent = false) => {
             if (!silent) sfx.nav(); 
@@ -351,25 +347,19 @@
             if(!silent) history.pushState({ view: view }, "", `#${view}`);
         };
 
-        // THE ABSOLUTE INTERCEPTOR
         const navigate = (view, silent = false) => {
             if (state.currentView === 'editor' && view !== 'editor') {
                 const note = state.notes.find(n => n.id === state.activeNoteId);
                 const currentState = JSON.stringify({ t: document.getElementById('edit-title').value, c: document.getElementById('edit-content').innerHTML });
-                
                 if (currentState !== pristineEditorState || (note._isNew && (note.title !== '' || document.getElementById('edit-content').innerHTML !== ''))) {
                     sfx.error(); showToast("WARN: UNSAVED DATA!");
                     openCommit('DISCARD CHANGES', 'Data modified. Purge changes?', () => {
                         if(note && note._isNew) { state.notes = state.notes.filter(n => n.id !== state.activeNoteId); } 
                         else { const savedNotes = localStorage.getItem('os-nxt-notes'); state.notes = savedNotes ? JSON.parse(savedNotes) : []; }
                         showToast('CHANGES PURGED'); forceNavigate(view);
-                    });
-                    return; 
-                } else {
-                    if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId);
-                }
-            }
-            forceNavigate(view, silent);
+                    }); return; 
+                } else { if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId); }
+            } forceNavigate(view, silent);
         };
 
         window.addEventListener('popstate', (e) => {
@@ -377,46 +367,33 @@
                 history.pushState({ view: 'editor' }, "", "#editor"); 
                 const note = state.notes.find(n => n.id === state.activeNoteId);
                 const currentState = JSON.stringify({ t: document.getElementById('edit-title').value, c: document.getElementById('edit-content').innerHTML });
-                
                 if (currentState !== pristineEditorState || (note._isNew && (note.title !== '' || document.getElementById('edit-content').innerHTML !== ''))) {
                     sfx.error(); showToast("WARN: UNSAVED DATA!");
                     openCommit('DISCARD CHANGES', 'Data modified. Purge changes?', () => {
-                        if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId);
-                        else { const savedNotes = localStorage.getItem('os-nxt-notes'); state.notes = savedNotes ? JSON.parse(savedNotes) : []; }
+                        if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId); else { const savedNotes = localStorage.getItem('os-nxt-notes'); state.notes = savedNotes ? JSON.parse(savedNotes) : []; }
                         showToast('CHANGES PURGED'); forceNavigate('notes', true);
                     });
-                } else {
-                    if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId);
-                    forceNavigate('notes', true);
-                }
-            } 
-            else { if(e.state && e.state.view) forceNavigate(e.state.view, true); else forceNavigate('dashboard', true); }
+                } else { if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId); forceNavigate('notes', true); }
+            } else { if(e.state && e.state.view) forceNavigate(e.state.view, true); else forceNavigate('dashboard', true); }
         });
 
-        // --- 1. DASHBOARD (SYS) ---
+        // --- 1. DASHBOARD ---
         const renderDashboard = () => {
             const storageKB = getStorageSize(); const recentNotes = [...state.notes].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 2);
-            const vp = document.getElementById('viewport');
             let hexString = ""; for(let i=0; i<8; i++) hexString += Math.floor(Math.random()*16777215).toString(16).padStart(6, '0').toUpperCase() + " ";
 
-            vp.innerHTML = `
+            document.getElementById('viewport').innerHTML = `
                 <h2>SYS.DIAGNOSTICS</h2>
                 <div class="hex-anim"><span class="blink-fast">_></span> 0x${hexString}</div>
-                
                 <div class="flex-row">
                     <div class="stat-block"><div class="stat-val">${state.notes.length}</div><div class="stat-lbl">BLOCKS</div></div>
                     <div class="stat-block"><div class="stat-val" id="mem-usage-val">${storageKB}k</div><div class="stat-lbl">MEM</div></div>
                     <div class="stat-block"><div class="stat-val" id="uptime-val">00:00</div><div class="stat-lbl">UPTIME</div></div>
                 </div>
-
                 <div class="chart-box" style="height: 180px;"><span class="chart-label">MEM SCAN</span><canvas id="radar-chart"></canvas></div>
                 <div class="chart-box" style="height: 180px;"><span class="chart-label">DATA DIST</span><canvas id="pie-chart"></canvas></div>
-
                 <h3>RECENT I/O</h3>
-                ${recentNotes.length === 0 ? '<p style="font-size:0.9rem">NO ACTIVITY.</p>' : recentNotes.map(n => `
-                    <button class="note-card" onclick="openNote(${n.id})"><span style="font-weight:bold; font-size:1.2rem;">${n.title || 'UNTITLED_BLOCK'}</span><br><span class="note-date">MODIFIED: ${fmtDate(n.timestamp)}</span></button>
-                `).join('')}
-
+                ${recentNotes.length === 0 ? '<p style="font-size:0.9rem">NO ACTIVITY.</p>' : recentNotes.map(n => `<button class="note-card" onclick="openNote(${n.id})"><span style="font-weight:bold; font-size:1.2rem;">${n.title || 'UNTITLED_BLOCK'}</span><br><span class="note-date">MODIFIED: ${fmtDate(n.timestamp)}</span></button>`).join('')}
                 <h3 style="margin-top: 25px;">QUICK COMMANDS</h3>
                 <div class="grid-2"><button onclick="addNote()">[+] NEW</button><button style="border-color:red; color:red;" onclick="requestClearLogs()">FLUSH</button></div>
             `;
@@ -427,8 +404,7 @@
         const updateUptime = () => {
             if(state.currentView !== 'dashboard') return;
             const el = document.getElementById('uptime-val'); if(!el) return;
-            const diff = Math.floor((Date.now() - sessionStartTime) / 1000);
-            el.innerText = `${String(Math.floor(diff / 60)).padStart(2, '0')}:${String(diff % 60).padStart(2, '0')}`;
+            const diff = Math.floor((Date.now() - sessionStartTime) / 1000); el.innerText = `${String(Math.floor(diff / 60)).padStart(2, '0')}:${String(diff % 60).padStart(2, '0')}`;
             activeAnimations.push(requestAnimationFrame(updateUptime));
         };
 
@@ -476,7 +452,7 @@
 
         const requestClearLogs = () => { openCommit('FLUSH SYS LOGS', 'Erase all trace data?', () => { state.logs = []; saveState(); showToast('LOGS FLUSHED'); renderDashboard(); }); };
 
-        // --- 2. NOTES LIST (DATA) ---
+        // --- 2. NOTES LIST ---
         const renderNotes = () => {
             const vp = document.getElementById('viewport'); const term = document.getElementById('search-box')?.value.toLowerCase() || '';
             vp.innerHTML = `
@@ -507,119 +483,90 @@
             executeQuickSearch();
         };
         const setFilter = (lbl) => { sfx.enter(); state.filterLabel = lbl; renderNotes(); };
-        const executeQuickSearch = () => {
-            sfx.type(); // Add sfx here
-            const term = document.getElementById('search-box').value.toLowerCase();
-            document.querySelectorAll('.note-item-dom').forEach(card => {
-                card.style.display = (card.getAttribute('data-title').includes(term) || card.getAttribute('data-content').includes(term)) ? 'block' : 'none';
-            });
-        };
+        const executeQuickSearch = () => { sfx.type(); const term = document.getElementById('search-box').value.toLowerCase(); document.querySelectorAll('.note-item-dom').forEach(card => { card.style.display = (card.getAttribute('data-title').includes(term) || card.getAttribute('data-content').includes(term)) ? 'block' : 'none'; }); };
 
-        // --- 3. EDITOR (TRUE WYSIWYG & SMART LIST) ---
+        // --- 3. EDITOR & DYNAMIC TOOLBAR ---
         const addNote = () => { const id = Date.now(); state.notes.unshift({ id, title: '', content: '', labels: [], pinned: false, timestamp: new Date().toISOString(), _isNew: true }); state.activeNoteId = id; forceNavigate('editor'); };
         const openNote = (id) => { state.activeNoteId = id; forceNavigate('editor'); };
 
         let saveTimeout;
-        const pushHistory = (val) => {
-            if(editorHistory[historyIndex] === val) return;
-            editorHistory = editorHistory.slice(0, historyIndex + 1);
-            editorHistory.push(val); historyIndex++;
-        };
+        const pushHistory = (val) => { if(editorHistory[historyIndex] === val) return; editorHistory = editorHistory.slice(0, historyIndex + 1); editorHistory.push(val); historyIndex++; };
 
         const renderEditor = () => {
             const vp = document.getElementById('viewport'); const note = state.notes.find(n => n.id === state.activeNoteId); if(!note) return forceNavigate('notes');
             pristineEditorState = JSON.stringify({ t: note.title, c: note.content });
             editorHistory = [note.content]; historyIndex = 0; 
-
-            const rawText = stripHTML(note.content);
-            const words = rawText.trim().split(/\s+/).filter(w=>w.length>0).length;
+            const rawText = stripHTML(note.content); const words = rawText.trim().split(/\s+/).filter(w=>w.length>0).length;
 
             vp.innerHTML = `
                 <div class="flex-between">
                     <button onclick="requestDiscard()" style="border-style:dashed; color:var(--text-muted);">&lt; DISCARD</button>
-                    <div>
-                        <button onclick="togglePinDraft()" style="margin-right:10px; ${note.pinned ? 'background:var(--text-color); color:var(--bg-color);' : ''}">PIN</button>
-                        <button style="background:var(--text-color); color:var(--bg-color);" onclick="requestSave()">SAVE &gt;</button>
-                    </div>
+                    <div><button onclick="togglePinDraft()" style="margin-right:10px; ${note.pinned ? 'background:var(--text-color); color:var(--bg-color);' : ''}">PIN</button><button style="background:var(--text-color); color:var(--bg-color);" onclick="requestSave()">SAVE &gt;</button></div>
                 </div>
-                
                 <input type="text" id="edit-title" value="${note.title}" placeholder="> TITLE_BLOCK" style="width:100%; margin-bottom:15px; font-size:1.4rem; font-weight:bold;" oninput="sfx.type()">
-                
                 <span style="font-size: 0.8rem; color: var(--text-muted);">ASSIGN LABELS:</span>
                 <div class="swipe-labels" style="margin-top: 5px;">
                     ${state.labels.map(l => `<span onclick="toggleLabelDraft('${l}')" class="${note.labels.includes(l) ? 'active-tag' : ''}">[${l}]</span>`).join('')}
                 </div>
-
                 <div class="editor-container">
                     <div id="edit-content" contenteditable="true" spellcheck="false" oninput="handleInput(event)">${note.content}</div>
                 </div>
-                
                 <div class="flex-between" style="margin-top:10px;">
-                    <div>
-                        <button onclick="execUndo()" style="padding: 8px; margin-right: 5px;">&lt; UNDO</button>
-                        <button onclick="execRedo()" style="padding: 8px;">REDO &gt;</button>
-                    </div>
+                    <div><button onclick="execUndo()" style="padding: 8px; margin-right: 5px;">&lt; UNDO</button><button onclick="execRedo()" style="padding: 8px;">REDO &gt;</button></div>
                     <button style="color:red; border-color:red; font-size:1rem; padding: 8px;" onclick="requestDelete(${note.id})">PURGE</button>
                 </div>
-                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top:5px; text-align:right;">
-                    <span id="editor-stats">W: ${words} | C: ${rawText.length}</span>
-                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top:5px; text-align:right;"><span id="editor-stats">W: ${words} | C: ${rawText.length}</span></div>
             `;
             
             const ta = document.getElementById('edit-content');
             ta.addEventListener('keyup', handleSmartList);
-            document.addEventListener('selectionchange', handleSelection);
+            document.addEventListener('selectionchange', handleSelectionPos);
+            ta.addEventListener('scroll', handleSelectionPos); // Track scroll
+            
+            // BLOCK NATIVE ANDROID POPUP (Context Menu & Long Press)
+            ta.addEventListener('contextmenu', (e) => { e.preventDefault(); return false; });
         };
 
         const handleInput = (e) => { 
-            sfx.type(); 
-            const html = e.target.innerHTML;
-            const raw = stripHTML(html);
-            const words = raw.trim().split(/\s+/).filter(w=>w.length>0).length;
+            sfx.type(); const html = e.target.innerHTML; const raw = stripHTML(html); const words = raw.trim().split(/\s+/).filter(w=>w.length>0).length;
             document.getElementById('editor-stats').innerText = `W: ${words} | C: ${raw.length}`;
-
-            clearTimeout(saveTimeout); 
-            saveTimeout = setTimeout(() => pushHistory(html), 600); 
+            clearTimeout(saveTimeout); saveTimeout = setTimeout(() => pushHistory(html), 600); 
         };
 
-        // AUTO SMART LIST LOGIC (HANGING INDENT VIA DOM)
         const handleSmartList = (e) => {
             if(e.code === 'Space') {
-                const sel = window.getSelection();
-                if(!sel.rangeCount) return;
-                const node = sel.anchorNode;
-                // Cek node text saat ini apa ngetik "1." atau "1)"
+                const sel = window.getSelection(); if(!sel.rangeCount) return; const node = sel.anchorNode;
                 if(node.nodeType === 3 && (node.textContent.trim() === '1.' || node.textContent.trim() === '-')) {
-                    node.textContent = ''; // Hapus ketikan
-                    document.execCommand(node.textContent.includes('-') ? 'insertUnorderedList' : 'insertOrderedList');
-                    sfx.enter();
+                    node.textContent = ''; document.execCommand(node.textContent.includes('-') ? 'insertUnorderedList' : 'insertOrderedList'); sfx.enter();
                 }
             }
         };
 
-        const handleSelection = () => {
+        // KORDINAT FLOATING TOOLBAR LOGIC
+        const handleSelectionPos = () => {
             if(state.currentView !== 'editor') return;
-            const ta = document.getElementById('edit-content'); 
-            const toolbar = document.getElementById('format-toolbar');
+            const ta = document.getElementById('edit-content'); const toolbar = document.getElementById('format-toolbar');
             const sel = window.getSelection();
-            if(sel.rangeCount > 0 && ta.contains(sel.anchorNode) && !sel.isCollapsed) {
+            if(sel.rangeCount > 0 && ta.contains(sel.anchorNode) && !sel.isCollapsed) { 
+                const range = sel.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
                 toolbar.style.display = 'flex';
-            } else {
-                toolbar.style.display = 'none';
-            }
+                
+                // Calculate posisi melayang
+                let topPos = rect.top;
+                let leftPos = rect.left + (rect.width / 2);
+                
+                // Batas atas (Biar ga nabrak notch/layar)
+                if(topPos < 100) topPos = rect.bottom + 50; 
+                
+                toolbar.style.top = `${topPos}px`;
+                toolbar.style.left = `${leftPos}px`;
+            } 
+            else { toolbar.style.display = 'none'; }
         };
 
-        // DOM Exec Command buat Format Asli
-        const execFormat = (command, val = null) => {
-            document.execCommand(command, false, val);
-            sfx.commit(); showToast('FORMAT APPLIED');
-            document.getElementById('edit-content').focus();
-            pushHistory(document.getElementById('edit-content').innerHTML);
-        };
-
-        const execCopy = () => {
-            document.execCommand('copy'); showToast('TEXT COPIED'); sfx.commit(); 
-        };
+        const execFormat = (command, val = null) => { document.execCommand(command, false, val); sfx.commit(); showToast('FORMAT APPLIED'); pushHistory(document.getElementById('edit-content').innerHTML); };
+        const execCopy = () => { document.execCommand('copy'); showToast('TEXT COPIED'); sfx.commit(); document.getSelection().removeAllRanges(); handleSelectionPos(); };
 
         const execUndo = () => { if(historyIndex > 0) { historyIndex--; document.getElementById('edit-content').innerHTML = editorHistory[historyIndex]; sfx.type(); } else { sfx.error(); showToast('HISTORY LIMIT'); } };
         const execRedo = () => { if(historyIndex < editorHistory.length - 1) { historyIndex++; document.getElementById('edit-content').innerHTML = editorHistory[historyIndex]; sfx.type(); } else { sfx.error(); showToast('NEWEST STATE'); } };
@@ -635,8 +582,7 @@
                 sfx.enter(); if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId); forceNavigate('notes');
             } else {
                 openCommit('DISCARD CHANGES', 'Data modified. Purge changes?', () => {
-                    if(note && note._isNew) { state.notes = state.notes.filter(n => n.id !== state.activeNoteId); } 
-                    else { const savedNotes = localStorage.getItem('os-nxt-notes'); state.notes = savedNotes ? JSON.parse(savedNotes) : []; }
+                    if(note && note._isNew) { state.notes = state.notes.filter(n => n.id !== state.activeNoteId); } else { const savedNotes = localStorage.getItem('os-nxt-notes'); state.notes = savedNotes ? JSON.parse(savedNotes) : []; }
                     showToast('CHANGES PURGED'); forceNavigate('notes');
                 });
             }
@@ -644,8 +590,7 @@
 
         const requestSave = () => {
             openCommit('SAVE TO MEMORY', 'Commit changes to database?', () => {
-                captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId);
-                note.timestamp = new Date().toISOString(); delete note._isNew; 
+                captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId); note.timestamp = new Date().toISOString(); delete note._isNew; 
                 saveState(); showToast('DATA SAVED'); addLog('DATA', `Saved block ID:${note.id}`); forceNavigate('notes');
             });
         };
@@ -658,9 +603,7 @@
                 <h2>TRACE.LOG</h2>
                 <div class="hex-anim"><span class="blink-fast">_></span> MONITORING_EVENTS...</div>
                 <div style="border-left: 2px var(--border-style) var(--text-color); margin-left: 10px;">
-                    ${state.logs.length === 0 ? '<p style="padding-left:10px;">NO LOGS.</p>' : state.logs.map(l => `
-                        <div class="timeline-item"><span class="note-date">${fmtDate(l.time)}</span><br><strong>[${l.action}]</strong> ${l.details}</div>
-                    `).join('')}
+                    ${state.logs.length === 0 ? '<p style="padding-left:10px;">NO LOGS.</p>' : state.logs.map(l => `<div class="timeline-item"><span class="note-date">${fmtDate(l.time)}</span><br><strong>[${l.action}]</strong> ${l.details}</div>`).join('')}
                 </div>
             `;
         };
@@ -682,9 +625,7 @@
                 <div style="border: 2px dashed var(--text-color); padding: 15px; margin-bottom: 20px;">
                     <div style="margin-bottom: 15px;">
                         ${state.labels.length === 0 ? '<p style="font-size:0.9rem">NO LABELS.</p>' : ''}
-                        ${state.labels.map(l => `
-                            <div class="flex-between" style="border-bottom: 1px dashed var(--crt-line); padding: 8px 0;"><span style="font-size:1.1rem;">[${l}]</span><button style="padding: 4px 10px; font-size: 0.9rem; border-color: red; color: red;" onclick="requestDeleteLabel('${l}')">DEL</button></div>
-                        `).join('')}
+                        ${state.labels.map(l => `<div class="flex-between" style="border-bottom: 1px dashed var(--crt-line); padding: 8px 0;"><span style="font-size:1.1rem;">[${l}]</span><button style="padding: 4px 10px; font-size: 0.9rem; border-color: red; color: red;" onclick="requestDeleteLabel('${l}')">DEL</button></div>`).join('')}
                     </div>
                     <div class="flex-row"><input type="text" id="new-label-input" placeholder="> NEW_LABEL" style="flex: 1;" onkeyup="sfx.type()"><button onclick="addNewLabel()">[+]</button></div>
                 </div>
@@ -699,16 +640,16 @@
         const requestDeleteLabel = (lbl) => openCommit('PURGE LABEL', `Remove [${lbl}]?`, () => { state.labels = state.labels.filter(l => l !== lbl); saveState(); showToast('LABEL PURGED'); renderSettings(); });
 
         const exportData = () => { sfx.enter(); const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(JSON.stringify(state)); const link = document.createElement('a'); link.href = dataUri; link.download = `OS_NXT_${Date.now()}.json`; link.click(); showToast('EXPORT SUCCESS'); addLog('DATA', 'Exported memory state'); };
-        const handleImport = (e) => { const file = e.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (event) => { try { const tempImport = JSON.parse(event.target.result); if(tempImport.notes) openCommit('OVERWRITE SYS', 'Current data will be destroyed.', () => { state = tempImport; saveState(); document.body.setAttribute('data-theme', state.settings.theme); showToast('RESTORE SUCCESS'); addLog('SYS', 'Memory restored'); navigate('dashboard'); }); } catch(err) { sfx.error(); showToast('IMPORT FAIL'); } }; reader.readAsText(file); e.target.value = ''; };
+        const handleImport = (e) => { const file = e.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (event) => { try { const tempImport = JSON.parse(event.target.result); if(tempImport.notes) openCommit('OVERWRITE SYS', 'Current data will be destroyed.', () => { state = tempImport; saveState(); document.body.setAttribute('data-theme', state.settings.theme); showToast('RESTORE SUCCESS'); addLog('SYS', 'Memory restored'); forceNavigate('dashboard'); }); } catch(err) { sfx.error(); showToast('IMPORT FAIL'); } }; reader.readAsText(file); e.target.value = ''; };
 
-        // --- COMMIT MODAL UX ---
+        // --- STRICT MODAL UX ---
         let commitCallback = null; const modal = document.getElementById('modal-overlay'); const modalInput = document.getElementById('modal-input');
         const openCommit = (title, desc, callback) => {
-            sfx.error(); document.getElementById('modal-title').innerText = title; document.getElementById('modal-desc').innerText = desc; modalInput.value = ''; commitCallback = callback; modal.style.display = 'flex'; 
-            modal.querySelector('.modal-box').classList.remove('crt-flash'); void modal.offsetWidth; modal.querySelector('.modal-box').classList.add('crt-flash'); setTimeout(() => modalInput.focus(), 100);
+            sfx.error(); document.getElementById('modal-title').innerText = title; document.getElementById('modal-desc').innerText = desc; modalInput.value = ''; modalInput.placeholder = "> TYPE 'OK'"; commitCallback = callback; modal.style.display = 'flex'; 
+            modal.querySelector('.modal-box').classList.remove('crt-flash'); void modal.offsetWidth; modal.querySelector('.modal-box').classList.add('crt-flash'); 
         };
         const closeModal = () => { sfx.enter(); modal.style.display = 'none'; commitCallback = null; };
-        document.getElementById('modal-confirm').addEventListener('click', () => { if(modalInput.value.toLowerCase() === 'ok') { sfx.commit(); modal.style.display = 'none'; if(commitCallback) commitCallback(); } else { sfx.error(); modalInput.value = ''; modalInput.placeholder = "INVALID."; } });
+        document.getElementById('modal-confirm').addEventListener('click', () => { if(modalInput.value.toLowerCase() === 'ok') { sfx.commit(); modal.style.display = 'none'; if(commitCallback) commitCallback(); } else { sfx.error(); modalInput.value = ''; modalInput.placeholder = "INVALID. TYPE 'OK'"; } });
 
         window.onload = () => {
             document.body.setAttribute('data-theme', state.settings.theme); document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#030a03' : '#fdf6e3'; history.replaceState({ view: 'dashboard' }, "", "#dashboard"); forceNavigate('dashboard');
@@ -717,4 +658,3 @@
     </script>
 </body>
 </html>
-
