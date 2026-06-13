@@ -8,39 +8,41 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" id="meta-theme-color" content="#051505">
+    <meta name="theme-color" id="meta-theme-color" content="#030a03">
     
-    <title>OS-NXT</title>
+    <title>OS-NXT // SYS</title>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Fira+Code:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Share+Tech+Mono&display=swap');
 
         :root {
-            /* Theme 1: Pip-Boy (Default) */
+            /* Theme 1: Pip-Boy Terminal (Strict) */
             --bg-color: #030a03;
             --text-color: #14ff14;
-            --text-muted: #0a7a0a;
+            --text-muted: #086b08;
             --accent: #22ff22;
-            --glow: 0 0 8px rgba(20, 255, 20, 0.4);
+            --glow: 0 0 4px rgba(20, 255, 20, 0.4);
             --crt-line: rgba(20, 255, 20, 0.08);
             --chart-fill: rgba(20, 255, 20, 0.2);
-            --font-main: 'VT323', monospace;
-            --letter-space: 1px;
+            --font-main: 'Share Tech Mono', monospace;
+            --letter-space: 0px;
             --radar-fade: rgba(3, 10, 3, 0.15);
+            --border-style: solid;
         }
 
         [data-theme="linux"] {
-            /* Theme 2: Linux Ivory Terminal (Solarized Light style) */
+            /* Theme 2: Linux Solarized Light Terminal */
             --bg-color: #fdf6e3;
-            --text-color: #2a2a2a;
+            --text-color: #073642; 
             --text-muted: #93a1a1;
-            --accent: #d33682;
+            --accent: #dc322f; 
             --glow: none;
             --crt-line: rgba(0, 0, 0, 0.03);
-            --chart-fill: rgba(42, 42, 42, 0.1);
+            --chart-fill: rgba(7, 54, 66, 0.1);
             --font-main: 'Fira Code', monospace;
-            --letter-space: 0px;
+            --letter-space: -0.5px;
             --radar-fade: rgba(253, 246, 227, 0.15);
+            --border-style: solid;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; scrollbar-width: none; }
@@ -51,13 +53,13 @@
             display: flex; flex-direction: column;
             font-family: var(--font-main); color: var(--text-color);
             letter-spacing: var(--letter-space);
+            text-transform: uppercase;
         }
 
         /* Fullscreen CRT Glass */
         #screen-glass {
             flex: 1; position: relative; background-color: var(--bg-color);
             overflow: hidden; display: flex; flex-direction: column;
-            /* Safe area for notch */
             padding-top: env(safe-area-inset-top);
         }
 
@@ -86,31 +88,30 @@
         /* Bottom Header / Navigation */
         #bottom-nav {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 70px;
-            background: var(--bg-color); border-top: 2px solid var(--text-color);
+            background: var(--bg-color); border-top: 2px var(--border-style) var(--text-color);
             display: flex; justify-content: space-around; align-items: center;
             z-index: 20; padding-bottom: env(safe-area-inset-bottom);
         }
 
         .nav-btn {
             background: none; border: none; color: var(--text-muted); font-family: var(--font-main);
-            font-size: 1.3rem; cursor: pointer; padding: 10px; transition: 0.1s; text-transform: uppercase;
-            letter-spacing: inherit;
+            font-size: 1.2rem; cursor: pointer; padding: 10px; transition: 0.1s; text-transform: uppercase;
+            font-weight: bold;
         }
-        .nav-btn.active { color: var(--text-color); text-shadow: var(--glow); border-bottom: 3px solid var(--text-color); }
+        .nav-btn.active { color: var(--text-color); text-shadow: var(--glow); border-bottom: 4px solid var(--text-color); }
 
         /* Elements */
-        h1, h2, h3 { text-transform: uppercase; border-bottom: 2px solid var(--text-color); padding-bottom: 5px; margin-bottom: 15px; }
+        h1, h2, h3 { border-bottom: 2px var(--border-style) var(--text-color); padding-bottom: 5px; margin-bottom: 15px; font-size: 1.2rem; }
         button, input {
             font-family: var(--font-main); color: var(--text-color); background: transparent;
-            border: 2px solid var(--text-color); outline: none; padding: 10px; text-shadow: var(--glow);
-            letter-spacing: inherit;
+            border: 2px var(--border-style) var(--text-color); outline: none; padding: 10px; text-shadow: var(--glow);
+            text-transform: uppercase;
         }
-        button { cursor: pointer; text-transform: uppercase; font-weight: bold; }
+        button { cursor: pointer; font-weight: bold; }
         button:active { background: var(--text-color); color: var(--bg-color); }
-        input::placeholder { color: var(--text-muted); opacity: 0.6; }
+        input::placeholder { color: var(--text-muted); opacity: 0.6; text-transform: uppercase; }
         input { user-select: auto; }
 
-        /* The Strict Square FAB */
         .fab-btn {
             position: fixed; bottom: 85px; right: 20px; z-index: 15;
             width: 55px; height: 55px; font-size: 1.8rem; font-weight: bold;
@@ -120,19 +121,19 @@
         .fab-btn:active { box-shadow: 0 0 0 transparent; transform: translate(-4px, 4px); }
 
         /* Editor Core */
-        .editor-container { position: relative; width: 100%; height: 55vh; margin-top: 10px; }
+        .editor-container { position: relative; width: 100%; height: 50vh; margin-top: 10px; }
         
         #edit-content, #edit-replica {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            font-family: var(--font-main); font-size: 1.3rem; line-height: 1.4;
-            padding: 10px; border: 2px solid var(--text-color);
+            font-family: var(--font-main); font-size: 1.1rem; line-height: 1.4;
+            padding: 10px; border: 2px var(--border-style) var(--text-color);
             white-space: pre-wrap; word-break: break-word; overflow-y: auto; margin: 0;
-            background: transparent; outline: none; border-radius: 0; letter-spacing: inherit;
+            background: transparent; outline: none; border-radius: 0; text-transform: none;
         }
         
         #edit-content { color: transparent; caret-color: transparent; z-index: 2; user-select: auto; }
         #edit-content::selection { background: var(--chart-fill); color: transparent; }
-        #edit-replica { color: var(--text-color); z-index: 1; pointer-events: none; }
+        #edit-replica { color: var(--text-color); z-index: 1; pointer-events: none; text-transform: none; }
         
         .thick-cursor {
             display: inline-block; width: 0.6em; height: 1.2em;
@@ -142,23 +143,23 @@
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
         /* Visualization Layouts */
-        .chart-box { border: 2px solid var(--text-color); padding: 5px; margin-bottom: 15px; position: relative; background: rgba(0,0,0,0.2); }
+        .chart-box { border: 2px var(--border-style) var(--text-color); padding: 5px; margin-bottom: 15px; position: relative; background: rgba(0,0,0,0.05); }
         canvas { display: block; width: 100%; }
-        .chart-label { position: absolute; top: 0; left: 5px; font-size: 0.8rem; background: var(--bg-color); padding: 0 5px; font-weight: bold; transform: translateY(-50%); }
+        .chart-label { position: absolute; top: 0; left: 5px; font-size: 0.8rem; background: var(--bg-color); padding: 0 5px; font-weight: bold; transform: translateY(-50%); border: 1px solid var(--text-color); }
 
         /* Specific Elements */
-        .note-card { border: 2px solid var(--text-color); padding: 12px; margin-bottom: 12px; cursor: pointer; position: relative; }
+        .note-card { border: 2px var(--border-style) var(--text-color); padding: 12px; margin-bottom: 10px; cursor: pointer; position: relative; display: block; width: 100%; text-align: left;}
         .note-card:active { background: var(--chart-fill); }
-        .note-date { font-size: 0.8rem; color: var(--text-muted); }
+        .note-date { font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;}
         .pin-badge { position: absolute; top: 0; right: 0; background: var(--text-color); color: var(--bg-color); font-size: 0.7rem; padding: 2px 5px; font-weight: bold;}
         
         .label-badge {
-            display: inline-block; padding: 2px 6px; font-size: 0.75rem;
+            display: inline-block; padding: 2px 6px; font-size: 0.7rem;
             border: 1px solid var(--text-color); color: var(--text-color); margin-right: 5px;
             background: var(--chart-fill);
         }
 
-        .timeline-item { border-left: 2px solid var(--text-color); padding-left: 15px; margin-bottom: 20px; position: relative; }
+        .timeline-item { border-left: 2px var(--border-style) var(--text-color); padding-left: 15px; margin-bottom: 15px; position: relative; font-size: 0.9rem;}
         .timeline-item::before {
             content: ''; position: absolute; left: -7px; top: 0;
             width: 12px; height: 12px; background: var(--bg-color); border: 2px solid var(--text-color);
@@ -167,9 +168,8 @@
         .flex-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: center;}
         .flex-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 
-        /* Utility classes */
-        .stat-block { flex: 1; border: 2px solid var(--text-color); padding: 10px; text-align: center; }
-        .stat-val { font-size: 1.5rem; font-weight: bold; }
+        .stat-block { flex: 1; border: 2px var(--border-style) var(--text-color); padding: 10px; text-align: center; }
+        .stat-val { font-size: 1.4rem; font-weight: bold; }
         .stat-lbl { font-size: 0.7rem; color: var(--text-muted); }
 
         /* Modal */
@@ -190,7 +190,7 @@
             position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
             background: var(--text-color); color: var(--bg-color);
             padding: 8px 15px; font-weight: bold; z-index: 100; opacity: 0; pointer-events: none;
-            transition: opacity 0.2s; border: 2px solid var(--text-color);
+            transition: opacity 0.2s; border: 2px solid var(--bg-color); box-shadow: 0 0 10px var(--glow);
         }
     </style>
 </head>
@@ -198,7 +198,7 @@
 
     <div id="screen-glass">
         <div class="scanline"></div>
-        <div id="toast">SYS MSG</div>
+        <div id="toast">[ SYS MSG ]</div>
 
         <div id="viewport">
             <!-- Content injected by JS -->
@@ -216,8 +216,8 @@
     <div id="modal-overlay">
         <div class="modal-box">
             <h3 id="modal-title">SUDO COMMIT</h3>
-            <p id="modal-desc" style="font-size: 0.9rem;">Authentication required.</p>
-            <input type="text" id="modal-input" autocomplete="off" placeholder="> TYPE 'ok'">
+            <p id="modal-desc" style="font-size: 0.8rem; color: var(--text-muted);">Authentication required.</p>
+            <input type="text" id="modal-input" autocomplete="off" placeholder="> TYPE 'OK'">
             <div class="flex-row" style="justify-content: center;">
                 <button onclick="closeModal()" style="border-style: dashed;">ABORT</button>
                 <button id="modal-confirm" style="background: var(--text-color); color: var(--bg-color);">EXEC</button>
@@ -227,39 +227,21 @@
 
     <script>
         /** * OS-NXT CORE LOGIC
-         * Strict. Functional. PWA Ready.
+         * Absolute logic. Strict functional state.
          */
 
-        // --- DYNAMIC PWA MANIFEST & ICON HACK ---
+        // --- PWA SETUP ---
         const setupPWA = () => {
-            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#051505"/><text x="50" y="65" font-family="monospace" font-size="50" font-weight="bold" fill="#14ff14" text-anchor="middle">&gt;_</text></svg>`;
+            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#030a03"/><text x="50" y="65" font-family="monospace" font-size="50" font-weight="bold" fill="#14ff14" text-anchor="middle">&gt;_</text></svg>`;
             const encodedIcon = "data:image/svg+xml;base64," + btoa(svgIcon);
-            
-            // Add Favicon
-            const link = document.createElement('link');
-            link.rel = 'icon'; link.href = encodedIcon;
-            document.head.appendChild(link);
-
-            // Add Apple Touch Icon
-            const appleLink = document.createElement('link');
-            appleLink.rel = 'apple-touch-icon'; appleLink.href = encodedIcon;
-            document.head.appendChild(appleLink);
-
-            // Add Manifest
-            const manifest = {
-                name: "OS-NXT", short_name: "OS-NXT",
-                display: "fullscreen", orientation: "portrait",
-                background_color: "#051505", theme_color: "#051505",
-                icons: [{ src: encodedIcon, sizes: "192x192", type: "image/svg+xml" }]
-            };
-            const manifestLink = document.createElement('link');
-            manifestLink.rel = 'manifest';
-            manifestLink.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
-            document.head.appendChild(manifestLink);
+            const link = document.createElement('link'); link.rel = 'icon'; link.href = encodedIcon; document.head.appendChild(link);
+            const appleLink = document.createElement('link'); appleLink.rel = 'apple-touch-icon'; appleLink.href = encodedIcon; document.head.appendChild(appleLink);
+            const manifest = { name: "OS-NXT", short_name: "OS-NXT", display: "fullscreen", orientation: "portrait", background_color: "#030a03", theme_color: "#030a03", icons: [{ src: encodedIcon, sizes: "192x192", type: "image/svg+xml" }] };
+            const manifestLink = document.createElement('link'); manifestLink.rel = 'manifest'; manifestLink.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest)); document.head.appendChild(manifestLink);
         };
         setupPWA();
 
-        // --- STATE MANAGEMENT ---
+        // --- STATE & UTILS ---
         let state = {
             notes: JSON.parse(localStorage.getItem('os-nxt-notes')) || [],
             labels: JSON.parse(localStorage.getItem('os-nxt-labels')) || ['TUGAS', 'PRIBADI', 'IDE'],
@@ -269,6 +251,8 @@
             activeNoteId: null,
             filterLabel: null
         };
+        
+        let sessionStartTime = Date.now();
 
         const saveState = () => {
             localStorage.setItem('os-nxt-notes', JSON.stringify(state.notes));
@@ -285,20 +269,29 @@
 
         const getStorageSize = () => {
             let total = 0;
-            for(let x in localStorage) {
-                if(localStorage.hasOwnProperty(x)) total += ((localStorage[x].length + x.length) * 2);
-            }
-            return (total / 1024).toFixed(2); // KB
+            for(let x in localStorage) { if(localStorage.hasOwnProperty(x)) total += ((localStorage[x].length + x.length) * 2); }
+            return (total / 1024).toFixed(1); 
         };
 
-        // --- AUDIO ENGINE ---
+        const fmtDate = (iso) => {
+            const d = new Date(iso);
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        };
+        const escapeHTML = (str) => str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
+
+        const showToast = (msg) => {
+            const t = document.getElementById('toast');
+            t.innerText = `[ ${msg} ]`; t.style.opacity = 1;
+            setTimeout(() => t.style.opacity = 0, 2000);
+        };
+
+        // --- AUDIO ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
         const initAudio = () => { if (!audioCtx) audioCtx = new AudioContext(); };
         const playTone = (freq, type, duration, vol) => {
             if (!state.settings.sound) return;
-            initAudio();
-            if(audioCtx.state === 'suspended') audioCtx.resume();
+            initAudio(); if(audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
             osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
             gain.gain.setValueAtTime(vol, audioCtx.currentTime);
@@ -306,7 +299,6 @@
             osc.connect(gain); gain.connect(audioCtx.destination);
             osc.start(); osc.stop(audioCtx.currentTime + duration);
         };
-
         const sfx = {
             type: () => playTone(Math.random() * 100 + 300, 'square', 0.05, 0.02),
             enter: () => playTone(600, 'triangle', 0.1, 0.05),
@@ -314,30 +306,13 @@
             commit: () => { playTone(800, 'square', 0.1, 0.05); setTimeout(() => playTone(1200, 'square', 0.15, 0.05), 100); }
         };
 
-        // --- UI UTILITIES ---
-        const viewport = document.getElementById('viewport');
-        const showToast = (msg) => {
-            const t = document.getElementById('toast');
-            t.innerText = `[ ${msg} ]`; t.style.opacity = 1;
-            setTimeout(() => t.style.opacity = 0, 2000);
-        };
-
-        const fmtDate = (iso) => {
-            const d = new Date(iso);
-            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-        };
-
-        const escapeHTML = (str) => str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
-
         // --- NAVIGATION ---
         let activeAnimations = [];
         const clearAnimations = () => { activeAnimations.forEach(id => cancelAnimationFrame(id)); activeAnimations = []; };
 
         const navigate = (view, silent = false) => {
             if (!silent) sfx.enter();
-            state.currentView = view;
-            clearAnimations();
-            
+            state.currentView = view; clearAnimations();
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.innerText.includes(view === 'notes' || view === 'editor' ? 'DATA' : (view === 'log' ? 'LOG' : (view === 'settings' ? 'CFG' : 'SYS'))));
             if(activeBtn) activeBtn.classList.add('active');
@@ -352,13 +327,14 @@
         };
 
         window.addEventListener('popstate', (e) => {
-            if(e.state && e.state.view) navigate(e.state.view, true);
-            else navigate('dashboard', true);
+            if(e.state && e.state.view) navigate(e.state.view, true); else navigate('dashboard', true);
         });
 
         // --- 1. DASHBOARD (SYS) ---
         const renderDashboard = () => {
             const storageKB = getStorageSize();
+            const recentNotes = [...state.notes].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 2);
+
             viewport.innerHTML = `
                 <h2>SYS.DIAGNOSTICS</h2>
                 
@@ -371,134 +347,109 @@
                         <div class="stat-val">${storageKB}k</div>
                         <div class="stat-lbl">MEM USAGE</div>
                     </div>
+                    <div class="stat-block">
+                        <div class="stat-val" id="uptime-val">00:00</div>
+                        <div class="stat-lbl">UPTIME</div>
+                    </div>
                 </div>
 
-                <div class="chart-box" style="height: 140px; margin-top: 15px;">
-                    <span class="chart-label">DATA DISTRIBUTION</span>
-                    <canvas id="pie-chart" height="120"></canvas>
-                </div>
-
-                <div class="flex-row" style="align-items: stretch;">
-                    <div class="chart-box" style="flex: 1; height: 140px; display:flex; justify-content:center; align-items:center; overflow:hidden;">
+                <div class="flex-row" style="align-items: stretch; margin-top: 15px;">
+                    <div class="chart-box" style="flex: 1; height: 120px; display:flex; justify-content:center; align-items:center; overflow:hidden;">
                         <span class="chart-label">MEM SCAN</span>
-                        <canvas id="radar-chart" width="120" height="120"></canvas>
+                        <canvas id="radar-chart" width="100" height="100"></canvas>
                     </div>
-                    <div style="flex: 1; display:flex; flex-direction:column; gap:10px;">
-                        <button style="flex:1; font-size:0.9rem;" onclick="addNote()">+ NEW DATA</button>
-                        <button style="flex:1; font-size:0.9rem; border-style:dashed;" onclick="navigate('log')">TRACE LOG</button>
+                    <div class="chart-box" style="flex: 1; height: 120px; display:flex; justify-content:center; align-items:center;">
+                        <span class="chart-label">DATA DIST</span>
+                        <canvas id="pie-chart" width="100" height="100"></canvas>
                     </div>
+                </div>
+
+                <h3>RECENT I/O</h3>
+                ${recentNotes.length === 0 ? '<p style="font-size:0.8rem">NO RECENT ACTIVITY.</p>' : recentNotes.map(n => `
+                    <button class="note-card" onclick="openNote(${n.id})">
+                        <span style="font-weight:bold;">${n.title || 'UNTITLED_BLOCK'}</span><br>
+                        <span class="note-date">MODIFIED: ${fmtDate(n.timestamp)}</span>
+                    </button>
+                `).join('')}
+
+                <h3 style="margin-top: 15px;">QUICK COMMANDS</h3>
+                <div class="flex-row">
+                    <button style="flex:1" onclick="addNote()">[+] NEW DATA</button>
+                    <button style="flex:1; border-color:red; color:red;" onclick="requestClearLogs()">FLUSH LOGS</button>
                 </div>
             `;
             
-            drawPieChart();
-            drawRadarScanner(storageKB);
-            addLog('SYSTEM', 'SYS Diagnostics loaded');
+            drawPieChart(); drawRadarScanner(storageKB); updateUptime();
+            addLog('SYSTEM', 'Accessed SYS Diagnostics');
+        };
+
+        const updateUptime = () => {
+            const el = document.getElementById('uptime-val');
+            if(!el || state.currentView !== 'dashboard') return;
+            const diff = Math.floor((Date.now() - sessionStartTime) / 1000);
+            const m = String(Math.floor(diff / 60)).padStart(2, '0');
+            const s = String(diff % 60).padStart(2, '0');
+            el.innerText = `${m}:${s}`;
+            activeAnimations.push(setTimeout(updateUptime, 1000));
         };
 
         const drawPieChart = () => {
-            const canvas = document.getElementById('pie-chart');
-            if(!canvas) return;
+            const canvas = document.getElementById('pie-chart'); if(!canvas) return;
             const ctx = canvas.getContext('2d');
-            canvas.width = canvas.parentElement.clientWidth - 10;
             const color = getComputedStyle(document.body).getPropertyValue('--text-color').trim();
-
             const dist = { 'UNLABELED': 0 };
             state.labels.forEach(l => dist[l] = 0);
-            state.notes.forEach(n => {
-                if(n.labels.length === 0) dist['UNLABELED']++;
-                else n.labels.forEach(l => { if(dist[l] !== undefined) dist[l]++; });
-            });
-
+            state.notes.forEach(n => { if(n.labels.length === 0) dist['UNLABELED']++; else n.labels.forEach(l => { if(dist[l] !== undefined) dist[l]++; }); });
             const validDist = Object.entries(dist).filter(([k,v]) => v > 0);
             const total = validDist.reduce((a, [k,v]) => a + v, 0);
 
-            if(total === 0) {
-                ctx.fillStyle = color; ctx.font = "14px monospace"; ctx.textAlign="center";
-                ctx.fillText("NO DATA", canvas.width/2, canvas.height/2);
-                return;
-            }
+            if(total === 0) { ctx.fillStyle = color; ctx.font = "12px monospace"; ctx.textAlign="center"; ctx.fillText("NO DATA", canvas.width/2, canvas.height/2); return; }
 
-            let startAngle = 0;
-            const cx = 60; // Offset left
-            const cy = canvas.height / 2;
-            const radius = cy - 10;
-
-            // Draw Pie
+            let startAngle = 0; const cx = canvas.width / 2; const cy = canvas.height / 2; const radius = cy - 5;
             validDist.forEach(([label, count], index) => {
                 const sliceAngle = (count / total) * 2 * Math.PI;
-                ctx.beginPath(); ctx.moveTo(cx, cy);
-                ctx.arc(cx, cy, radius, startAngle, startAngle + sliceAngle); ctx.closePath();
-                
-                // Opacity variation for distinction
-                const opacity = 1 - (index * 0.2);
-                ctx.fillStyle = color;
-                ctx.globalAlpha = Math.max(opacity, 0.2);
-                ctx.fill();
-                ctx.globalAlpha = 1.0;
-                ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--bg-color').trim();
-                ctx.lineWidth = 2; ctx.stroke();
-                
-                startAngle += sliceAngle;
-            });
-
-            // Draw Legend
-            let ly = 20;
-            ctx.font = "12px monospace"; ctx.textAlign = "left"; ctx.fillStyle = color;
-            validDist.forEach(([label, count], index) => {
-                if(ly < canvas.height - 10) {
-                    ctx.fillText(`[${count}] ${label.substring(0,8)}`, cx + radius + 20, ly);
-                    ly += 20;
-                }
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, radius, startAngle, startAngle + sliceAngle); ctx.closePath();
+                ctx.fillStyle = color; ctx.globalAlpha = Math.max(1 - (index * 0.25), 0.2); ctx.fill();
+                ctx.globalAlpha = 1.0; ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--bg-color').trim();
+                ctx.lineWidth = 1; ctx.stroke(); startAngle += sliceAngle;
             });
         };
 
         const drawRadarScanner = (storage) => {
-            const canvas = document.getElementById('radar-chart');
-            if(!canvas) return;
+            const canvas = document.getElementById('radar-chart'); if(!canvas) return;
             const ctx = canvas.getContext('2d');
-            const cx = canvas.width / 2; const cy = canvas.height / 2;
-            const radius = cx - 5; let angle = 0;
+            const cx = canvas.width / 2; const cy = canvas.height / 2; const radius = cx - 5; let angle = 0;
             const color = getComputedStyle(document.body).getPropertyValue('--text-color').trim();
             
             const animate = () => {
                 if(state.currentView !== 'dashboard') return;
-                
-                // Dynamic fade color based on theme
-                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--radar-fade').trim();
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--radar-fade').trim(); ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--crt-line').trim();
                 ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy); ctx.stroke();
-
                 ctx.save(); ctx.translate(cx, cy); ctx.rotate(angle);
                 ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, radius, 0, 0.2); ctx.lineTo(0,0);
                 ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--chart-fill').trim(); ctx.fill();
                 ctx.strokeStyle = color; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(radius, 0); ctx.stroke();
                 ctx.restore();
+                angle += 0.08; activeAnimations.push(requestAnimationFrame(animate));
+            }; animate();
+        };
 
-                // Draw Storage Info in center
-                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg-color').trim();
-                ctx.fillRect(cx - 20, cy - 10, 40, 20);
-                ctx.fillStyle = color; ctx.font = "10px monospace"; ctx.textAlign="center";
-                ctx.fillText(storage>1000 ? (storage/1024).toFixed(1)+'M' : storage+'K', cx, cy+3);
-
-                angle += 0.08;
-                activeAnimations.push(requestAnimationFrame(animate));
-            };
-            animate();
+        const requestClearLogs = () => {
+            openCommit('FLUSH SYS LOGS', 'Erase all trace data? Type "ok".', () => {
+                state.logs = []; saveState(); showToast('LOGS FLUSHED'); renderDashboard();
+            });
         };
 
         // --- 2. NOTES LIST (DATA) ---
         const renderNotes = () => {
             const searchTerm = document.getElementById('search-box')?.value.toLowerCase() || '';
             let filteredNotes = state.notes;
-            
             if(state.filterLabel) filteredNotes = filteredNotes.filter(n => n.labels.includes(state.filterLabel));
             if(searchTerm) filteredNotes = filteredNotes.filter(n => n.title.toLowerCase().includes(searchTerm) || n.content.toLowerCase().includes(searchTerm));
 
-            // Separate Pinned and Unpinned
             const pinned = filteredNotes.filter(n => n.pinned);
             const unpinned = filteredNotes.filter(n => !n.pinned);
             const sortedNotes = [...pinned, ...unpinned];
@@ -532,12 +483,13 @@
 
         const setFilter = (lbl) => { sfx.enter(); state.filterLabel = lbl; renderNotes(); };
 
-        // --- 3. EDITOR (CORE) ---
+        // --- 3. EDITOR (STRICT SAVE/DISCARD LOGIC) ---
         const addNote = () => {
             const id = Date.now();
-            state.notes.unshift({ id, title: '', content: '', labels: [], pinned: false, timestamp: new Date().toISOString() });
-            state.activeNoteId = id; saveState(); navigate('editor');
-            addLog('DATA', `Allocated new block ID:${id}`);
+            const newNote = { id, title: '', content: '', labels: [], pinned: false, timestamp: new Date().toISOString(), _isNew: true };
+            state.notes.unshift(newNote); // Temp push
+            state.activeNoteId = id; 
+            navigate('editor');
         };
 
         const openNote = (id) => { state.activeNoteId = id; navigate('editor'); };
@@ -546,31 +498,32 @@
             const note = state.notes.find(n => n.id === state.activeNoteId);
             if(!note) return navigate('notes');
 
-            // Calculate words/chars
             const words = note.content.trim().split(/\s+/).filter(w=>w.length>0).length;
-            const chars = note.content.length;
 
             viewport.innerHTML = `
                 <div class="flex-between">
-                    <button onclick="navigate('notes')" style="border-style:dashed;">&lt; BACK</button>
-                    <div>
-                        <button onclick="togglePin(${note.id})" style="${note.pinned ? 'background:var(--text-color); color:var(--bg-color);' : ''}">PIN</button>
-                        <button style="color:red; border-color:red;" onclick="requestDelete(${note.id})">PURGE</button>
-                    </div>
+                    <button onclick="requestDiscard()" style="border-style:dashed; color:var(--text-muted);">&lt; DISCARD</button>
+                    <button style="background:var(--text-color); color:var(--bg-color);" onclick="requestSave()">SAVE &gt;</button>
                 </div>
                 
-                <input type="text" id="edit-title" value="${note.title}" placeholder="> TITLE_BLOCK" style="width:100%; margin-bottom:5px; font-size:1.3rem; font-weight:bold;" oninput="updateNote(); sfx.type()">
+                <input type="text" id="edit-title" value="${note.title}" placeholder="> TITLE_BLOCK" style="width:100%; margin-bottom:5px; font-size:1.2rem; font-weight:bold;" oninput="sfx.type()">
                 
-                <div class="flex-between" style="font-size: 0.7rem; color: var(--text-muted); border-bottom: 1px dashed var(--text-muted); padding-bottom: 5px; margin-bottom: 10px;">
-                    <span id="editor-stats">W: ${words} | C: ${chars}</span>
-                    <span>TAGS: ${state.labels.map(l => `
-                        <span onclick="toggleLabel('${l}')" style="cursor:pointer; border:${note.labels.includes(l)?'1px solid var(--accent)':'1px dashed'}; padding:1px 3px; margin-left:3px;">${l}</span>
-                    `).join('')}</span>
+                <div class="flex-between" style="font-size: 0.75rem; color: var(--text-muted); border-bottom: 1px dashed var(--text-muted); padding-bottom: 5px; margin-bottom: 10px;">
+                    <span id="editor-stats">W: ${words} | C: ${note.content.length}</span>
+                    <span>
+                        <span onclick="togglePinDraft()" style="cursor:pointer; border:${note.pinned?'1px solid var(--accent)':'1px dashed'}; padding:2px 5px; margin-right:5px; font-weight:bold;">PIN</span>
+                        ${state.labels.map(l => `
+                        <span onclick="toggleLabelDraft('${l}')" style="cursor:pointer; border:${note.labels.includes(l)?'1px solid var(--accent)':'1px dashed'}; padding:2px 4px; margin-left:3px;">${l}</span>
+                        `).join('')}
+                    </span>
                 </div>
 
                 <div class="editor-container">
                     <div id="edit-replica"></div>
-                    <textarea id="edit-content" placeholder="> AWAITING INPUT SEQUENCE..." oninput="syncReplica(); updateNote(); sfx.type()">${note.content}</textarea>
+                    <textarea id="edit-content" placeholder="> AWAITING INPUT SEQUENCE..." oninput="syncReplica(); sfx.type()">${note.content}</textarea>
+                </div>
+                <div style="text-align:right; margin-top:10px;">
+                    <button style="color:red; border-color:red; font-size:0.8rem;" onclick="requestDelete(${note.id})">PURGE BLOCK</button>
                 </div>
             `;
             
@@ -579,47 +532,73 @@
             textarea.addEventListener('scroll', (e) => { document.getElementById('edit-replica').scrollTop = e.target.scrollTop; });
         };
 
-        const syncReplica = () => {
-            const textarea = document.getElementById('edit-content');
-            const replica = document.getElementById('edit-replica');
-            if(!textarea || !replica) return;
-            
-            let text = textarea.value;
-            if (text.endsWith('\n')) text += ' '; 
-            replica.innerHTML = escapeHTML(text) + '<span class="thick-cursor"></span>';
-            
-            // Update stats realtime
-            const words = text.trim().split(/\s+/).filter(w=>w.length>0).length;
-            const stats = document.getElementById('editor-stats');
-            if(stats) stats.innerText = `W: ${words} | C: ${text.length}`;
-        };
-
-        const toggleLabel = (lbl) => {
-            sfx.enter(); const note = state.notes.find(n => n.id === state.activeNoteId);
-            if(note.labels.includes(lbl)) note.labels = note.labels.filter(l => l !== lbl);
-            else note.labels.push(lbl);
-            saveState(); renderEditor();
-        };
-
-        const togglePin = (id) => {
-            sfx.enter(); const note = state.notes.find(n => n.id === id);
-            note.pinned = !note.pinned; saveState(); renderEditor();
-        };
-
-        const updateNote = () => {
+        const captureDraft = () => {
             const note = state.notes.find(n => n.id === state.activeNoteId);
-            note.title = document.getElementById('edit-title').value;
-            note.content = document.getElementById('edit-content').value;
-            note.timestamp = new Date().toISOString();
-            saveState();
+            if(note) {
+                note.title = document.getElementById('edit-title').value;
+                note.content = document.getElementById('edit-content').value;
+            }
         };
+
+        const toggleLabelDraft = (lbl) => {
+            sfx.enter(); captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId);
+            if(note.labels.includes(lbl)) note.labels = note.labels.filter(l => l !== lbl); else note.labels.push(lbl);
+            renderEditor(); 
+        };
+
+        const togglePinDraft = () => {
+            sfx.enter(); captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId);
+            note.pinned = !note.pinned; renderEditor();
+        };
+
+        const syncReplica = () => {
+            const textarea = document.getElementById('edit-content'); const replica = document.getElementById('edit-replica');
+            if(!textarea || !replica) return;
+            let text = textarea.value; if (text.endsWith('\n')) text += ' '; 
+            replica.innerHTML = escapeHTML(text) + '<span class="thick-cursor"></span>';
+            const words = text.trim().split(/\s+/).filter(w=>w.length>0).length;
+            const stats = document.getElementById('editor-stats'); if(stats) stats.innerText = `W: ${words} | C: ${text.length}`;
+        };
+
+        // --- DISCARD DENGAN COMMIT OK ---
+        const requestDiscard = () => {
+            openCommit('DISCARD DRAFT', 'Type "ok" to purge unsaved changes.', () => {
+                const note = state.notes.find(n => n.id === state.activeNoteId);
+                if(note && note._isNew) {
+                    state.notes = state.notes.filter(n => n.id !== state.activeNoteId);
+                } else {
+                    state.notes = JSON.parse(localStorage.getItem('os-nxt-notes')) || [];
+                }
+                showToast('CHANGES PURGED');
+                navigate('notes');
+            });
+        };
+
+        // --- SAVE DENGAN COMMIT OK ---
+        const requestSave = () => {
+            openCommit('SAVE TO MEMORY', 'Type "ok" to commit changes to database.', () => {
+                captureDraft();
+                const note = state.notes.find(n => n.id === state.activeNoteId);
+                note.timestamp = new Date().toISOString();
+                delete note._isNew; 
+                saveState();
+                showToast('DATA SAVED');
+                addLog('DATA', `Committed changes to block ID:${note.id}`);
+                navigate('notes');
+            });
+        };
+
+        const requestDelete = (id) => openCommit('PURGE DATA', `Delete ID:${id}? Type "ok".`, () => {
+            state.notes = state.notes.filter(n => n.id !== id); saveState(); showToast('BLOCK PURGED'); 
+            addLog('DATA', `Purged block ID:${id}`); navigate('notes');
+        });
 
         // --- 4. LOG ---
         const renderLog = () => {
             viewport.innerHTML = `
                 <h2>TRACE.LOG</h2>
-                <div style="border-left: 2px solid var(--text-color); margin-left: 10px;">
-                    ${state.logs.map(l => `
+                <div style="border-left: 2px var(--border-style) var(--text-color); margin-left: 10px;">
+                    ${state.logs.length === 0 ? '<p style="padding-left:10px;">NO LOGS.</p>' : state.logs.map(l => `
                         <div class="timeline-item">
                             <span class="note-date">${fmtDate(l.time)}</span><br>
                             <strong>[${l.action}]</strong> ${l.details}
@@ -634,12 +613,12 @@
             viewport.innerHTML = `
                 <h2>SYS.CONFIG</h2>
                 
-                <div class="flex-between" style="border:2px solid var(--text-color); padding:10px; margin-bottom:15px;">
+                <div class="flex-between" style="border:2px var(--border-style) var(--text-color); padding:10px; margin-bottom:15px;">
                     <span style="font-weight:bold;">UI ENVIRONMENT</span>
                     <button onclick="toggleTheme()" style="border-style:dashed;">${state.settings.theme === 'pipboy' ? 'DARK (PIPBOY)' : 'LIGHT (LINUX)'}</button>
                 </div>
 
-                <div class="flex-between" style="border:2px solid var(--text-color); padding:10px; margin-bottom:15px;">
+                <div class="flex-between" style="border:2px var(--border-style) var(--text-color); padding:10px; margin-bottom:15px;">
                     <span style="font-weight:bold;">AUDIO FEEDBACK</span>
                     <button onclick="toggleSound()" style="border-style:dashed;">${state.settings.sound ? 'ENABLED' : 'MUTED'}</button>
                 </div>
@@ -671,10 +650,8 @@
         };
 
         const toggleTheme = () => {
-            sfx.enter();
-            state.settings.theme = state.settings.theme === 'pipboy' ? 'linux' : 'pipboy';
+            sfx.enter(); state.settings.theme = state.settings.theme === 'pipboy' ? 'linux' : 'pipboy';
             document.body.setAttribute('data-theme', state.settings.theme);
-            // Update meta theme color dynamically for Status bar
             document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#030a03' : '#fdf6e3';
             saveState(); renderSettings(); addLog('CFG', `Environment set to ${state.settings.theme}`);
         };
@@ -682,31 +659,25 @@
         const toggleSound = () => { state.settings.sound = !state.settings.sound; if(state.settings.sound) sfx.enter(); saveState(); renderSettings(); };
 
         const addNewLabel = () => {
-            const input = document.getElementById('new-label-input');
-            const val = input.value.trim().toUpperCase().replace(/\s+/g, '_');
-            if(val && !state.labels.includes(val)) {
-                sfx.commit(); state.labels.push(val); saveState(); addLog('CFG', `Created label [${val}]`); renderSettings();
-            } else { sfx.error(); showToast("INVALID LABEL"); }
+            const input = document.getElementById('new-label-input'); const val = input.value.trim().toUpperCase().replace(/\s+/g, '_');
+            if(val && !state.labels.includes(val)) { sfx.commit(); state.labels.push(val); saveState(); addLog('CFG', `Created label [${val}]`); renderSettings(); } 
+            else { sfx.error(); showToast("INVALID LABEL"); }
         };
 
-        const requestDeleteLabel = (lbl) => {
-            openCommit('PURGE LABEL', `Remove [${lbl}]? Type 'ok'.`, () => {
-                state.labels = state.labels.filter(l => l !== lbl); saveState(); showToast('LABEL PURGED'); renderSettings();
-            });
-        };
+        const requestDeleteLabel = (lbl) => openCommit('PURGE LABEL', `Remove [${lbl}]? Type 'ok'.`, () => {
+            state.labels = state.labels.filter(l => l !== lbl); saveState(); showToast('LABEL PURGED'); renderSettings();
+        });
 
         // --- I/O ---
         const exportData = () => {
-            sfx.enter();
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(JSON.stringify(state));
+            sfx.enter(); const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(JSON.stringify(state));
             const link = document.createElement('a'); link.href = dataUri; link.download = `OS_NXT_${Date.now()}.json`; link.click();
             showToast('EXPORT SUCCESS'); addLog('DATA', 'Exported memory state');
         };
 
         let tempImport = null;
         const handleImport = (e) => {
-            const file = e.target.files[0]; if(!file) return;
-            const reader = new FileReader();
+            const file = e.target.files[0]; if(!file) return; const reader = new FileReader();
             reader.onload = (event) => {
                 try {
                     tempImport = JSON.parse(event.target.result);
@@ -715,8 +686,7 @@
                         showToast('RESTORE SUCCESS'); addLog('SYS', 'Memory restored'); navigate('dashboard');
                     });
                 } catch(err) { sfx.error(); showToast('IMPORT FAIL'); }
-            };
-            reader.readAsText(file); e.target.value = '';
+            }; reader.readAsText(file); e.target.value = '';
         };
 
         // --- COMMIT MODAL ---
@@ -730,13 +700,8 @@
         const closeModal = () => { sfx.enter(); modal.style.display = 'none'; commitCallback = null; };
 
         document.getElementById('modal-confirm').addEventListener('click', () => {
-            if(modalInput.value.toLowerCase() === 'ok') {
-                sfx.commit(); modal.style.display = 'none'; if(commitCallback) commitCallback();
-            } else { sfx.error(); modalInput.value = ''; modalInput.placeholder = "INVALID."; }
-        });
-
-        const requestDelete = (id) => openCommit('PURGE DATA', `Delete ID:${id}? Type 'ok'.`, () => {
-            state.notes = state.notes.filter(n => n.id !== id); saveState(); showToast('PURGED'); navigate('notes');
+            if(modalInput.value.toLowerCase() === 'ok') { sfx.commit(); modal.style.display = 'none'; if(commitCallback) commitCallback(); } 
+            else { sfx.error(); modalInput.value = ''; modalInput.placeholder = "INVALID."; }
         });
 
         // --- INIT ---
@@ -749,3 +714,4 @@
     </script>
 </body>
 </html>
+
