@@ -229,9 +229,9 @@
         .prog-bar { width: 100%; height: 6px; background: var(--chart-fill); margin-top: 10px; position: relative; overflow: hidden;}
         .prog-fill { height: 100%; background: var(--text-color); width: 0%; transition: width 1s ease-out; box-shadow: var(--glow-light);}
 
-        /* AVATAR INTERAKTIF GILA-GILAAN */
+        /* AVATAR BARU - LEBIH VAULT BOY BGT */
         .avatar-container { width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; position: relative; touch-action: none; }
-        #nxt-boy-svg { width: 100%; height: 100%; stroke: var(--text-color); fill: none; stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 0 5px var(--text-color)); transition: transform 0.1s ease-out, filter 0.3s;}
+        #nxt-boy-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 5px var(--text-color)); transition: transform 0.1s ease-out, filter 0.3s;}
         
         .gauge-container { position: relative; width: 100%; height: 80px; display: flex; justify-content: center; align-items: flex-end; }
         #rad-gauge-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
@@ -419,9 +419,9 @@
             } else { batteryLevel = "99%"; isCharging = false; } 
         };
 
-        // --- AVATAR INTERAKTIF (GYRO & TOUCH) ---
+        // --- AVATAR INTERAKTIF (GLOBAL TRACKING) ---
         let pupilX = 0, pupilY = 0;
-        let isTouchingAvatar = false;
+        let globalTouchActive = false;
         let lastTapTime = 0;
 
         const updateAvatarEyes = (x, y) => {
@@ -430,97 +430,92 @@
             if(pL && pR) { pL.setAttribute('transform', `translate(${x}, ${y})`); pR.setAttribute('transform', `translate(${x}, ${y})`); }
         };
 
-        // Fallback Mouse
-        document.addEventListener('mousemove', (e) => {
-            if(gyroEnabled || isTouchingAvatar || state.currentView !== 'dashboard') return;
-            const svg = document.getElementById('nxt-boy-svg'); if(!svg) return;
+        // Logika global pointer buat mouse & touch
+        const trackGlobalPointer = (clientX, clientY) => {
+            if(state.currentView !== 'dashboard' || gyroEnabled) return;
+            const svg = document.getElementById('nxt-boy-svg');
+            if(!svg) return;
+            
             const rect = svg.getBoundingClientRect();
-            const cx = rect.left + rect.width / 2; const cy = rect.top + rect.height / 2;
-            const dx = e.clientX - cx; const dy = e.clientY - cy;
+            // Pusat muka
+            const cx = rect.left + rect.width / 2; 
+            const cy = rect.top + rect.height / 2;
+            
+            const dx = clientX - cx; 
+            const dy = clientY - cy;
+            
             const angle = Math.atan2(dy, dx);
-            const dist = Math.min(Math.sqrt(dx*dx + dy*dy) / 20, 3); 
-            pupilX = Math.cos(angle) * dist; pupilY = Math.sin(angle) * dist;
+            // Limit gerak pupil
+            const maxEyeMove = 3.5;
+            const dist = Math.min(Math.sqrt(dx*dx + dy*dy) / 40, maxEyeMove); 
+            
+            pupilX = Math.cos(angle) * dist; 
+            pupilY = Math.sin(angle) * dist;
             updateAvatarEyes(pupilX, pupilY);
+            
+            // Kepala miring dikit ngikutin arah sentuhan
+            const tilt = Math.max(Math.min(dx / 20, 15), -15);
+            svg.style.transform = `rotate(${tilt}deg) scale(0.95)`;
+        };
+
+        // Bind listener ke document, bukan cuma ke hitbox
+        document.addEventListener('touchstart', (e) => {
+            globalTouchActive = true;
+            trackGlobalPointer(e.touches[0].clientX, e.touches[0].clientY);
+            
+            const mouth = document.getElementById('boy-mouth');
+            if(mouth && radsCount <= 400 && state.currentView === 'dashboard') {
+                mouth.setAttribute('d', 'M 45 75 A 5 5 0 1 1 55 75 A 5 5 0 1 1 45 75'); // Mulut membulat "O"
+            }
+        }, {passive: true});
+
+        document.addEventListener('touchmove', (e) => {
+            if(globalTouchActive) trackGlobalPointer(e.touches[0].clientX, e.touches[0].clientY);
+        }, {passive: true});
+
+        document.addEventListener('touchend', (e) => {
+            if(e.touches.length === 0) {
+                globalTouchActive = false;
+                const svg = document.getElementById('nxt-boy-svg');
+                if(svg) svg.style.transform = 'none';
+                pupilX = 0; pupilY = 0;
+                updateAvatarEyes(0, 0);
+                updateAvatarState();
+            }
         });
 
-        // Gyroscope tracking
+        document.addEventListener('mousemove', (e) => {
+            if(globalTouchActive || gyroEnabled) return;
+            trackGlobalPointer(e.clientX, e.clientY);
+        });
+
+        // Gyroscope tracking fallback
         const handleOrientation = (e) => {
-            if(isTouchingAvatar || state.currentView !== 'dashboard') return;
+            if(globalTouchActive || state.currentView !== 'dashboard') return;
             if(e.gamma === null || e.beta === null) return; 
             gyroEnabled = true;
-            // Gamma: left-right (-90 to 90). Beta: front-back (-180 to 180)
-            let rawX = e.gamma; let rawY = e.beta - 45; // Asumsi megang HP 45 derajat
+            let rawX = e.gamma; let rawY = e.beta - 45; 
             let mappedX = Math.min(Math.max(rawX, -45), 45) / 45 * 4;
             let mappedY = Math.min(Math.max(rawY, -45), 45) / 45 * 4;
             updateAvatarEyes(mappedX, mappedY);
         };
 
-        // Touch Avatar Logic
-        const bindAvatarTouch = () => {
-            const avatarHitbox = document.getElementById('avatar-hitbox');
-            if(!avatarHitbox) return;
-            
-            avatarHitbox.addEventListener('touchstart', (e) => {
-                isTouchingAvatar = true; sfx.commit();
-                const mouth = document.getElementById('boy-mouth');
-                if(mouth) mouth.setAttribute('d', 'M 45 65 A 5 5 0 1 1 55 65 A 5 5 0 1 1 45 65'); // Mulut membulat "O"
-                trackAvatarTouch(e.touches[0]);
-                
-                // Double tap check for RadAway Heal
-                const now = Date.now();
-                if(now - lastTapTime < 300) {
-                    healRads();
-                }
-                lastTapTime = now;
-                e.preventDefault();
-            });
-
-            avatarHitbox.addEventListener('touchmove', (e) => {
-                if(isTouchingAvatar) trackAvatarTouch(e.touches[0]);
-                e.preventDefault();
-            });
-
-            avatarHitbox.addEventListener('touchend', (e) => {
-                isTouchingAvatar = false;
-                updateAvatarState(); // Kembali normal
-                document.getElementById('nxt-boy-svg').style.transform = 'none';
-                e.preventDefault();
-            });
-        };
-
-        const trackAvatarTouch = (touch) => {
-            if(state.currentView !== 'dashboard') return;
-            const svg = document.getElementById('nxt-boy-svg');
-            const rect = svg.getBoundingClientRect();
-            const cx = rect.left + rect.width / 2; const cy = rect.top + rect.height / 2;
-            const dx = touch.clientX - cx; const dy = touch.clientY - cy;
-            
-            // Mata liat jari ekstrem
-            const angle = Math.atan2(dy, dx);
-            pupilX = Math.cos(angle) * 4; pupilY = Math.sin(angle) * 4;
-            updateAvatarEyes(pupilX, pupilY);
-            
-            // Kepala miring dikit ngikut jari
-            const tilt = Math.max(Math.min(dx / 5, 15), -15);
-            svg.style.transform = `rotate(${tilt}deg) scale(0.95)`;
-        };
-
         const updateAvatarState = () => {
             const mouth = document.getElementById('boy-mouth');
             const svg = document.getElementById('nxt-boy-svg');
-            if(!mouth || !svg || isTouchingAvatar) return;
+            if(!mouth || !svg || globalTouchActive) return;
             
             if(radsCount > 800) {
-                // Ghoul / Sakit radiasi tinggi (Mulut turun, mata silang)
-                mouth.setAttribute('d', 'M 30 70 Q 50 60 70 70');
+                // Ghoul / Sakit radiasi tinggi
+                mouth.setAttribute('d', 'M 35 75 Q 50 65 65 75');
                 svg.style.filter = "drop-shadow(0 0 15px red) hue-rotate(-45deg)";
             } else if (radsCount > 400) {
                 // Netral
-                mouth.setAttribute('d', 'M 35 65 Q 50 65 65 65');
+                mouth.setAttribute('d', 'M 40 72 Q 50 72 60 72');
                 svg.style.filter = "drop-shadow(0 0 5px var(--text-color))";
             } else {
                 // Senyum
-                mouth.setAttribute('d', 'M 30 60 Q 50 75 70 60');
+                mouth.setAttribute('d', 'M 35 70 Q 50 80 65 70');
                 svg.style.filter = "drop-shadow(0 0 5px var(--text-color))";
             }
         };
@@ -779,15 +774,28 @@
                     <div class="stat-block" style="flex-direction:row; align-items:center; justify-content:space-around;">
                         <div class="avatar-container" id="avatar-hitbox">
                             <svg viewBox="0 0 100 100" id="nxt-boy-svg">
-                                <path d="M 20 50 A 30 30 0 1 1 80 50 A 30 40 0 0 1 20 50" />
-                                <path d="M 15 40 C 30 5, 70 5, 85 40 C 70 20, 30 20, 15 40" fill="var(--text-color)" stroke="none"/>
-                                <path d="M 25 50 Q 15 50 15 65" stroke-linecap="round"/>
-                                <path d="M 75 50 Q 85 50 85 65" stroke-linecap="round"/>
-                                <ellipse cx="35" cy="45" rx="5" ry="8" id="eye-l"/>
-                                <ellipse cx="65" cy="45" rx="5" ry="8" id="eye-r"/>
-                                <circle cx="35" cy="45" r="2" fill="var(--bg-bezel)" id="pupil-l" stroke="none"/>
-                                <circle cx="65" cy="45" r="2" fill="var(--bg-bezel)" id="pupil-r" stroke="none"/>
-                                <path d="M 30 60 Q 50 75 70 60" id="boy-mouth"/>
+                                <!-- Leher & Kerah -->
+                                <path d="M 40 85 L 40 100 M 60 85 L 60 100 M 20 100 L 40 90 L 60 90 L 80 100" fill="none" stroke="var(--text-color)" stroke-width="3"/>
+                                <!-- Rambut Belakang -->
+                                <path d="M 22 45 C 15 25, 35 5, 55 5 C 75 5, 85 25, 78 45" fill="none" stroke="var(--text-color)" stroke-width="4"/>
+                                <!-- Kuping -->
+                                <path d="M 22 45 C 12 45, 12 60, 22 60" fill="none" stroke="var(--text-color)" stroke-width="3"/>
+                                <path d="M 78 45 C 88 45, 88 60, 78 60" fill="none" stroke="var(--text-color)" stroke-width="3"/>
+                                <!-- Rahang / Wajah -->
+                                <path d="M 22 55 Q 22 85 50 85 Q 78 85 78 55" fill="none" stroke="var(--text-color)" stroke-width="4"/>
+                                <!-- Poni Vault Boy -->
+                                <path d="M 22 45 Q 35 25 55 35 Q 70 30 78 45" fill="none" stroke="var(--text-color)" stroke-width="3"/>
+                                <!-- Detail Helai -->
+                                <path d="M 55 5 Q 60 20 50 30 M 70 12 Q 75 25 65 35" fill="none" stroke="var(--text-color)" stroke-width="2"/>
+                                <!-- Mata -->
+                                <ellipse cx="35" cy="50" rx="5" ry="8" id="eye-l" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="2"/>
+                                <ellipse cx="65" cy="50" rx="5" ry="8" id="eye-r" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="2"/>
+                                <circle cx="35" cy="50" r="2.5" fill="var(--text-color)" id="pupil-l"/>
+                                <circle cx="65" cy="50" r="2.5" fill="var(--text-color)" id="pupil-r"/>
+                                <!-- Hidung -->
+                                <path d="M 48 60 L 50 63 L 52 60" fill="none" stroke="var(--text-color)" stroke-width="2" stroke-linecap="round"/>
+                                <!-- Mulut -->
+                                <path d="M 35 70 Q 50 80 65 70" id="boy-mouth" fill="none" stroke="var(--text-color)" stroke-width="3" stroke-linecap="round"/>
                             </svg>
                         </div>
                         <div style="text-align:right;">
@@ -840,8 +848,17 @@
                 if(streamEl) streamEl.innerText = `0x${Math.floor(Math.random()*16777215).toString(16).toUpperCase()} ${str}`;
             }, 100);
 
-            // Bind Interaksi Mobile ke Avatar
-            bindAvatarTouch();
+            // Double Tap Logic di muka Avatar
+            const hitbox = document.getElementById('avatar-hitbox');
+            if(hitbox) {
+                hitbox.addEventListener('touchstart', () => {
+                    sfx.commit();
+                    const now = Date.now();
+                    if(now - lastTapTime < 300) healRads();
+                    lastTapTime = now;
+                }, {passive: true});
+            }
+
             updateAvatarState();
 
             // Animasi Kedip
@@ -849,13 +866,13 @@
                 if(state.currentView !== 'dashboard') return;
                 const eyeL = document.getElementById('eye-l'); const eyeR = document.getElementById('eye-r');
                 const pL = document.getElementById('pupil-l'); const pR = document.getElementById('pupil-r');
-                if(eyeL && eyeR && pL && pR && !isTouchingAvatar) {
+                if(eyeL && eyeR && pL && pR && !globalTouchActive) {
                     eyeL.setAttribute('ry', '1'); eyeR.setAttribute('ry', '1');
                     pL.setAttribute('r', '0'); pR.setAttribute('r', '0');
                     setTimeout(() => {
                         if(state.currentView !== 'dashboard') return;
                         eyeL.setAttribute('ry', '8'); eyeR.setAttribute('ry', '8');
-                        pL.setAttribute('r', '2'); pR.setAttribute('r', '2');
+                        pL.setAttribute('r', '2.5'); pR.setAttribute('r', '2.5');
                     }, 150);
                 }
                 blinkInterval = setTimeout(doBlink, Math.random() * 4000 + 2000);
