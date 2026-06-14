@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" id="meta-theme-color" content="#020802">
     
-    <title>OS-NXT // OVERSEER V10</title>
+    <title>OS-NXT // FINAL</title>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Share+Tech+Mono&display=swap');
@@ -84,7 +84,7 @@
             border: 2px solid #111; z-index: 1; transform-style: preserve-3d;
         }
 
-        /* 1. LAYERS WITH PARALLAX DEPTH */
+        /* 1. LAPISAN KARO EFEK PARALLAX */
         #bg-parallax-wrapper { position: absolute; top: -5%; left: -5%; width: 110%; height: 110%; pointer-events: none; z-index: 2; transition: transform 0.1s ease-out; }
         #bg-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: radial-gradient(var(--crt-line) 1px, transparent 1px); background-size: 25px 25px; pointer-events: none; opacity: 0.3; }
         #matrix-canvas { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; opacity: 0.25; display: none; }
@@ -101,11 +101,11 @@
         #crt-vignette { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, transparent 50%, rgba(0,0,0,0.9) 120%), linear-gradient(90deg, rgba(0,0,0,0.6) 0%, transparent 5%, transparent 95%, rgba(0,0,0,0.6) 100%), linear-gradient(0deg, rgba(0,0,0,0.6) 0%, transparent 5%, transparent 95%, rgba(0,0,0,0.6) 100%); pointer-events: none; z-index: 99; transition: backdrop-filter 0.3s ease; box-shadow: inset 0 0 80px rgba(0,0,0,0.9); }
 
         #vats-overlay { position: absolute; top:0; left:0; width:100%; height:100%; z-index: 96; pointer-events: none; display: none; background: linear-gradient(0deg, transparent 49%, rgba(20,255,20,0.2) 50%, transparent 51%), linear-gradient(90deg, transparent 49%, rgba(20,255,20,0.2) 50%, transparent 51%); background-size: 100px 100px; border: 4px solid var(--text-color); box-shadow: inset 0 0 100px rgba(20,255,20,0.4); filter: contrast(1.5) saturate(2); animation: vats-pulse 2s infinite alternate; }
-        #vats-overlay::after { content: 'V.A.T.S. ACTIVE // TGT_ACQUIRED'; position: absolute; bottom: 120px; left: 20px; background: var(--text-color); color: var(--bg-color); padding: 5px 10px; font-weight: bold; }
+        #vats-overlay::after { content: 'V.A.T.S. MLAKU // TARGET_KECANDHAK'; position: absolute; bottom: 120px; left: 20px; background: var(--text-color); color: var(--bg-color); padding: 5px 10px; font-weight: bold; }
         @keyframes vats-pulse { 0% { opacity: 0.8; transform: scale(1); } 100% { opacity: 1; transform: scale(1.02); } }
 
         #torch-mode { position: absolute; top:0; left:0; width:100%; height:100%; background: #ffffff; z-index: 999998; display: none; }
-        #torch-mode::after { content:'TOUCH TO DISABLE TORCH'; position:absolute; top:50%; width:100%; text-align:center; color:#000; font-weight:bold; font-size:1.5rem; animation: blink 1s infinite; }
+        #torch-mode::after { content:'DEMEK KANGGO MATENI SENTER'; position:absolute; top:50%; width:100%; text-align:center; color:#000; font-weight:bold; font-size:1.5rem; animation: blink 1s infinite; }
 
         #screensaver { position: absolute; top:0; left:0; width:100%; height:100%; background: #000; z-index: 999997; display: none; overflow: hidden; cursor: pointer; }
         #ss-logo { position: absolute; font-size: 2rem; font-weight: bold; color: var(--text-color); text-shadow: var(--glow-heavy); padding: 10px; border: 2px solid var(--text-color); white-space: nowrap; pointer-events: none; }
@@ -113,6 +113,7 @@
         .touch-warp { position: absolute; border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%) scale(0); z-index: 100; box-shadow: inset 0 0 20px rgba(255,255,255,0.5); backdrop-filter: hue-rotate(90deg) blur(2px) contrast(2); animation: warp-ripple 0.4s ease-out forwards; }
         @keyframes warp-ripple { 0% { width: 0; height: 0; opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { width: 150px; height: 150px; opacity: 0; transform: translate(-50%, -50%) scale(2); } }
 
+        /* 2. KEYFRAMES */
         @keyframes crt-flicker { 0% { opacity: 0; } 50% { opacity: 0.04; } 100% { opacity: 0; } }
         @keyframes signal-jitter { 0%, 9%, 11%, 100% { transform: translateX(0) skewX(0); } 10% { transform: translateX(-4px) skewX(1.5deg); } 10.5% { transform: translateX(3px) skewX(-1.5deg); } }
         @keyframes v-interf { 0% { top: -20%; opacity: 0; } 5% { opacity: 1; transform: skewX(10deg); } 8% { transform: skewX(-10deg); } 10% { top: 120%; opacity: 0; } 100% { top: 120%; opacity: 0; } }
@@ -126,18 +127,19 @@
         .boot-flash { animation: boot-power-on 1s ease-out forwards; }
         @keyframes boot-power-on { 0% { transform: scaleY(0.01) scaleX(0); opacity: 0; filter: brightness(10); } 40% { transform: scaleY(0.02) scaleX(1); opacity: 1; filter: brightness(5); } 100% { transform: scaleY(1) scaleX(1); filter: brightness(1); } }
 
-        /* 3. OS CONTENT */
+        /* 3. ISI SISTEM */
         .safe-area-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; z-index: 20; padding-top: max(env(safe-area-inset-top), 10px); }
         #viewport { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 25px; padding-bottom: 110px; text-shadow: var(--glow-light); position: relative; will-change: transform; transition: transform 0.05s linear; z-index: 10;}
 
-        /* BOTTOM NAV */
+        /* TOMBOL MENU - HITBOX AKURAT 100% (LOGIKA MURNI) */
         #bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; height: 80px; background: rgba(0,0,0,0.9); border-top: 3px double var(--text-color); display: flex; justify-content: space-between; align-items: stretch; padding-bottom: env(safe-area-inset-bottom); z-index: 9999 !important; text-shadow: var(--glow-heavy); backdrop-filter: blur(10px); }
-        .nav-btn { background: none; border: none; color: var(--text-muted); font-family: var(--font-main); font-size: 1.1rem; letter-spacing: 1.5px; cursor: pointer; flex: 1; height: 100%; transition: all 0.15s ease; position: relative; white-space: nowrap; overflow: visible; display: flex; justify-content: center; align-items: center; touch-action: manipulation !important; pointer-events: auto !important; border-right: 1px solid rgba(20, 255, 20, 0.15); }
+        .nav-btn { background: none; border: none; color: var(--text-muted); font-family: var(--font-main); font-size: 1rem; letter-spacing: 1px; cursor: pointer; flex: 1; height: 100%; position: relative; white-space: nowrap; display: flex; justify-content: center; align-items: center; touch-action: manipulation !important; pointer-events: auto !important; border-right: 1px solid rgba(20, 255, 20, 0.15); box-sizing: border-box; } /* Ora ana transisi skala sing marai mleset */
         .nav-btn:last-child { border-right: none; }
         .nav-btn.active { color: var(--bg-color); background: var(--text-color); text-shadow: none; box-shadow: inset 0 0 15px rgba(0,0,0,0.5), 0 0 15px var(--text-color); }
-        .nav-btn::before { content: '['; margin-right: 4px; opacity: 0; font-weight: bold; transition: opacity 0.1s;}
-        .nav-btn::after { content: ']'; margin-left: 4px; opacity: 0; font-weight: bold; transition: opacity 0.1s;}
-        .nav-btn.active::before, .nav-btn.active::after { opacity: 1; color: var(--bg-color); }
+        
+        .nav-btn .bracket { opacity: 0; font-weight: bold; transition: opacity 0.1s;}
+        .nav-btn .txt { margin: 0 4px; }
+        .nav-btn.active .bracket { opacity: 1; color: var(--bg-color); }
 
         h1, h2, h3 { background: var(--text-color); color: var(--bg-color); padding: 5px 10px; display: inline-block; margin-bottom: 18px; font-size: 1.4rem; font-weight: bold; text-shadow: none; letter-spacing: 2px; box-shadow: 0 0 10px var(--text-color); }
         h3 { background: transparent; color: var(--text-color); border-bottom: 2px dashed var(--text-color); text-shadow: var(--glow-heavy); box-shadow: none; padding-left: 0;}
@@ -199,7 +201,7 @@
         .prog-bar { width: 100%; height: 6px; background: var(--chart-fill); margin-top: 10px; position: relative; overflow: hidden;}
         .prog-fill { height: 100%; background: var(--text-color); width: 0%; transition: width 1s ease-out; box-shadow: var(--glow-light);}
 
-        /* BIOMETRIC & RAD GAUGE V10 OVERSEER */
+        /* BIOMETRIK & METERAN RAD V10 OVERSEER */
         .bio-face { font-family: monospace; font-size: 2.2rem; font-weight: bold; white-space: pre; line-height: 1; text-shadow: var(--glow-heavy); }
         .gauge-container { position: relative; width: 100%; height: 80px; display: flex; justify-content: center; align-items: flex-end; }
         #rad-gauge-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
@@ -243,7 +245,7 @@
 / /_/ /___/ /_____/ /|  //   | / /   
 \____//____/     /_/ |_//_/|_|/_/    
         </div>
-        <div id="boot-instruct" class="sys-glitch">> INITIALIZE_</div>
+        <div id="boot-instruct" class="sys-glitch">> MIWIWITI_</div>
         <div id="boot-bar-container"><div id="boot-progress"></div></div>
     </div>
     <div id="boot-console">
@@ -279,7 +281,7 @@
         <div id="interference"></div>
         <div id="flicker-layer"></div>
         <div id="crt-vignette"></div>
-        <div id="toast">[ SYS MSG ]</div>
+        <div id="toast">[ PESAN SISTEM ]</div>
 
         <div class="safe-area-wrapper" id="os-ui">
             <div id="viewport"></div>
@@ -296,21 +298,29 @@
             </div>
 
             <div id="bottom-nav">
-                <button class="nav-btn active" onclick="navigate('dashboard')">SYS</button>
-                <button class="nav-btn" onclick="navigate('notes')">DAT</button>
-                <button class="nav-btn" onclick="navigate('log')">LOG</button>
-                <button class="nav-btn" onclick="navigate('settings')">CFG</button>
+                <button class="nav-btn active" onclick="navigate('dashboard')">
+                    <span class="bracket">[</span><span class="txt">SISTEM</span><span class="bracket">]</span>
+                </button>
+                <button class="nav-btn" onclick="navigate('notes')">
+                    <span class="bracket">[</span><span class="txt">DATA</span><span class="bracket">]</span>
+                </button>
+                <button class="nav-btn" onclick="navigate('log')">
+                    <span class="bracket">[</span><span class="txt">REKAM</span><span class="bracket">]</span>
+                </button>
+                <button class="nav-btn" onclick="navigate('settings')">
+                    <span class="bracket">[</span><span class="txt">SETELAN</span><span class="bracket">]</span>
+                </button>
             </div>
         </div>
 
         <div id="modal-overlay">
             <div class="modal-box">
-                <h2 id="modal-title" style="margin-bottom: 5px; background:var(--bg-color); color:var(--text-color); border:2px solid var(--text-color);">SUDO EXEC</h2>
-                <p id="modal-desc" style="font-size: 1rem; color: var(--text-muted); margin-bottom:10px; font-family: monospace; background:var(--bg-color); padding:5px;">Auth Required.</p>
-                <input type="text" id="modal-input" autocomplete="off" placeholder="> TYPE 'OK'">
+                <h2 id="modal-title" style="margin-bottom: 5px; background:var(--bg-color); color:var(--text-color); border:2px solid var(--text-color);">EKSEKUSI SUDO</h2>
+                <p id="modal-desc" style="font-size: 1rem; color: var(--text-muted); margin-bottom:10px; font-family: monospace; background:var(--bg-color); padding:5px;">Kudu Ana Idin.</p>
+                <input type="text" id="modal-input" autocomplete="off" placeholder="> KETIK 'OK'">
                 <div class="grid-2" style="margin-top: 20px; margin-bottom: 0;">
-                    <button onclick="closeModal()" style="border-style: dashed; background:var(--bg-color);">ABORT</button>
-                    <button id="modal-confirm" style="background: var(--text-color); color: var(--bg-color);">EXEC</button>
+                    <button onclick="closeModal()" style="border-style: dashed; background:var(--bg-color);">BATAL</button>
+                    <button id="modal-confirm" style="background: var(--text-color); color: var(--bg-color);">JALANKE</button>
                 </div>
             </div>
         </div>
@@ -381,7 +391,7 @@
         document.addEventListener('mousemove', (e) => {
             const wrapper = document.getElementById('bg-parallax-wrapper');
             if(!wrapper) return;
-            const x = (e.clientX / window.innerWidth - 0.5) * -15; // Gerak berlawanan (depth)
+            const x = (e.clientX / window.innerWidth - 0.5) * -15; 
             const y = (e.clientY / window.innerHeight - 0.5) * -15;
             wrapper.style.transform = `translate(${x}px, ${y}px)`;
         });
@@ -401,7 +411,7 @@
             resetIdleTimer();
         });
 
-        // --- PHOSPHOR BURN-IN PROTECTION (SCREENSAVER) ---
+        // --- PHOSPHOR BURN-IN PROTECTION ---
         const resetIdleTimer = () => {
             clearTimeout(idleTimer);
             if(document.getElementById('screensaver').style.display === 'block') exitScreensaver();
@@ -425,9 +435,10 @@
         const exitScreensaver = () => { document.getElementById('screensaver').style.display = 'none'; resetIdleTimer(); sfx.nav(); };
         ['mousemove', 'mousedown', 'keydown', 'touchstart'].forEach(evt => document.addEventListener(evt, resetIdleTimer));
 
-        // --- MAGNETIC TOUCH WARP (CRT Distortion) ---
+        // --- MAGNETIC TOUCH WARP ---
+        // Diabaikake yen ndemek elemen interaktif supaya ora ngalangi
         document.addEventListener('pointerdown', (e) => {
-            if(e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.isContentEditable) return;
+            if(e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.isContentEditable || e.target.closest('.nav-btn')) return;
             const warp = document.createElement('div'); warp.className = 'touch-warp';
             warp.style.left = e.clientX + 'px'; warp.style.top = e.clientY + 'px';
             document.body.appendChild(warp); setTimeout(() => warp.remove(), 400);
@@ -456,7 +467,6 @@
                                 gain.gain.setValueAtTime((0.01 + Math.random()*0.04), t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.015);
                                 osc.connect(gain); gain.connect(audioCtx.destination); osc.start(t); osc.stop(t + 0.015);
                                 
-                                // Twitch needle visually
                                 if(state.currentView === 'dashboard') {
                                     const cvs = document.getElementById('rad-gauge-canvas');
                                     if(cvs) { cvs.style.transform = `rotate(${Math.random()*2 - 1}deg)`; setTimeout(()=>cvs.style.transform='none', 20); }
@@ -506,7 +516,7 @@
         const toggleSynthRadio = () => {
             initAudio(); if(!audioCtx) return; synthRadioActive = !synthRadioActive; clearInterval(synthInterval);
             if(synthRadioActive) {
-                showToast("TRANSMITTER ONLINE");
+                showToast("PEMANCAR NYALA");
                 const runRadioSynth = () => {
                     const t = audioCtx.currentTime; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
                     const freqs = [110, 220, 165, 330, 440, 220, 110]; const selected = freqs[Math.floor(Math.random()*freqs.length)];
@@ -517,14 +527,14 @@
                     synthInterval = setTimeout(runRadioSynth, 500);
                 };
                 runRadioSynth();
-            } else { showToast("TRANSMITTER OFFLINE"); }
+            } else { showToast("PEMANCAR MATI"); }
             if(state.currentView === 'dashboard') renderDashboard();
         };
 
         const spikeRads = (amount) => {
             radsCount += amount; if(state.currentView === 'dashboard') drawRadGauge();
             if(radsCount > 1000) {
-                radsCount = 120; triggerMeltdown(); showToast("HAZARD: REACTOR LEAK!");
+                radsCount = 120; triggerMeltdown(); showToast("BAHAYA: REAKTOR BOCOR!");
                 for(let i=0; i<10; i++) setTimeout(() => analogHit(1000 - i*80, 50, 0.2, 0.2, 'sawtooth'), i * 150);
             }
         };
@@ -562,8 +572,18 @@
             if (!silent) sfx.nav(); 
             state.currentView = view; clearAnimations(); triggerFlash();
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.innerText.includes(view === 'notes' || view === 'editor' ? 'DAT' : (view === 'log' ? 'LOG' : (view === 'settings' ? 'CFG' : 'SYS'))));
+            
+            // Golet tombol sing cocog
+            const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => {
+                const txt = b.querySelector('.txt').innerText;
+                if(view === 'dashboard' && txt === 'SISTEM') return true;
+                if((view === 'notes' || view === 'editor') && txt === 'DATA') return true;
+                if(view === 'log' && txt === 'REKAM') return true;
+                if(view === 'settings' && txt === 'SETELAN') return true;
+                return false;
+            });
             if(activeBtn) activeBtn.classList.add('active');
+            
             const fab = document.getElementById('main-fab'); if(fab) fab.style.display = (view === 'notes') ? 'flex' : 'none';
             if(view === 'dashboard') renderDashboard(); else if(view === 'notes') renderNotes(); else if(view === 'editor') renderEditor(); else if(view === 'log') renderLog(); else if(view === 'settings') renderSettings();
             if(!silent) history.pushState({ view: view }, "", `#${view}`);
@@ -574,8 +594,8 @@
                 const note = state.notes.find(n => n.id === state.activeNoteId);
                 const currentState = JSON.stringify({ t: document.getElementById('edit-title').value, c: document.getElementById('edit-content').innerHTML });
                 if (currentState !== pristineEditorState || (note._isNew && (note.title !== '' || document.getElementById('edit-content').innerHTML !== ''))) {
-                    sfx.error(); showToast("UNSAVED DATA"); triggerMeltdown();
-                    openCommit('SAVE CHANGES', 'Unsaved data detected. Force commit?', () => { captureDraft(); const n = state.notes.find(n => n.id === state.activeNoteId); n.timestamp = new Date().toISOString(); delete n._isNew; saveState(); showToast('DATA SAVED'); addLog('DATA', `Auto-commit ID:${n.id}`); forceNavigate(view); }); return; 
+                    sfx.error(); showToast("DATA DURUNG KESIMPEN"); triggerMeltdown();
+                    openCommit('SIMPEN OWAHAN', 'Data durung kesimpen. Pepek simpen?', () => { captureDraft(); const n = state.notes.find(n => n.id === state.activeNoteId); n.timestamp = new Date().toISOString(); delete n._isNew; saveState(); showToast('DATA KESIMPEN'); addLog('DATA', `Simpen otomatis ID:${n.id}`); forceNavigate(view); }); return; 
                 } else { if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId); }
             } forceNavigate(view, silent);
         };
@@ -587,7 +607,7 @@
                 const currentState = JSON.stringify({ t: document.getElementById('edit-title').value, c: document.getElementById('edit-content').innerHTML });
                 if (currentState !== pristineEditorState || (note._isNew && (note.title !== '' || document.getElementById('edit-content').innerHTML !== ''))) {
                     sfx.error(); triggerMeltdown();
-                    openCommit('SAVE CHANGES', 'Unsaved data detected. Force commit?', () => { captureDraft(); const n = state.notes.find(n => n.id === state.activeNoteId); n.timestamp = new Date().toISOString(); delete n._isNew; saveState(); showToast('DATA SAVED'); forceNavigate('notes', true); });
+                    openCommit('SIMPEN OWAHAN', 'Data durung kesimpen. Pepek simpen?', () => { captureDraft(); const n = state.notes.find(n => n.id === state.activeNoteId); n.timestamp = new Date().toISOString(); delete n._isNew; saveState(); showToast('DATA KESIMPEN'); forceNavigate('notes', true); });
                 } else { if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId); forceNavigate('notes', true); }
             } else { if(e.state && e.state.view) forceNavigate(e.state.view, true); else forceNavigate('dashboard', true); }
         });
@@ -604,8 +624,8 @@
                     ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = color; ctx.font = '15px monospace';
                     yPositions.forEach((y, index) => { const char = String.fromCharCode(33 + Math.random() * 96); const x = index * 20; ctx.fillText(char, x, y); if(y > 100 + Math.random() * 10000) yPositions[index] = 0; else yPositions[index] = y + 15; });
                 };
-                clearInterval(matrixInterval); matrixInterval = setInterval(step, 33); showToast("MATRIX ENGINE ENGAGED");
-            } else { canvas.style.display = 'none'; clearInterval(matrixInterval); showToast("MATRIX ENGINE HALTED"); }
+                clearInterval(matrixInterval); matrixInterval = setInterval(step, 33); showToast("MESIN MATRIX MLAKU");
+            } else { canvas.style.display = 'none'; clearInterval(matrixInterval); showToast("MESIN MATRIX MATI"); }
         };
 
         const toggleTorch = () => { isTorch = !isTorch; document.getElementById('torch-mode').style.display = isTorch ? 'block' : 'none'; };
@@ -613,22 +633,22 @@
         // --- COMMAND LINE SHELL ---
         const handleCommandShell = (e) => {
             if(e.key === 'Enter') {
-                const input = e.target; const cmd = input.value.trim().toLowerCase(); input.value = ''; addLog('SHELL', `Executed: ${cmd.toUpperCase()}`);
+                const input = e.target; const cmd = input.value.trim().toLowerCase(); input.value = ''; addLog('SHELL', `Dieksekusi: ${cmd.toUpperCase()}`);
                 if(cmd === 'matrix') toggleMatrixBackground();
-                else if(cmd === 'scram') { triggerMeltdown(); showToast("MELTDOWN INITIATED"); } 
-                else if(cmd === 'rads') { spikeRads(800); showToast("INJECTING RAD PARTICLES"); } 
-                else if(cmd === 'green') { sfx.commit(); document.body.setAttribute('data-theme', 'pipboy'); state.settings.theme = 'pipboy'; saveState(); applyDOMSettings(); showToast("OUTPUT: GREEN MONO"); forceNavigate(state.currentView); } 
+                else if(cmd === 'scram') { triggerMeltdown(); showToast("MELTDOWN DIWIWITI"); } 
+                else if(cmd === 'rads') { spikeRads(800); showToast("NYUNTEK PARTIKEL RAD"); } 
+                else if(cmd === 'green') { sfx.commit(); document.body.setAttribute('data-theme', 'pipboy'); state.settings.theme = 'pipboy'; saveState(); applyDOMSettings(); showToast("OUTPUT: IJO MONO"); forceNavigate(state.currentView); } 
                 else if(cmd === 'amber') { sfx.commit(); document.body.setAttribute('data-theme', 'linux'); state.settings.theme = 'linux'; saveState(); applyDOMSettings(); showToast("OUTPUT: AMBER TERM"); forceNavigate(state.currentView); } 
                 else if(cmd === 'radio') toggleSynthRadio();
-                else if(cmd === 'vats') { vatsActive = !vatsActive; document.getElementById('vats-overlay').style.display = vatsActive ? 'block' : 'none'; sfx.boot(); showToast(vatsActive ? "V.A.T.S. ONLINE" : "V.A.T.S. OFFLINE"); }
+                else if(cmd === 'vats') { vatsActive = !vatsActive; document.getElementById('vats-overlay').style.display = vatsActive ? 'block' : 'none'; sfx.boot(); showToast(vatsActive ? "V.A.T.S. MLAKU" : "V.A.T.S. MATI"); }
                 else if(cmd === 'torch') toggleTorch();
-                else if(cmd === 'wipe') { document.getElementById('screen-grime').style.display = document.getElementById('screen-grime').style.display === 'none' ? 'block' : 'none'; showToast("SCREEN WIPED"); }
-                else if(cmd === 'help') showToast("CMD: MATRIX, SCRAM, RADS, GREEN, AMBER, RADIO, VATS, TORCH, WIPE");
-                else { sfx.error(); showToast("ERR: BAD SHELL CMD"); }
+                else if(cmd === 'wipe') { document.getElementById('screen-grime').style.display = document.getElementById('screen-grime').style.display === 'none' ? 'block' : 'none'; showToast("LAYAR DIRESIKI"); }
+                else if(cmd === 'help') showToast("KODE: MATRIX, SCRAM, RADS, GREEN, AMBER, RADIO, VATS, TORCH, WIPE");
+                else { sfx.error(); showToast("ERR: KODE SALAH"); }
             }
         };
 
-        // --- 1. DASHBOARD V10 OVERSEER ---
+        // --- 1. DASHBOARD ---
         const renderDashboard = () => {
             const storageKB = getStorageSize(); const memPerc = Math.min((storageKB / 5120) * 100, 100); 
             const recentNotes = [...state.notes].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 2);
@@ -636,7 +656,7 @@
 
             vp.innerHTML = `
                 <div class="flex-between" style="align-items:flex-end;">
-                    <h1>SYS.DIAGNOSTICS</h1>
+                    <h1>DIAGNOSIS.SISTEM</h1>
                     <div class="data-stream" id="top-stream" style="margin-bottom:18px;">INIT_STREAM...</div>
                 </div>
                 
@@ -651,36 +671,36 @@
                     
                     <div class="stat-block" style="padding:5px;">
                         <div class="gauge-container"><canvas id="rad-gauge-canvas"></canvas></div>
-                        <div class="stat-lbl" style="margin-top:2px;">GEIGER COUNTER</div>
+                        <div class="stat-lbl" style="margin-top:2px;">METERAN GEIGER</div>
                     </div>
                     
-                    <div class="stat-block"><div class="stat-val">${state.notes.length}</div><div class="stat-lbl">DATA BLOCKS</div></div>
+                    <div class="stat-block"><div class="stat-val">${state.notes.length}</div><div class="stat-lbl">BLOK DATA</div></div>
                     <div class="stat-block" id="radio-module" onclick="toggleSynthRadio()" style="cursor:pointer; border-color:${synthRadioActive ? 'var(--accent)' : 'var(--text-color)'}; background:${synthRadioActive ? 'var(--chart-fill)' : 'rgba(0,0,0,0.5)'}">
-                        <div class="stat-val" style="font-size:1.4rem;">${synthRadioActive ? 'BROADCAST' : 'OFFLINE'}</div>
-                        <div class="stat-lbl">NXT TRANSMITTER</div>
+                        <div class="stat-val" style="font-size:1.4rem;">${synthRadioActive ? 'NYIARAKE' : 'MATI'}</div>
+                        <div class="stat-lbl">PEMANCAR NXT</div>
                     </div>
                     
                     <div class="stat-block" style="grid-column: span 2;">
-                        <div class="flex-between" style="margin:0;"><span class="stat-lbl">MEM_ALLOCATION</span><span class="stat-val" style="font-size:1rem;">${storageKB}KB</span></div>
+                        <div class="flex-between" style="margin:0;"><span class="stat-lbl">PANGGONAN_MEMORI</span><span class="stat-val" style="font-size:1rem;">${storageKB}KB</span></div>
                         <div class="prog-bar"><div class="prog-fill" style="width: ${memPerc}%;"></div></div>
                     </div>
                 </div>
 
-                <div class="chart-box" style="height: 220px;"><span class="chart-label">SECTOR_SCAN</span><canvas id="radar-chart"></canvas></div>
+                <div class="chart-box" style="height: 220px;"><span class="chart-label">PINDAI_SEKTOR</span><canvas id="radar-chart"></canvas></div>
                 
                 <div class="grid-2">
-                    <div class="chart-box" style="height: 150px; margin-top:10px;"><span class="chart-label">DIST</span><canvas id="pie-chart"></canvas></div>
-                    <div><button style="width:100%; height:100%; font-size:1.5rem; background:var(--chart-fill);" onclick="addNote()">+ NEW<br><span style="font-size:0.8rem; font-weight:normal;">SECURE_BLOCK</span></button></div>
+                    <div class="chart-box" style="height: 150px; margin-top:10px;"><span class="chart-label">SEBARAN</span><canvas id="pie-chart"></canvas></div>
+                    <div><button style="width:100%; height:100%; font-size:1.5rem; background:var(--chart-fill);" onclick="addNote()">+ GAWE<br><span style="font-size:0.8rem; font-weight:normal;">BLOK_AMAN</span></button></div>
                 </div>
 
-                <h3 style="margin-top: 30px;">ROOT SHELL CONSOLE</h3>
+                <h3 style="margin-top: 30px;">KONSOL ROOT SHELL</h3>
                 <div class="terminal-shell-box">
                     <span>NXT_SYS></span>
-                    <input type="text" id="terminal-shell" placeholder="Type command (HELP)..." onkeydown="handleCommandShell(event)">
+                    <input type="text" id="terminal-shell" placeholder="Ketik printah (HELP)..." onkeydown="handleCommandShell(event)">
                 </div>
 
-                <h3 style="margin-top: 30px;">RECENT ACTIVITY</h3>
-                ${recentNotes.length === 0 ? '<div class="timeline-item">NO RECENT I/O.</div>' : recentNotes.map(n => `<div class="note-card" onclick="openNote(${n.id})"><strong style="font-size:1.2rem;">${n.title || 'UNTITLED_BLOCK'}</strong><div class="data-stream" style="margin:5px 0 0 0; opacity:0.5;">ID:${n.id}</div><div class="note-date">${fmtDate(n.timestamp)}</div></div>`).join('')}
+                <h3 style="margin-top: 30px;">KAGIATAN ANYAR</h3>
+                ${recentNotes.length === 0 ? '<div class="timeline-item">ORA ANA DATA ANYAR.</div>' : recentNotes.map(n => `<div class="note-card" onclick="openNote(${n.id})"><strong style="font-size:1.2rem;">${n.title || 'BLOK_TANPA_JENENG'}</strong><div class="data-stream" style="margin:5px 0 0 0; opacity:0.5;">ID:${n.id}</div><div class="note-date">${fmtDate(n.timestamp)}</div></div>`).join('')}
             `;
             
             const streamEl = document.getElementById('top-stream');
@@ -690,7 +710,6 @@
                 if(streamEl) streamEl.innerText = `0x${Math.floor(Math.random()*16777215).toString(16).toUpperCase()} ${str}`;
             }, 100);
 
-            // Animate Bio Face
             const bioFaces = ["[O_O]", "[-_-]", "[o_o]", "[>_<]", "[X_X]"];
             const faceEl = document.getElementById('bio-face');
             const animateFace = () => {
@@ -698,7 +717,7 @@
                 if(radsCount > 800) faceEl.innerText = bioFaces[4];
                 else if(radsCount > 400) faceEl.innerText = bioFaces[3];
                 else {
-                    if(Math.random() > 0.8) faceEl.innerText = bioFaces[1]; // blink
+                    if(Math.random() > 0.8) faceEl.innerText = bioFaces[1]; 
                     else faceEl.innerText = Math.random() > 0.9 ? bioFaces[2] : bioFaces[0];
                 }
                 bioFaceInterval = setTimeout(animateFace, Math.random() * 2000 + 500);
@@ -706,7 +725,7 @@
             animateFace();
 
             activeTimeouts.push(setTimeout(() => { if(state.currentView !== 'dashboard') return; drawPieChart(); drawRadarScanner(storageKB); drawRadGauge(); }, 100));
-            if(!state.logs.length || state.logs[0].action !== 'SYSTEM') addLog('SYSTEM', 'SYS Diagnostics Array Active');
+            if(!state.logs.length || state.logs[0].action !== 'SISTEM') addLog('SISTEM', 'Array Diagnosis Sistem Mlaku');
         };
 
         const drawRadGauge = () => {
@@ -717,11 +736,9 @@
             
             ctx.clearRect(0,0, canvas.width, canvas.height);
             
-            // Draw Arc
             ctx.beginPath(); ctx.arc(cx, cy, radius, Math.PI, 0);
             ctx.strokeStyle = color; ctx.lineWidth = 4; ctx.stroke();
             
-            // Draw Ticks
             ctx.font = "10px monospace"; ctx.fillStyle = color; ctx.textAlign = "center";
             for(let i=0; i<=5; i++) {
                 const angle = Math.PI + (i/5) * Math.PI;
@@ -735,16 +752,13 @@
                 ctx.fillText(i*200, lx, ly+4);
             }
 
-            // Draw Needle
             let clampedRads = Math.min(Math.max(radsCount, 0), 1000);
-            // Add tiny jitter to needle purely for visual
             clampedRads += (Math.random() * 10 - 5); 
             const nAngle = Math.PI + (clampedRads / 1000) * Math.PI;
             ctx.beginPath(); ctx.moveTo(cx, cy);
             ctx.lineTo(cx + Math.cos(nAngle) * (radius - 5), cy + Math.sin(nAngle) * (radius - 5));
             ctx.strokeStyle = '#ff0000'; ctx.lineWidth = 3; ctx.stroke();
             
-            // Center pin
             ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI*2);
             ctx.fillStyle = color; ctx.fill();
         };
@@ -753,11 +767,11 @@
             const canvas = document.getElementById('pie-chart'); if(!canvas) return;
             canvas.width = canvas.parentElement.clientWidth - 20; canvas.height = canvas.parentElement.clientHeight - 20;
             const ctx = canvas.getContext('2d'); const color = getComputedStyle(document.body).getPropertyValue('--text-color').trim();
-            const dist = { 'UNLABELED': 0 }; state.labels.forEach(l => dist[l] = 0);
-            state.notes.forEach(n => { if(n.labels.length === 0) dist['UNLABELED']++; else n.labels.forEach(l => { if(dist[l] !== undefined) dist[l]++; }); });
+            const dist = { 'TANPA_LABEL': 0 }; state.labels.forEach(l => dist[l] = 0);
+            state.notes.forEach(n => { if(n.labels.length === 0) dist['TANPA_LABEL']++; else n.labels.forEach(l => { if(dist[l] !== undefined) dist[l]++; }); });
             const validDist = Object.entries(dist).filter(([k,v]) => v > 0); const total = validDist.reduce((a, [k,v]) => a + v, 0);
 
-            if(total === 0) { ctx.fillStyle = color; ctx.font = "bold 12px monospace"; ctx.textAlign="center"; ctx.fillText("NO DATA", canvas.width/2, canvas.height/2); return; }
+            if(total === 0) { ctx.fillStyle = color; ctx.font = "bold 12px monospace"; ctx.textAlign="center"; ctx.fillText("ORA ANA DATA", canvas.width/2, canvas.height/2); return; }
 
             let startAngle = -Math.PI/2; const cx = canvas.width / 2; const cy = canvas.height / 2; const radius = Math.min(cx, cy) - 5;
             validDist.forEach(([label, count], index) => {
@@ -814,7 +828,7 @@
 
                 ctx.globalAlpha = 1; ctx.fillStyle = bgColor; ctx.fillRect(cx - 40, cy - 12, 80, 24); ctx.strokeStyle = color; ctx.strokeRect(cx - 40, cy - 12, 80, 24);
                 ctx.fillStyle = color; ctx.font = "bold 14px monospace"; ctx.textAlign="center";
-                ctx.fillText(`SECURE`, cx, cy + 5);
+                ctx.fillText(`AMAN`, cx, cy + 5);
                 angle += 0.08; 
             }; 
             activeFrames.push(requestAnimationFrame(animate));
@@ -824,10 +838,10 @@
         const renderNotes = () => {
             const vp = document.getElementById('viewport'); const term = document.getElementById('search-box')?.value.toLowerCase() || '';
             vp.innerHTML = `
-                <h1>SECURE.DATA</h1>
-                <input type="text" id="search-box" placeholder="> QUERY_DB..." value="${term}" style="width:100%; margin-bottom:15px; border-style:dashed;" oninput="executeQuickSearch();">
+                <h1>DATA.AMAN</h1>
+                <input type="text" id="search-box" placeholder="> GOLEK_DATA..." value="${term}" style="width:100%; margin-bottom:15px; border-style:dashed;" oninput="executeQuickSearch();">
                 <div class="swipe-labels">
-                    <span onclick="setFilter(null)" style="${!state.filterLabel ? 'border:2px solid var(--text-color); background:var(--text-color); color:var(--bg-color);' : ''}">[ALL_SECTORS]</span>
+                    <span onclick="setFilter(null)" style="${!state.filterLabel ? 'border:2px solid var(--text-color); background:var(--text-color); color:var(--bg-color);' : ''}">[KABEH_SEKTOR]</span>
                     ${state.labels.map(l => `<span onclick="setFilter('${l}')" class="${state.filterLabel === l ? 'active-tag' : ''}">[${l}]</span>`).join('')}
                 </div>
                 <div id="notes-list-container" style="margin-top: 10px;"></div>
@@ -839,10 +853,10 @@
             const container = document.getElementById('notes-list-container'); if(!container) return;
             let filteredNotes = state.notes; if(state.filterLabel) filteredNotes = filteredNotes.filter(n => n.labels.includes(state.filterLabel));
             const sortedNotes = [...filteredNotes.filter(n => n.pinned), ...filteredNotes.filter(n => !n.pinned)];
-            container.innerHTML = sortedNotes.length === 0 ? '<div class="data-stream">> 404: NO DATA FOUND IN SECTOR.</div>' : sortedNotes.map(n => `
+            container.innerHTML = sortedNotes.length === 0 ? '<div class="data-stream">> 404: ORA ANA DATA NING SEKTOR IKI.</div>' : sortedNotes.map(n => `
                 <div class="note-card note-item-dom" data-title="${(n.title||'').toLowerCase()}" data-content="${stripHTML(n.content).toLowerCase()}" onclick="openNote(${n.id})">
                     ${n.pinned ? '<div class="pin-badge">!!!</div>' : ''}
-                    <div style="margin-bottom:5px;"><strong style="font-size:1.3rem">${n.title || 'UNTITLED_BLOCK'}</strong></div>
+                    <div style="margin-bottom:5px;"><strong style="font-size:1.3rem">${n.title || 'BLOK_TANPA_JENENG'}</strong></div>
                     <div class="data-stream" style="margin-bottom:10px;">UID:${n.id} // LEN:${stripHTML(n.content).length}B</div>
                     <div style="margin-bottom:8px;">${n.labels.map(l => `<span class="label-badge">${l}</span>`).join('')}</div>
                     <div class="note-date">${fmtDate(n.timestamp)}</div>
@@ -872,14 +886,14 @@
 
             vp.innerHTML = `
                 <div class="flex-between">
-                    <button onclick="requestDiscard()" style="border:none; color:var(--text-muted); background:transparent;">&lt; ABORT</button>
+                    <button onclick="requestDiscard()" style="border:none; color:var(--text-muted); background:transparent;">&lt; BATAL</button>
                     <div>
-                        <button onclick="togglePinDraft()" style="margin-right:10px; padding:8px 12px; ${note.pinned ? 'background:var(--text-color); color:var(--bg-color);' : 'border-style:dashed;'}">PIN</button>
-                        <button style="background:var(--text-color); color:var(--bg-color); padding:8px 15px;" onclick="requestSave()">COMMIT &gt;</button>
+                        <button onclick="togglePinDraft()" style="margin-right:10px; padding:8px 12px; ${note.pinned ? 'background:var(--text-color); color:var(--bg-color);' : 'border-style:dashed;'}">TANCEP</button>
+                        <button style="background:var(--text-color); color:var(--bg-color); padding:8px 15px;" onclick="requestSave()">SIMPEN &gt;</button>
                     </div>
                 </div>
                 
-                <input type="text" id="edit-title" value="" placeholder="> ENTER_TITLE" style="width:100%; margin-top:10px; margin-bottom:15px; font-size:1.5rem; font-weight:bold; border-width: 0 0 2px 0; background:transparent;" oninput="sfx.type()">
+                <input type="text" id="edit-title" value="" placeholder="> LEBOKAKE_JUDUL" style="width:100%; margin-top:10px; margin-bottom:15px; font-size:1.5rem; font-weight:bold; border-width: 0 0 2px 0; background:transparent;" oninput="sfx.type()">
                 
                 <div class="swipe-labels" style="padding-bottom: 5px;">
                     ${state.labels.map(l => `<span onclick="toggleLabelDraft('${l}')" class="${note.labels.includes(l) ? 'active-tag' : ''}">[${l}]</span>`).join('')}
@@ -895,7 +909,7 @@
                         <button onclick="execUndo()" style="padding: 10px; border-style:dashed;">&lt;&lt;</button>
                         <button onclick="execRedo()" style="padding: 10px; border-style:dashed;">&gt;&gt;</button>
                     </div>
-                    <button style="color:red; border-color:red; font-size:1rem; padding: 10px 20px;" onclick="requestDelete(${note.id})">PURGE</button>
+                    <button style="color:red; border-color:red; font-size:1rem; padding: 10px 20px;" onclick="requestDelete(${note.id})">MBUWAK</button>
                 </div>
                 <div class="data-stream" style="text-align:right; margin-top:10px;"><span id="editor-stats">W:${words} // B:${rawText.length}</span></div>
             `;
@@ -940,7 +954,6 @@
             }
         };
 
-        // BULLETPROOF TOOLBAR
         const handleSelectionPos = () => {
             if(state.currentView !== 'editor') return;
             const ta = document.getElementById('edit-content'); 
@@ -987,11 +1000,11 @@
             } else { toolbar.style.display = 'none'; cursor.style.display = 'none'; }
         };
 
-        const execFormat = (command, val = null) => { document.execCommand(command, false, val); sfx.commit(); showToast('FORMAT APPLIED'); pushHistory(document.getElementById('edit-content').innerHTML); handleSelectionPos(); };
+        const execFormat = (command, val = null) => { document.execCommand(command, false, val); sfx.commit(); showToast('FORMAT DITRAPAKE'); pushHistory(document.getElementById('edit-content').innerHTML); handleSelectionPos(); };
         const execSelectAll = () => { document.execCommand('selectAll', false, null); sfx.type(); handleSelectionPos(); };
-        const execCopy = () => { document.execCommand('copy'); showToast('COPIED TO CLIPBOARD'); sfx.commit(); document.getSelection().removeAllRanges(); handleSelectionPos(); };
-        const execUndo = () => { if(historyIndex > 0) { historyIndex--; document.getElementById('edit-content').innerHTML = editorHistory[historyIndex]; sfx.type(); handleSelectionPos(); } else { sfx.error(); showToast('HISTORY LIMIT'); } };
-        const execRedo = () => { if(historyIndex < editorHistory.length - 1) { historyIndex++; document.getElementById('edit-content').innerHTML = editorHistory[historyIndex]; sfx.type(); handleSelectionPos(); } else { sfx.error(); showToast('NEWEST STATE'); } };
+        const execCopy = () => { document.execCommand('copy'); showToast('DISALIN NENG PAPAN'); sfx.commit(); document.getSelection().removeAllRanges(); handleSelectionPos(); };
+        const execUndo = () => { if(historyIndex > 0) { historyIndex--; document.getElementById('edit-content').innerHTML = editorHistory[historyIndex]; sfx.type(); handleSelectionPos(); } else { sfx.error(); showToast('MENTOK RIWAYAT'); } };
+        const execRedo = () => { if(historyIndex < editorHistory.length - 1) { historyIndex++; document.getElementById('edit-content').innerHTML = editorHistory[historyIndex]; sfx.type(); handleSelectionPos(); } else { sfx.error(); showToast('DATA PALING ANYAR'); } };
 
         const captureDraft = () => { const note = state.notes.find(n => n.id === state.activeNoteId); if(note) { note.title = document.getElementById('edit-title').value === "DECRYPTING..." ? note.title : document.getElementById('edit-title').value; note.content = document.getElementById('edit-content').innerHTML; } };
         const toggleLabelDraft = (lbl) => { sfx.enter(); captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId); if(note.labels.includes(lbl)) note.labels = note.labels.filter(l => l !== lbl); else note.labels.push(lbl); renderEditor(); };
@@ -1003,65 +1016,65 @@
             if (currentState === pristineEditorState && !(note._isNew && (note.title !== '' || document.getElementById('edit-content').innerHTML !== ''))) {
                 sfx.enter(); if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId); forceNavigate('notes');
             } else {
-                triggerMeltdown(); openCommit('DISCARD CHANGES', 'Data modified. Purge changes?', () => {
+                triggerMeltdown(); openCommit('BATALKE OWAHAN', 'Data diowahi. Batal kabeh?', () => {
                     if(note && note._isNew) { state.notes = state.notes.filter(n => n.id !== state.activeNoteId); } else { const savedNotes = localStorage.getItem('os-nxt-notes'); state.notes = savedNotes ? JSON.parse(savedNotes) : []; }
-                    showToast('CHANGES PURGED'); forceNavigate('notes');
+                    showToast('OWAHAN DIBUWAK'); forceNavigate('notes');
                 });
             }
         };
 
-        const requestSave = () => { openCommit('SAVE TO MEMORY', 'Commit block to secure DB?', () => { captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId); note.timestamp = new Date().toISOString(); delete note._isNew; saveState(); showToast('DATA COMMITTED'); addLog('DATA', `Wrote block ID:${note.id}`); forceNavigate('notes'); }); };
-        const requestDelete = (id) => { triggerMeltdown(); openCommit('PURGE DATA', `Erase ID:${id} permanently?`, () => { state.notes = state.notes.filter(n => n.id !== id); saveState(); showToast('BLOCK PURGED'); addLog('DATA', `Purged block ID:${id}`); forceNavigate('notes'); }); };
+        const requestSave = () => { openCommit('SIMPEN NING MEMORI', 'Simpen blok menyang DB aman?', () => { captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId); note.timestamp = new Date().toISOString(); delete note._isNew; saveState(); showToast('DATA KESIMPEN'); addLog('DATA', `Nulis blok ID:${note.id}`); forceNavigate('notes'); }); };
+        const requestDelete = (id) => { triggerMeltdown(); openCommit('MBUWAK DATA', `Mbusak ID:${id} salawase?`, () => { state.notes = state.notes.filter(n => n.id !== id); saveState(); showToast('BLOK DIBUWAK'); addLog('DATA', `Mbusak blok ID:${id}`); forceNavigate('notes'); }); };
 
         // --- 4. LOG ---
         const renderLog = () => {
             document.getElementById('viewport').innerHTML = `
-                <h1>TRACE.LOG</h1>
+                <h1>REKAM.Lacak</h1>
                 <div class="data-stream" style="margin-bottom:25px;">> TAIL -F /VAR/LOG/SYS.LOG</div>
                 <div>
-                    ${state.logs.length === 0 ? '<div class="timeline-item">NO LOGS.</div>' : state.logs.map(l => `<div class="timeline-item"><span class="data-stream">${fmtDate(l.time)}</span><br><strong style="color:var(--accent);">[${l.action}]</strong> ${l.details}</div>`).join('')}
+                    ${state.logs.length === 0 ? '<div class="timeline-item">ORA ANA CATETAN.</div>' : state.logs.map(l => `<div class="timeline-item"><span class="data-stream">${fmtDate(l.time)}</span><br><strong style="color:var(--accent);">[${l.action}]</strong> ${l.details}</div>`).join('')}
                 </div>
-                <button style="border-color:red; color:red; width:100%; margin-top:20px; border-style:dashed;" onclick="requestClearLogs()">FLUSH LOGS</button>
+                <button style="border-color:red; color:red; width:100%; margin-top:20px; border-style:dashed;" onclick="requestClearLogs()">MBUWAK REKAMAN</button>
             `;
         };
-        const requestClearLogs = () => { triggerMeltdown(); openCommit('FLUSH SYS LOGS', 'Erase all trace data?', () => { state.logs = []; saveState(); showToast('LOGS FLUSHED'); renderLog(); }); };
+        const requestClearLogs = () => { triggerMeltdown(); openCommit('MBUWAK REKAMAN SISTEM', 'Mbusak kabeh data lacak?', () => { state.logs = []; saveState(); showToast('REKAMAN DIBUWAK'); renderLog(); }); };
 
         // --- 5. SETTINGS (CFG) ---
         const renderSettings = () => {
             document.getElementById('viewport').innerHTML = `
-                <h1>SYS.CONFIG</h1>
-                <div class="data-stream">> ROOT_ACCESS: GRANTED</div>
+                <h1>SETELAN.SISTEM</h1>
+                <div class="data-stream">> ROOT_ACCESS: DIIDINI</div>
                 
-                <h3>ENVIRONMENT</h3>
+                <h3>LINGKUNGAN</h3>
                 <div class="grid-2">
-                    <button onclick="toggleSetting('theme')" style="border-style:dashed;">THEME:<br><span style="color:var(--bg-color); background:var(--text-color); padding:0 5px;">${state.settings.theme === 'pipboy' ? 'PIPBOY' : 'TERMINAL'}</span></button>
-                    <button onclick="toggleSetting('boot')" style="border-style:dashed;">COLD BOOT: <br>${state.settings.boot ? 'ON' : 'OFF'}</button>
-                    <button onclick="toggleSetting('sfx')" style="border-style:dashed;">UI SFX: <br>${state.settings.sfx ? 'ON' : 'OFF'}</button>
-                    <button onclick="toggleSetting('vhs')" style="border-style:dashed;">AUDIO HUM: <br>${state.settings.vhs ? 'ON' : 'OFF'}</button>
+                    <button onclick="toggleSetting('theme')" style="border-style:dashed;">TEMA:<br><span style="color:var(--bg-color); background:var(--text-color); padding:0 5px;">${state.settings.theme === 'pipboy' ? 'PIPBOY' : 'TERMINAL'}</span></button>
+                    <button onclick="toggleSetting('boot')" style="border-style:dashed;">MULAI ADHEM: <br>${state.settings.boot ? 'URIP' : 'MATI'}</button>
+                    <button onclick="toggleSetting('sfx')" style="border-style:dashed;">SUARA UI: <br>${state.settings.sfx ? 'URIP' : 'MATI'}</button>
+                    <button onclick="toggleSetting('vhs')" style="border-style:dashed;">DENGUNG AUDIO: <br>${state.settings.vhs ? 'URIP' : 'MATI'}</button>
                 </div>
 
-                <h3>HARDWARE FX</h3>
+                <h3>EFEK MESIN</h3>
                 <div class="grid-2">
-                    <button onclick="toggleSetting('blur')" style="border-style:dashed;">LENS BLUR: ${state.settings.blur ? 'ON' : 'OFF'}</button>
-                    <button onclick="toggleSetting('chroma')" style="border-style:dashed;">CHROMATIC: ${state.settings.chroma ? 'ON' : 'OFF'}</button>
-                    <button onclick="toggleSetting('scan')" style="border-style:dashed;">SCANLINES: ${state.settings.scan ? 'ON' : 'OFF'}</button>
-                    <button onclick="toggleSetting('flicker')" style="border-style:dashed;">FLICKER: ${state.settings.flicker ? 'ON' : 'OFF'}</button>
-                    <button onclick="toggleSetting('interf')" style="border-style:dashed;">INTERFERE: ${state.settings.interf ? 'ON' : 'OFF'}</button>
-                    <button onclick="toggleSetting('ghost')" style="border-style:dashed;">GHOSTING: ${state.settings.ghost ? 'ON' : 'OFF'}</button>
-                    <button onclick="toggleSetting('jitter')" style="border-style:dashed; grid-column:span 2; border-color:var(--accent);">PHYSICAL SCROLL/JITTER: ${state.settings.jitter ? 'ON' : 'OFF'}</button>
+                    <button onclick="toggleSetting('blur')" style="border-style:dashed;">BURAM LENSA: ${state.settings.blur ? 'URIP' : 'MATI'}</button>
+                    <button onclick="toggleSetting('chroma')" style="border-style:dashed;">KROMATIK: ${state.settings.chroma ? 'URIP' : 'MATI'}</button>
+                    <button onclick="toggleSetting('scan')" style="border-style:dashed;">GARIS PINDAI: ${state.settings.scan ? 'URIP' : 'MATI'}</button>
+                    <button onclick="toggleSetting('flicker')" style="border-style:dashed;">KEDHIP: ${state.settings.flicker ? 'URIP' : 'MATI'}</button>
+                    <button onclick="toggleSetting('interf')" style="border-style:dashed;">GANGGUAN: ${state.settings.interf ? 'URIP' : 'MATI'}</button>
+                    <button onclick="toggleSetting('ghost')" style="border-style:dashed;">BAYANGAN: ${state.settings.ghost ? 'URIP' : 'MATI'}</button>
+                    <button onclick="toggleSetting('jitter')" style="border-style:dashed; grid-column:span 2; border-color:var(--accent);">GETER FISIK: ${state.settings.jitter ? 'URIP' : 'MATI'}</button>
                 </div>
 
-                <h3>SECTOR LABELS</h3>
+                <h3>LABEL SEKTOR</h3>
                 <div style="border: 2px dashed var(--text-color); padding: 15px; margin-bottom: 20px; background: rgba(0,0,0,0.5);">
                     <div style="margin-bottom: 15px;">
-                        ${state.labels.length === 0 ? '<div class="data-stream">NO LABELS.</div>' : ''}
-                        ${state.labels.map(l => `<div class="flex-between" style="border-bottom: 1px dotted var(--text-muted); padding: 10px 0;"><span style="font-weight:bold; font-size:1.1rem;">[${l}]</span><button style="padding: 5px 15px; font-size: 0.9rem; border-color: red; color: red;" onclick="requestDeleteLabel('${l}')">DEL</button></div>`).join('')}
+                        ${state.labels.length === 0 ? '<div class="data-stream">ORA ANA LABEL.</div>' : ''}
+                        ${state.labels.map(l => `<div class="flex-between" style="border-bottom: 1px dotted var(--text-muted); padding: 10px 0;"><span style="font-weight:bold; font-size:1.1rem;">[${l}]</span><button style="padding: 5px 15px; font-size: 0.9rem; border-color: red; color: red;" onclick="requestDeleteLabel('${l}')">BUSA</button></div>`).join('')}
                     </div>
-                    <div class="flex-row" style="margin:0;"><input type="text" id="new-label-input" placeholder="> NEW_LABEL" style="flex: 1;" onkeyup="sfx.type()"><button onclick="addNewLabel()">ADD</button></div>
+                    <div class="flex-row" style="margin:0;"><input type="text" id="new-label-input" placeholder="> LABEL_ANYAR" style="flex: 1;" onkeyup="sfx.type()"><button onclick="addNewLabel()">TAMBAH</button></div>
                 </div>
                 
-                <h3>DATA I/O</h3>
-                <div class="grid-2"><button onclick="exportData()">EXPORT_DB</button><button onclick="document.getElementById('import-file').click()">IMPORT_DB</button><input type="file" id="import-file" style="display:none" accept=".json" onchange="handleImport(event)"></div>
+                <h3>METU/MLEBU DATA</h3>
+                <div class="grid-2"><button onclick="exportData()">EKSPOR_DATA</button><button onclick="document.getElementById('import-file').click()">IMPOR_DATA</button><input type="file" id="import-file" style="display:none" accept=".json" onchange="handleImport(event)"></div>
             `;
         };
 
@@ -1069,7 +1082,7 @@
             sfx.enter(); triggerFlash();
             if(key === 'theme') { state.settings.theme = state.settings.theme === 'pipboy' ? 'linux' : 'pipboy'; applyDOMSettings(); } 
             else { state.settings[key] = !state.settings[key]; applyDOMSettings(); if(key === 'vhs' || key === 'sfx') initAudio(); }
-            saveState(); renderSettings(); addLog('CFG', `${key.toUpperCase()} -> ${state.settings[key]}`);
+            saveState(); renderSettings(); addLog('SETELAN', `${key.toUpperCase()} -> ${state.settings[key]}`);
         };
 
         const applyDOMSettings = () => {
@@ -1080,23 +1093,23 @@
             document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#010301' : '#050505'; 
         };
 
-        const addNewLabel = () => { const input = document.getElementById('new-label-input'); const val = input.value.trim().toUpperCase().replace(/\s+/g, '_'); if(val && !state.labels.includes(val)) { sfx.commit(); state.labels.push(val); saveState(); addLog('CFG', `Created label [${val}]`); renderSettings(); } else { sfx.error(); showToast("INVALID LABEL"); } };
-        const requestDeleteLabel = (lbl) => { triggerMeltdown(); openCommit('PURGE LABEL', `Remove [${lbl}]?`, () => { state.labels = state.labels.filter(l => l !== lbl); saveState(); showToast('LABEL PURGED'); renderSettings(); }); };
+        const addNewLabel = () => { const input = document.getElementById('new-label-input'); const val = input.value.trim().toUpperCase().replace(/\s+/g, '_'); if(val && !state.labels.includes(val)) { sfx.commit(); state.labels.push(val); saveState(); addLog('SETELAN', `Gawe label [${val}]`); renderSettings(); } else { sfx.error(); showToast("LABEL SALAH"); } };
+        const requestDeleteLabel = (lbl) => { triggerMeltdown(); openCommit('MBUWAK LABEL', `Mbusak [${lbl}]?`, () => { state.labels = state.labels.filter(l => l !== lbl); saveState(); showToast('LABEL DIBUWAK'); renderSettings(); }); };
 
-        const exportData = () => { sfx.enter(); const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(JSON.stringify(state)); const link = document.createElement('a'); link.href = dataUri; link.download = `OS_NXT_DUMP_${Date.now()}.json`; link.click(); showToast('EXPORT SUCCESS'); addLog('DATA', 'Exported memory dump'); };
-        const handleImport = (e) => { const file = e.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (event) => { try { const tempImport = JSON.parse(event.target.result); if(tempImport.notes) { triggerMeltdown(); openCommit('OVERWRITE SYS', 'Current data will be destroyed.', () => { state = tempImport; saveState(); applyDOMSettings(); showToast('RESTORE SUCCESS'); addLog('SYS', 'Memory restored from dump'); forceNavigate('dashboard'); }); } } catch(err) { sfx.error(); showToast('IMPORT FAIL'); } }; reader.readAsText(file); e.target.value = ''; };
+        const exportData = () => { sfx.enter(); const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(JSON.stringify(state)); const link = document.createElement('a'); link.href = dataUri; link.download = `OS_NXT_DUMP_${Date.now()}.json`; link.click(); showToast('EKSPOR KASIL'); addLog('DATA', 'Ngekspor data memori'); };
+        const handleImport = (e) => { const file = e.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (event) => { try { const tempImport = JSON.parse(event.target.result); if(tempImport.notes) { triggerMeltdown(); openCommit('NIMPA SISTEM', 'Data sing saiki bakal diremuk.', () => { state = tempImport; saveState(); applyDOMSettings(); showToast('MULIHAKE KASIL'); addLog('SISTEM', 'Memori dibalekake seka dump'); forceNavigate('dashboard'); }); } } catch(err) { sfx.error(); showToast('IMPOR GAGAL'); } }; reader.readAsText(file); e.target.value = ''; };
 
         // --- STRICT MODAL UX ---
         let commitCallback = null; const modal = document.getElementById('modal-overlay'); const modalInput = document.getElementById('modal-input');
         const openCommit = (title, desc, callback) => {
-            sfx.error(); document.getElementById('modal-title').innerText = title; document.getElementById('modal-desc').innerText = desc; modalInput.value = ''; modalInput.placeholder = "> TYPE 'OK'"; commitCallback = callback; modal.style.display = 'flex'; 
+            sfx.error(); document.getElementById('modal-title').innerText = title; document.getElementById('modal-desc').innerText = desc; modalInput.value = ''; modalInput.placeholder = "> KETIK 'OK'"; commitCallback = callback; modal.style.display = 'flex'; 
             modal.querySelector('.modal-box').classList.remove('crt-flash'); void modal.offsetWidth; modal.querySelector('.modal-box').classList.add('crt-flash'); 
             setTimeout(() => { modalInput.focus(); }, 100);
         };
         const closeModal = () => { sfx.enter(); modal.style.display = 'none'; commitCallback = null; };
-        document.getElementById('modal-confirm').addEventListener('click', () => { if(modalInput.value.toLowerCase() === 'ok') { sfx.commit(); modal.style.display = 'none'; if(commitCallback) commitCallback(); } else { sfx.error(); triggerMeltdown(); modalInput.value = ''; modalInput.placeholder = "INVALID. TYPE 'OK'"; } });
+        document.getElementById('modal-confirm').addEventListener('click', () => { if(modalInput.value.toLowerCase() === 'ok') { sfx.commit(); modal.style.display = 'none'; if(commitCallback) commitCallback(); } else { sfx.error(); triggerMeltdown(); modalInput.value = ''; modalInput.placeholder = "SALAH. KETIK 'OK'"; } });
 
-        // --- AUTHENTIC ROBCO BOOT SEQUENCE ---
+        // --- BOOT SEQUENCE ---
         let bootReq; let bootProgress = 0;
         const startPower = (e) => {
             if(e.type === 'touchstart') e.preventDefault(); 
@@ -1107,11 +1120,11 @@
                 if(bootProgress >= 100) { powerOn(); } else { bootReq = requestAnimationFrame(animateBoot); }
             };
             bootReq = requestAnimationFrame(animateBoot);
-            document.getElementById('boot-instruct').innerText = "> CHARGING_CAPACITORS...";
+            document.getElementById('boot-instruct').innerText = "> NGISI_DAYA...";
         };
         const cancelPower = (e) => {
             if(bootProgress >= 100) return; cancelAnimationFrame(bootReq); bootProgress = 0; document.getElementById('ascii-logo').style.display = 'none';
-            document.getElementById('boot-progress').style.width = '0%'; document.getElementById('boot-instruct').innerText = "> INITIALIZE_";
+            document.getElementById('boot-progress').style.width = '0%'; document.getElementById('boot-instruct').innerText = "> MIWIWITI_";
         };
 
         const powerOn = () => {
@@ -1124,23 +1137,22 @@
 
             const bootConsole = document.getElementById('boot-console'); bootConsole.style.display = 'flex';
             
-            // Authentic Mainframe lines
             const lines = [ 
-                "ROBCO INDUSTRIES UNIFIED OPERATING SYSTEM",
-                "COPYRIGHT 2077 ROBCO INDUSTRIES",
-                "-Server 1-", "Compiled on NXT-OVERSEER.sys",
+                "SISTEM OPERASI GABUNGAN INDUSTRI ROBCO",
+                "HAK CIPTA 2077 INDUSTRI ROBCO",
+                "-Server 1-", "Disusun ing NXT-OVERSEER.sys",
                 "",
-                "CPU: ZILOG Z80A 4MHz ... OK",
-                "MEM: 64KB RAM SYSTEM",
-                "MEM: 38911 BYTES FREE",
-                "NO. OF FILES: " + state.notes.length,
+                "CPU: ZILOG Z80A 4MHz ... NORMAL",
+                "MEMORI: SISTEM RAM 64KB",
+                "MEMORI: 38911 BYTE KOSONG",
+                "CACAH BERKAS: " + state.notes.length,
                 "",
-                "MOUNTING VFS: /dev/sda1 ... SUCCESS",
-                "LOADING MODULES: AUDIO_HUM, GEIGER_FX, DECRYPT_ENG ... LOADED",
-                "BYPASSING OVERSEER SECURITY PROTOCOLS ... GRANTED",
-                "ESTABLISHING SECURE LINK ... DONE",
+                "PASANG VFS: /dev/sda1 ... KASIL",
+                "NGEMOT MODUL: AUDIO_HUM, GEIGER_FX, DECRYPT_ENG ... DIMOT",
+                "NGLEWATI PROTOKOL KEAMANAN OVERSEER ... DIIDINI",
+                "MANGUN JARINGAN AMAN ... RAMPUNG",
                 "",
-                "BOOT SEQUENCE COMPLETE. WELCOME."
+                "PROSES MIWIWITI RAMPUNG. SUGENG RAWUH."
             ];
             
             const textArea = document.getElementById('boot-text-area'); let lIdx = 0; let currentHTML = "";
