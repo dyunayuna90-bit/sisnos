@@ -41,7 +41,7 @@
             --border-style: solid;
         }
 
-        /* HARDWARE SWITCHES (OVERRIDES) */
+        /* HARDWARE SWITCHES */
         body[data-chroma="true"] {
             --glow-light: 0.8px 0px 0px rgba(255, 0, 0, 0.6), -0.8px 0px 0px rgba(0, 255, 255, 0.6), 0 0 4px rgba(20, 255, 20, 0.3);
             --glow-heavy: 1.5px 0px 0px rgba(255, 0, 0, 0.7), -1.5px 0px 0px rgba(0, 255, 255, 0.7), 0 0 8px rgba(20, 255, 20, 0.7);
@@ -64,10 +64,20 @@
         body[data-ghost="true"] #viewport { filter: drop-shadow(2px 2px 1px rgba(20,255,20,0.2)); }
         body[data-theme="linux"][data-ghost="true"] #viewport { filter: drop-shadow(1px 1px 0px rgba(7,54,66,0.2)); }
 
-        /* ABSOLUTE NATIVE FEEL */
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; scrollbar-width: none; }
+        /* ABSOLUTE NATIVE FEEL & ANTI-BUBBLE HACKS */
+        * { 
+            box-sizing: border-box; margin: 0; padding: 0; 
+            user-select: none; -webkit-user-select: none; 
+            -webkit-touch-callout: none; /* Block native popup long-press menu iOS/Android */
+            -webkit-tap-highlight-color: transparent; scrollbar-width: none; 
+        }
         ::-webkit-scrollbar { display: none; }
-        input, textarea, [contenteditable="true"] { user-select: text; -webkit-user-select: text; cursor: text; }
+        
+        /* Enable selection ONLY for editor elements */
+        input, [contenteditable="true"] { 
+            user-select: text; -webkit-user-select: text; 
+            -webkit-touch-callout: default; cursor: text; 
+        }
 
         body {
             background-color: var(--bg-color); height: 100vh; width: 100vw; overflow: hidden;
@@ -83,15 +93,12 @@
             background: linear-gradient(rgba(0, 0, 0, 0.15) 50%, transparent 50%), linear-gradient(90deg, rgba(0, 0, 0, 0.15) 50%, transparent 50%);
             background-size: 3px 3px; pointer-events: none; z-index: 2; transform: translateZ(0);
         }
-        
-        /* NEW: V-SYNC ROLL */
         .vsync-roll {
             position: absolute; top: -20%; left: 0; width: 100%; height: 15%;
             background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.3), transparent);
             animation: v-roll 10s linear infinite; z-index: 8; pointer-events: none;
             will-change: top; transform: translateZ(0);
         }
-
         .vcr-tracking {
             width: 100%; height: 12px; z-index: 9; position: absolute; pointer-events: none;
             background: rgba(255,255,255,0.02); box-shadow: 0 0 5px rgba(255,255,255,0.01);
@@ -122,8 +129,7 @@
         @keyframes crt-flicker { 0% { opacity: 0; } 50% { opacity: 0.03; } 100% { opacity: 0; } }
         @keyframes signal-jitter { 0%, 9%, 11%, 100% { transform: translateX(0) skewX(0); } 10% { transform: translateX(-3px) skewX(1deg); } 10.5% { transform: translateX(2px) skewX(-1deg); } }
         @keyframes v-interf { 0% { top: -20%; opacity: 0; } 5% { opacity: 1; } 10% { top: 120%; opacity: 0; } 100% { top: 120%; opacity: 0; } }
-
-        /* THE GHOST MELTDOWN FX */
+        
         .meltdown-fx { animation: meltdown 2s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; }
         @keyframes meltdown {
             0% { filter: invert(1) hue-rotate(90deg) contrast(2); transform: scale(1.05) skewX(5deg); }
@@ -131,7 +137,6 @@
             20%, 40%, 60%, 80% { transform: scale(0.98) skewX(2deg); }
             100% { filter: invert(0) hue-rotate(0) contrast(1); transform: scale(1) skewX(0); }
         }
-
         .crt-flash { animation: burst 0.3s ease-out forwards; }
 
         /* 3. OS CONTENT */
@@ -161,8 +166,16 @@
 
         /* EDITOR */
         .editor-container { position: relative; width: 100%; height: 50vh; margin-top: 10px; border: 2px var(--border-style) var(--text-color); background: rgba(0,0,0,0.3); box-shadow: inset 0 0 10px rgba(0,0,0,0.5); overflow: hidden; }
-        #edit-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-family: var(--font-main); font-size: 1.2rem; line-height: 1.5; padding: 15px; overflow-y: auto; outline: none; text-transform: none; caret-color: transparent; text-shadow: var(--glow-light); z-index: 2; }
         
+        #edit-content { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            font-family: var(--font-main); font-size: 1.2rem; line-height: 1.5; padding: 15px; 
+            overflow-y: auto; outline: none; text-transform: none; caret-color: transparent; text-shadow: var(--glow-light); z-index: 2; 
+        }
+        
+        /* Modifikasi ::selection biar keliatan jelas & numpuk teks transparan bug Android */
+        #edit-content::selection { background: var(--text-color); color: var(--bg-color); text-shadow: none; }
+
         #block-cursor { position: absolute; width: 12px; height: 1.4rem; background-color: var(--text-color); box-shadow: var(--glow-heavy); z-index: 1; pointer-events: none; display: none; animation: blink 1s step-end infinite; transition: top 0.05s, left 0.05s; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
@@ -173,12 +186,28 @@
         #edit-content ol, #edit-content ul { padding-left: 25px; margin-bottom: 10px; list-style-position: outside; }
         #edit-content li { margin-bottom: 5px; }
 
-        /* TOOLBAR */
-        #format-toolbar { position: fixed; background: var(--bg-color); border: 2px solid var(--text-color); box-shadow: 0 10px 20px rgba(0,0,0,0.9); display: none; flex-direction: row; align-items: center; z-index: 80; padding: 2px; transition: top 0.1s ease, left 0.1s ease; transform: translate(-50%, -100%); margin-top: -15px; }
-        #format-toolbar::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: var(--text-color) transparent transparent transparent; display: block; width: 0; }
-        #format-toolbar.flip-down { transform: translate(-50%, 0); margin-top: 15px; }
-        #format-toolbar.flip-down::after { top: -8px; bottom: auto; border-width: 0 8px 8px; border-style: solid; border-color: transparent transparent var(--text-color) transparent; }
-        .fmt-btn { background: transparent; color: var(--text-color); border: none; font-size: 1.1rem; padding: 12px 18px; margin: 0; font-weight: bold; border-right: 2px solid var(--text-muted); border-radius: 0; user-select: none; text-shadow: none;}
+        /* SMART DYNAMIC TOOLBAR (ANTI-CLIPPING) */
+        #format-toolbar { 
+            position: absolute; /* Gunakan absolute di dalam wrapper supaya math lebih gampang dikontrol */
+            background: var(--bg-color); border: 2px solid var(--text-color); box-shadow: 0 10px 20px rgba(0,0,0,0.9); 
+            display: none; flex-direction: row; align-items: center; z-index: 80; padding: 2px; 
+            opacity: 0; transition: opacity 0.1s; pointer-events: none;
+        }
+        
+        /* Panah Dinamis */
+        #format-toolbar::after { 
+            content: ''; position: absolute; bottom: -8px; 
+            left: var(--arrow-pos, 50%); /* Diposisiin lewat JS */
+            transform: translateX(-50%); 
+            border-width: 8px 8px 0; border-style: solid; border-color: var(--text-color) transparent transparent transparent; display: block; width: 0; 
+        }
+        
+        /* Mode Flip-Down jika nabrak atap */
+        #format-toolbar.flip-down::after { 
+            top: -8px; bottom: auto; border-width: 0 8px 8px; border-style: solid; border-color: transparent transparent var(--text-color) transparent; 
+        }
+        
+        .fmt-btn { background: transparent; color: var(--text-color); border: none; font-size: 1.1rem; padding: 12px 18px; margin: 0; font-weight: bold; border-right: 2px solid var(--text-muted); border-radius: 0; user-select: none; text-shadow: none; pointer-events: auto;}
         .fmt-btn:last-child { border-right: none; }
         .fmt-btn:active { background: var(--text-color); color: var(--bg-color); }
 
@@ -187,14 +216,13 @@
         .chart-label { position: absolute; top: -14px; left: 10px; font-size: 0.9rem; background: var(--bg-color); padding: 0 8px; font-weight: bold; border-left: 2px solid var(--text-color); border-right: 2px solid var(--text-color); color: var(--text-color); z-index: 2; text-shadow: var(--glow-heavy);}
         canvas { display: block; width: 100%; image-rendering: pixelated; }
 
-        .note-card { border: 2px var(--border-style) var(--text-color); padding: 15px; margin-bottom: 15px; cursor: pointer; position: relative; display: block; width: 100%; text-align: left;}
+        .note-card { border: 2px var(--border-style) var(--text-color); padding: 15px; margin-bottom: 15px; cursor: pointer; position: relative; display: block; width: 100%; text-align: left; user-select: none;}
         .note-card:active { background: var(--chart-fill); }
         .note-date { font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; display: block;}
         .pin-badge { position: absolute; top: 0; right: 0; background: var(--text-color); color: var(--bg-color); font-size: 0.8rem; padding: 2px 8px; font-weight: bold; text-shadow: none;}
         
         .label-badge { display: inline-block; padding: 4px 8px; font-size: 0.8rem; border: 1px solid var(--text-color); color: var(--text-color); margin-right: 5px; margin-top: 5px; background: var(--chart-fill); }
-        .swipe-labels { display: flex; overflow-x: auto; white-space: nowrap; padding-bottom: 10px; align-items: center; scrollbar-width: none; }
-        .swipe-labels::-webkit-scrollbar { display: none; }
+        .swipe-labels { display: flex; overflow-x: auto; white-space: nowrap; padding-bottom: 10px; align-items: center; scrollbar-width: none; user-select: none; }
         .swipe-labels span { display: inline-block; cursor: pointer; border: 2px dashed var(--text-muted); padding: 6px 12px; margin-right: 8px; font-weight: bold; flex-shrink: 0; }
         .swipe-labels span.active-tag { border: 2px solid var(--accent); background: var(--chart-fill); color: var(--text-color); text-shadow: var(--glow-heavy);}
 
@@ -219,19 +247,16 @@
 
         /* BOOT SCREEN */
         #power-screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 200; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 200; display: flex; flex-direction: column; justify-content: center; align-items: center;
             color: var(--text-color); font-family: 'Share Tech Mono', monospace; cursor: pointer; text-shadow: 0 0 5px var(--text-color);
         }
         #boot-instruct { font-size: 1.2rem; margin-bottom: 20px; }
         #boot-bar-container { width: 200px; height: 15px; border: 2px solid var(--text-color); padding: 2px; }
-        #boot-progress { width: 0%; height: 100%; background: var(--text-color); }
+        #boot-progress { width: 0%; height: 100%; background: var(--text-color); transition: width 0.1s linear; }
         
         #boot-console {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 199; display: none; flex-direction: column;
-            padding: 20px; color: var(--text-color); font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;
-            text-transform: uppercase; text-shadow: 0 0 5px var(--text-color);
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 199; display: none; flex-direction: column;
+            padding: 20px; color: var(--text-color); font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; text-transform: uppercase; text-shadow: 0 0 5px var(--text-color);
         }
         .boot-line { margin-bottom: 5px; word-break: break-all; }
         .boot-cursor { display: inline-block; width: 10px; height: 1.1rem; background: var(--text-color); animation: blink 0.5s step-end infinite; vertical-align: bottom;}
@@ -239,7 +264,6 @@
 </head>
 <body>
 
-    <!-- BOOT SEQUENCE SCREENS -->
     <div id="power-screen">
         <div id="boot-instruct" class="blink-fast">> HOLD TO POWER ON_</div>
         <div id="boot-bar-container"><div id="boot-progress"></div></div>
@@ -269,11 +293,13 @@
 
         <button id="main-fab" class="fab-btn" onclick="addNote()" style="display:none;">[+]</button>
 
+        <!-- DYNAMIC TOOLBAR WITH SELECT ALL BUTTON "<->" -->
         <div id="format-toolbar">
             <button class="fmt-btn" onmousedown="execFormat('formatBlock', 'H1'); return false;">H1</button>
             <button class="fmt-btn" onmousedown="execFormat('formatBlock', 'H2'); return false;">H2</button>
             <button class="fmt-btn" onmousedown="execFormat('bold'); return false;">B</button>
             <button class="fmt-btn" onmousedown="execFormat('italic'); return false;">I</button>
+            <button class="fmt-btn" onmousedown="execSelectAll(); return false;">&lt;-&gt;</button>
             <button class="fmt-btn" onmousedown="execCopy(); return false;">COPY</button>
         </div>
 
@@ -299,7 +325,7 @@
 
     <script>
         /** * OS-NXT CORE LOGIC
-         * Terminal Typewriter. Radar Anomalies. Voltage Drops. Masterpiece Edition.
+         * Absolute Nav Intercept. Anti-Clipping Toolbar. Native UI Killer.
          */
         const setupPWA = () => {
             const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#020802"/><text x="50" y="65" font-family="monospace" font-size="50" font-weight="bold" fill="#14ff14" text-anchor="middle">&gt;_</text></svg>`;
@@ -370,13 +396,10 @@
             osc.connect(gain); gain.connect(audioCtx.destination); osc.start(t); osc.stop(t + dur);
         };
 
-        // Voltage Drop Audio Effect
         const humVoltageDrop = () => {
             if(humOsc && humOsc.frequency) {
                 const t = audioCtx.currentTime;
-                humOsc.frequency.setValueAtTime(55, t);
-                humOsc.frequency.exponentialRampToValueAtTime(40, t + 0.1);
-                humOsc.frequency.exponentialRampToValueAtTime(55, t + 0.5);
+                humOsc.frequency.setValueAtTime(55, t); humOsc.frequency.exponentialRampToValueAtTime(40, t + 0.1); humOsc.frequency.exponentialRampToValueAtTime(55, t + 0.5);
             }
         };
 
@@ -500,7 +523,6 @@
             });
         };
 
-        // ADVANCED RADAR: Adds random Blips (Anomalies)
         let radarAnomalies = [];
         const drawRadarScanner = (storage) => {
             const canvas = document.getElementById('radar-chart'); if(!canvas) return;
@@ -521,12 +543,10 @@
                 ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.arc(cx, cy, radius*0.5, 0, Math.PI*2); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy); ctx.stroke();
                 
-                // Draw Scanner
                 ctx.save(); ctx.translate(cx, cy); ctx.rotate(angle);
                 ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, radius, -0.05, 0.4); ctx.lineTo(0,0);
                 ctx.fillStyle = chartFill; ctx.fill(); ctx.strokeStyle = color; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(radius, 0); ctx.stroke(); ctx.restore();
 
-                // Generate & Draw Anomalies
                 if(Math.random() < 0.05) radarAnomalies.push({ a: Math.random() * Math.PI * 2, r: Math.random() * radius * 0.9, life: 1 });
                 radarAnomalies.forEach((an, i) => {
                     if(an.life <= 0) { radarAnomalies.splice(i, 1); return; }
@@ -577,15 +597,11 @@
         const setFilter = (lbl) => { sfx.enter(); state.filterLabel = lbl; renderNotes(); };
         const executeQuickSearch = () => { 
             sfx.type(); const term = document.getElementById('search-box').value.toLowerCase(); 
-            // SECRET EASTER EGG
-            if(term === 'ghost') {
-                document.body.classList.add('meltdown-fx');
-                setTimeout(() => document.body.classList.remove('meltdown-fx'), 2000);
-            }
+            if(term === 'ghost') { document.body.classList.add('meltdown-fx'); setTimeout(() => document.body.classList.remove('meltdown-fx'), 2000); }
             document.querySelectorAll('.note-item-dom').forEach(card => { card.style.display = (card.getAttribute('data-title').includes(term) || card.getAttribute('data-content').includes(term)) ? 'block' : 'none'; }); 
         };
 
-        // --- 3. EDITOR ---
+        // --- 3. EDITOR & DYNAMIC TOOLBAR (ANTI-CLIPPING MATH) ---
         const addNote = () => { const id = Date.now(); state.notes.unshift({ id, title: '', content: '', labels: [], pinned: false, timestamp: new Date().toISOString(), _isNew: true }); state.activeNoteId = id; forceNavigate('editor'); };
         const openNote = (id) => { state.activeNoteId = id; forceNavigate('editor'); };
 
@@ -640,6 +656,9 @@
             ta.addEventListener('keyup', handleSelectionPos);
             ta.addEventListener('click', handleSelectionPos);
             ta.addEventListener('blur', () => { document.getElementById('block-cursor').style.display = 'none'; });
+            
+            // BLOCK NATIVE CONTEXT MENU & LONG PRESS UI (Android/iOS)
+            ta.addEventListener('contextmenu', (e) => { e.preventDefault(); return false; });
         };
 
         const handleInput = (e) => { 
@@ -659,9 +678,12 @@
             }
         };
 
+        // MATEMATIKA ABSOLUT: TOOLBAR ANTI-CLIPPING & DYNAMIC ARROW
         const handleSelectionPos = () => {
             if(state.currentView !== 'editor') return;
-            const ta = document.getElementById('edit-content'); const toolbar = document.getElementById('format-toolbar'); const cursor = document.getElementById('block-cursor');
+            const ta = document.getElementById('edit-content'); 
+            const toolbar = document.getElementById('format-toolbar'); 
+            const cursor = document.getElementById('block-cursor');
             if(!ta || !cursor) return;
 
             const sel = window.getSelection();
@@ -669,6 +691,7 @@
                 const range = sel.getRangeAt(0); const rects = range.getClientRects(); 
                 let rect = rects.length > 0 ? rects[rects.length - 1] : range.getBoundingClientRect();
 
+                // 1. KURSOR HANTU TEBAL
                 if(sel.isCollapsed) {
                     toolbar.style.display = 'none'; cursor.style.display = 'block'; 
                     const containerRect = ta.getBoundingClientRect();
@@ -681,22 +704,51 @@
                         cursor.style.top = `${topPos}px`; cursor.style.left = `${leftPos}px`; cursor.style.height = `${rect.height}px`;
                     }
                 } 
+                // 2. TOOLBAR FLOATING CERDAS
                 else if (!sel.isCollapsed) { 
-                    cursor.style.display = 'none'; toolbar.style.display = 'flex';
+                    cursor.style.display = 'none'; 
+                    toolbar.style.opacity = '0'; // Sembunyiin buat ngukur
+                    toolbar.style.display = 'flex';
+                    
                     activeTimeouts.push(setTimeout(() => {
-                        const tbWidth = toolbar.offsetWidth; let topPos = rect.top; let leftPos = rect.left + (rect.width / 2);
-                        const margin = 15;
-                        if (leftPos - (tbWidth / 2) < margin) { leftPos = (tbWidth / 2) + margin; }
-                        if (leftPos + (tbWidth / 2) > window.innerWidth - margin) { leftPos = window.innerWidth - (tbWidth / 2) - margin; }
-                        if(topPos < 100) { topPos = rect.bottom; toolbar.classList.add('flip-down'); } else { toolbar.classList.remove('flip-down'); }
-                        toolbar.style.top = `${topPos}px`; toolbar.style.left = `${leftPos}px`;
+                        const tbWidth = toolbar.offsetWidth; 
+                        const tbHeight = toolbar.offsetHeight;
+                        
+                        let targetCenterX = rect.left + (rect.width / 2);
+                        let leftPos = targetCenterX - (tbWidth / 2);
+                        let topPos = rect.top - tbHeight - 10;
+                        
+                        const margin = 10;
+                        
+                        // CLAMP KIRI-KANAN (Biar ga kepotong bezel HP)
+                        if (leftPos < margin) leftPos = margin;
+                        if (leftPos + tbWidth > window.innerWidth - margin) leftPos = window.innerWidth - tbWidth - margin;
+                        
+                        // HITUNG POSISI PANAH SEGITIGA (Biar tetep nunjuk ke teks meski toolbar mentok)
+                        let arrowPos = targetCenterX - leftPos;
+                        if (arrowPos < 20) arrowPos = 20; // Batas kiri panah
+                        if (arrowPos > tbWidth - 20) arrowPos = tbWidth - 20; // Batas kanan panah
+                        
+                        // JUNGKIR BALIK (Kalau mentok atap)
+                        if(topPos < 70) { 
+                            topPos = rect.bottom + 10; 
+                            toolbar.classList.add('flip-down'); 
+                        } else { 
+                            toolbar.classList.remove('flip-down'); 
+                        }
+                        
+                        toolbar.style.top = `${topPos}px`; 
+                        toolbar.style.left = `${leftPos}px`;
+                        toolbar.style.setProperty('--arrow-pos', `${arrowPos}px`);
+                        toolbar.style.opacity = '1';
                     }, 0));
                 }
             } 
             else { toolbar.style.display = 'none'; cursor.style.display = 'none'; }
         };
 
-        const execFormat = (command, val = null) => { document.execCommand(command, false, val); sfx.commit(); showToast('FORMAT APPLIED'); pushHistory(document.getElementById('edit-content').innerHTML); };
+        const execFormat = (command, val = null) => { document.execCommand(command, false, val); sfx.commit(); showToast('FORMAT APPLIED'); pushHistory(document.getElementById('edit-content').innerHTML); handleSelectionPos(); };
+        const execSelectAll = () => { document.execCommand('selectAll', false, null); sfx.type(); handleSelectionPos(); };
         const execCopy = () => { document.execCommand('copy'); showToast('TEXT COPIED'); sfx.commit(); document.getSelection().removeAllRanges(); handleSelectionPos(); };
 
         const execUndo = () => { if(historyIndex > 0) { historyIndex--; document.getElementById('edit-content').innerHTML = editorHistory[historyIndex]; sfx.type(); } else { sfx.error(); showToast('HISTORY LIMIT'); } };
@@ -801,7 +853,7 @@
                 <div style="border: 2px dashed var(--text-color); padding: 15px; margin-bottom: 20px;">
                     <div style="margin-bottom: 15px;">
                         ${state.labels.length === 0 ? '<p style="font-size:0.9rem">NO LABELS.</p>' : ''}
-                        ${state.labels.map(l => `<div class="flex-between" style="border-bottom: 1px dashed var(--crt-line); padding: 8px 0;"><span style="font-size:1rem;">[${l}]</span><button style="padding: 4px 8px; font-size: 0.8rem; border-color: red; color: red;" onclick="requestDeleteLabel('${l}')">DEL</button></div>`).join('')}
+                        ${state.labels.map(l => `<div class="flex-between" style="border-bottom: 1px dashed var(--crt-line); padding: 8px 0;"><span style="font-size:1.1rem;">[${l}]</span><button style="padding: 4px 10px; font-size: 0.9rem; border-color: red; color: red;" onclick="requestDeleteLabel('${l}')">DEL</button></div>`).join('')}
                     </div>
                     <div class="flex-row"><input type="text" id="new-label-input" placeholder="> NEW_LABEL" style="flex: 1;" onkeyup="sfx.type()"><button onclick="addNewLabel()">[+]</button></div>
                 </div>
@@ -837,80 +889,49 @@
         const openCommit = (title, desc, callback) => {
             sfx.error(); document.getElementById('modal-title').innerText = title; document.getElementById('modal-desc').innerText = desc; modalInput.value = ''; modalInput.placeholder = "> TYPE 'OK'"; commitCallback = callback; modal.style.display = 'flex'; 
             modal.querySelector('.modal-box').classList.remove('crt-flash'); void modal.offsetWidth; modal.querySelector('.modal-box').classList.add('crt-flash'); 
-            setTimeout(() => modalInput.focus(), 100);
+            setTimeout(() => { modalInput.focus(); }, 100);
         };
         const closeModal = () => { sfx.enter(); modal.style.display = 'none'; commitCallback = null; };
         document.getElementById('modal-confirm').addEventListener('click', () => { if(modalInput.value.toLowerCase() === 'ok') { sfx.commit(); modal.style.display = 'none'; if(commitCallback) commitCallback(); } else { sfx.error(); modalInput.value = ''; modalInput.placeholder = "INVALID. TYPE 'OK'"; } });
 
-        // --- TERMINAL BOOT SEQUENCE ---
+        // --- BOOT SEQUENCE ---
         let bootReq; let bootProgress = 0;
         const startPower = (e) => {
             if(e.type === 'touchstart') e.preventDefault(); 
-            if(bootProgress >= 100) return;
-            sfx.type(); 
-            bootProgress = 0;
+            if(bootProgress >= 100) return; sfx.type(); bootProgress = 0;
             
             const animateBoot = () => {
-                bootProgress += 2.5; 
-                document.getElementById('boot-progress').style.width = bootProgress + '%';
+                bootProgress += 2.5; document.getElementById('boot-progress').style.width = bootProgress + '%';
                 if(bootProgress % 10 === 0) sfx.type(); 
-                
-                if(bootProgress >= 100) { powerOn(); } 
-                else { bootReq = requestAnimationFrame(animateBoot); }
+                if(bootProgress >= 100) { powerOn(); } else { bootReq = requestAnimationFrame(animateBoot); }
             };
             bootReq = requestAnimationFrame(animateBoot);
             document.getElementById('boot-instruct').innerText = "> CHARGING CAPACITORS...";
         };
         const cancelPower = (e) => {
-            if(bootProgress >= 100) return;
-            cancelAnimationFrame(bootReq); bootProgress = 0;
-            document.getElementById('boot-progress').style.width = '0%';
-            document.getElementById('boot-instruct').innerText = "> HOLD TO POWER ON_";
+            if(bootProgress >= 100) return; cancelAnimationFrame(bootReq); bootProgress = 0;
+            document.getElementById('boot-progress').style.width = '0%'; document.getElementById('boot-instruct').innerText = "> HOLD TO POWER ON_";
         };
 
         const powerOn = () => {
-            document.getElementById('power-screen').style.display = 'none';
-            initAudio(); sfx.boot();
+            document.getElementById('power-screen').style.display = 'none'; initAudio(); sfx.boot();
             
-            if(!state.settings.boot) {
-                document.getElementById('os-ui').style.display = 'flex';
-                forceNavigate('dashboard'); return;
-            }
+            if(!state.settings.boot) { document.getElementById('os-ui').style.display = 'flex'; forceNavigate('dashboard'); return; }
 
-            const bootConsole = document.getElementById('boot-console');
-            bootConsole.style.display = 'flex';
+            const bootConsole = document.getElementById('boot-console'); bootConsole.style.display = 'flex';
             
-            const lines = [
-                "OS-NXT v4.0.0 KERNEL INIT", 
-                "BIOS DATE 04/24/85", 
-                "CPU: Z80A 4MHz ... OK", 
-                "MEM: CHECKING RAM...",
-                "64KB BASE MEMORY ... OK", 
-                "MOUNTING VFS: /dev/sda1", 
-                "LOADING MODULES: AUDIO, CRT_FX", 
-                "ESTABLISHING SECURE LINK...", 
-                "BOOT COMPLETE."
-            ];
+            const lines = [ "OS-NXT v4.1.0 KERNEL INIT", "BIOS DATE 04/24/85", "CPU: Z80A 4MHz ... OK", "MEM: CHECKING RAM...", "64KB BASE MEMORY ... OK", "MOUNTING VFS: /dev/sda1", "LOADING MODULES: AUDIO, CRT_FX", "ESTABLISHING SECURE LINK...", "BOOT COMPLETE." ];
             
-            const textArea = document.getElementById('boot-text-area');
-            let lIdx = 0; let cIdx = 0; let currentHTML = "";
+            const textArea = document.getElementById('boot-text-area'); let lIdx = 0; let cIdx = 0; let currentHTML = "";
 
             const typeChar = () => {
-                if(lIdx >= lines.length) {
-                    setTimeout(() => { bootConsole.style.display = 'none'; document.getElementById('os-ui').style.display = 'flex'; forceNavigate('dashboard'); }, 500);
-                    return;
-                }
+                if(lIdx >= lines.length) { setTimeout(() => { bootConsole.style.display = 'none'; document.getElementById('os-ui').style.display = 'flex'; forceNavigate('dashboard'); }, 500); return; }
                 
                 if(cIdx < lines[lIdx].length) {
-                    currentHTML += lines[lIdx].charAt(cIdx);
-                    textArea.innerHTML = currentHTML;
-                    if(cIdx % 2 === 0 && state.settings.sfx) sfx.floppy(); // Bunyi disk drive
-                    cIdx++;
-                    setTimeout(typeChar, Math.random() * 15 + 10); // Super fast typing
+                    currentHTML += lines[lIdx].charAt(cIdx); textArea.innerHTML = currentHTML;
+                    if(cIdx % 2 === 0 && state.settings.sfx) sfx.floppy(); cIdx++; setTimeout(typeChar, Math.random() * 15 + 10);
                 } else {
-                    currentHTML += "<br>"; textArea.innerHTML = currentHTML;
-                    lIdx++; cIdx = 0;
-                    setTimeout(typeChar, Math.random() * 100 + 50); // Pause antar baris
+                    currentHTML += "<br>"; textArea.innerHTML = currentHTML; lIdx++; cIdx = 0; setTimeout(typeChar, Math.random() * 100 + 50);
                 }
             };
             setTimeout(typeChar, 300);
