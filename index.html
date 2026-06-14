@@ -63,7 +63,6 @@
         
         body[data-scan="false"] #crt-matrix, body[data-scan="false"] .vcr-tracking, body[data-scan="false"] .scanline, body[data-scan="false"] .scanline-thick, body[data-scan="false"] .vsync-roll { display: none !important; }
         
-        /* Blur dinaikkan dari 0.3px ke 0.8px biar kerasa retro low-res tapi tetep kebaca */
         body[data-blur="true"] #crt-vignette { backdrop-filter: blur(0.8px); -webkit-backdrop-filter: blur(0.8px); }
         
         body[data-flicker="true"] #flicker-layer { animation: crt-flicker 0.12s infinite; }
@@ -75,7 +74,8 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; scrollbar-width: none; }
         ::-webkit-scrollbar { display: none; }
-        input, [contenteditable="true"] { user-select: text; -webkit-user-select: text; -webkit-touch-callout: default; cursor: text; }
+        /* Native caret color diatur disini agar matching dengan tema */
+        input, [contenteditable="true"] { user-select: text; -webkit-user-select: text; -webkit-touch-callout: default; cursor: text; caret-color: var(--text-color); }
 
         body {
             background-color: var(--bg-bezel); height: 100vh; width: 100vw; overflow: hidden;
@@ -84,8 +84,6 @@
             -webkit-font-smoothing: none; text-rendering: optimizeSpeed; padding: 1.5vw; 
             transition: transform 0.05s, filter 0.05s; perspective: 1000px;
         }
-        
-        body.micro-jitter { transform: translate(1px, -1px) skewX(0.5deg); filter: brightness(1.2) contrast(1.1); }
 
         #screen-tube { position: relative; width: 100%; height: 100%; overflow: hidden; background-color: var(--bg-color); border-radius: 40px; box-shadow: 0 0 0 10px #010101, inset 0 0 50px rgba(0,0,0,0.9), inset 0 0 10px var(--text-muted); border: 4px solid #1a1a1a; z-index: 1; transform-style: preserve-3d; clip-path: inset(0 round 40px); transform: translateZ(0); }
 
@@ -139,7 +137,8 @@
         @keyframes boot-power-on { 0% { transform: scaleY(0.01) scaleX(0); opacity: 0; filter: brightness(10); } 40% { transform: scaleY(0.02) scaleX(1); opacity: 1; filter: brightness(5); } 100% { transform: scaleY(1) scaleX(1); filter: brightness(1); } }
 
         .safe-area-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; z-index: 20; padding-top: max(env(safe-area-inset-top), 10px); }
-        #viewport { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 30px; padding-bottom: 110px; text-shadow: var(--glow-light); position: relative; will-change: transform; transition: transform 0.05s linear; z-index: 10;}
+        
+        #viewport { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 30px; padding-bottom: 110px; text-shadow: var(--glow-light); position: relative; z-index: 10; contain: content; scroll-behavior: auto; }
 
         #bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; height: 80px; background: rgba(0,0,0,0.9); border-top: 3px double var(--text-color); display: flex; justify-content: space-between; align-items: stretch; padding-bottom: env(safe-area-inset-bottom); z-index: 9999 !important; text-shadow: var(--glow-heavy); backdrop-filter: blur(10px); transform: translateZ(0); }
         .nav-btn { background: none; border: none; color: var(--text-muted); font-family: var(--font-main); font-size: 1rem; letter-spacing: 1px; cursor: pointer; flex: 1; height: 100%; position: relative; white-space: nowrap; display: flex; justify-content: center; align-items: center; touch-action: manipulation !important; pointer-events: auto !important; border-right: 1px solid rgba(255, 255, 255, 0.1); box-sizing: border-box; } 
@@ -163,10 +162,8 @@
         .fab-btn:active { box-shadow: 0 0 0 transparent; transform: translate(-5px, 5px) translateZ(0); background: var(--text-color); color: var(--bg-color); }
 
         .editor-container { position: relative; width: 100%; height: 50vh; margin-top: 10px; border: 2px var(--border-style) var(--text-color); background: rgba(0,0,0,0.6); box-shadow: inset 0 0 20px rgba(0,0,0,0.8); overflow: hidden; transform: translateZ(0); }
-        #edit-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-family: var(--font-main); font-size: 1.2rem; line-height: 1.6; padding: 15px; overflow-y: auto; outline: none; text-transform: none; caret-color: transparent; text-shadow: var(--glow-light); z-index: 2; will-change: scroll-position; }
+        #edit-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-family: var(--font-main); font-size: 1.2rem; line-height: 1.6; padding: 15px; overflow-y: auto; outline: none; text-transform: none; text-shadow: var(--glow-light); z-index: 2; will-change: scroll-position; }
         #edit-content::selection { background: var(--text-color); color: var(--bg-color); text-shadow: none; }
-        #block-cursor { position: absolute; width: 14px; height: 1.4rem; background-color: var(--text-color); box-shadow: var(--glow-heavy); z-index: 1; pointer-events: none; display: none; animation: blink 0.8s step-end infinite; transition: top 0.05s, left 0.05s; transform: translateZ(0); }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
         #edit-content h1, #edit-content h2 { display: block; background: transparent; color: var(--text-color); text-shadow: var(--glow-heavy); padding:0; letter-spacing: 0; box-shadow: none; }
         #edit-content h1 { font-size: 2.2rem; border-bottom: 3px solid var(--text-color); margin-bottom: 10px; text-transform: uppercase; }
@@ -342,12 +339,14 @@
         };
         setupPWA();
 
-        // CHROMA DI SET DEFAULT FALSE
+        // STATE MANAGEMENTS
         let state = { 
             notes: [], labels: ['TUGAS', 'PRIBADI', 'IDE', 'INTEL'], logs: [], 
             settings: { theme: 'pipboy', sfx: true, vhs: true, blur: true, chroma: false, scan: true, flicker: true, jitter: false, interf: true, ghost: true, boot: true, bloom: false, bleed: false, burnin: false }, 
             currentView: 'dashboard', activeNoteId: null, filterLabel: null 
         };
+        
+        let scrollYMem = { dashboard: 0, notes: 0, log: 0, settings: 0, editor: 0 };
         
         let pristineEditorState = ""; let editorHistory = []; let historyIndex = -1;
         let radsCount = 120; 
@@ -393,16 +392,14 @@
             } else { batteryLevel = "99%"; isCharging = false; } 
         };
 
-        // --- CORE LOGIC: SMART PARALLAX (Hanya Jalan Kalau Dibutuhkan) ---
+        // --- CORE LOGIC: SMART PARALLAX ---
         let globalTouchActive = false;
         let isBlinking = false;
         let lastTapTime = 0;
         let avatarAnimFrame;
         let avatarLoopRunning = false;
 
-        // Target (where the user points)
         let tgtNx = 0; let tgtNy = 0;
-        // Current (where the head actually is, smoothly interpolated)
         let curNx = 0; let curNy = 0;
 
         const applyParallax = (nx, ny) => {
@@ -418,10 +415,8 @@
                 headBase.style.transform = `translate(${nx * 3}px, ${ny * 3}px)`; 
                 hairFront.style.transform = `translate(${nx * 8}px, ${ny * 6}px)`; 
                 faceFeat.style.transform = `translate(${nx * 12}px, ${ny * 12}px)`; 
-
                 pL.setAttribute('transform', `translate(${nx * 6}, ${ny * 6})`);
                 pR.setAttribute('transform', `translate(${nx * 6}, ${ny * 6})`);
-                
                 const tilt = (nx * 12) + (globalTouchActive ? (nx > 0 ? 5 : -5) : 0);
                 svg.style.transform = `rotate(${tilt}deg) scale(0.95)`;
             }
@@ -662,7 +657,6 @@
             decryptTimeouts.forEach(id => clearTimeout(id)); decryptTimeouts = [];
             clearInterval(streamInterval); clearInterval(blinkInterval); cancelAnimationFrame(avatarAnimFrame);
             document.getElementById('format-toolbar').style.display = 'none'; 
-            const cur = document.getElementById('block-cursor'); if(cur) cur.style.display = 'none';
         };
         const triggerFlash = () => { const vp = document.getElementById('viewport'); vp.classList.remove('crt-flash'); requestAnimationFrame(() => vp.classList.add('crt-flash')); if(Math.random() > 0.8) triggerMeltdown(); };
         const triggerMeltdown = () => { const vp = document.getElementById('viewport'); vp.classList.remove('meltdown-fx'); requestAnimationFrame(() => vp.classList.add('meltdown-fx')); sfx.error(); };
@@ -683,6 +677,11 @@
             decryptLoop();
         };
 
+        const restoreScrollMemory = () => {
+            const vp = document.getElementById('viewport');
+            setTimeout(() => { vp.scrollTop = scrollYMem[state.currentView] || 0; }, 10);
+        };
+
         const forceNavigate = (view, silent = false) => {
             if (!silent) sfx.nav(); 
             state.currentView = view; clearAnimations(); triggerFlash();
@@ -701,6 +700,8 @@
             const fab = document.getElementById('main-fab'); if(fab) fab.style.display = (view === 'notes') ? 'flex' : 'none';
             if(view === 'dashboard') renderDashboard(); else if(view === 'notes') renderNotes(); else if(view === 'editor') renderEditor(); else if(view === 'log') renderLog(); else if(view === 'settings') renderSettings();
             if(!silent) history.pushState({ view: view }, "", `#${view}`);
+            
+            restoreScrollMemory();
         };
 
         const navigate = (view, silent = false) => {
@@ -1063,7 +1064,6 @@
                 </div>
 
                 <div class="editor-container">
-                    <div id="block-cursor"></div>
                     <div id="edit-content" contenteditable="true" spellcheck="false" oninput="handleInput(event)"></div>
                 </div>
                 
@@ -1095,17 +1095,19 @@
             ta.addEventListener('scroll', handleSelectionPosThrottled, {passive: true}); 
             ta.addEventListener('keyup', handleSelectionPosThrottled);
             ta.addEventListener('click', handleSelectionPosThrottled);
-            ta.addEventListener('blur', () => { document.getElementById('block-cursor').style.display = 'none'; });
             ta.addEventListener('contextmenu', (e) => { e.preventDefault(); return false; });
         };
 
         const handleInput = (e) => { 
-            sfx.type(); const ta = e.target;
-            const html = ta.innerHTML; const raw = stripHTML(html); const words = raw.trim().split(/\s+/).filter(w=>w.length>0).length;
-            document.getElementById('editor-stats').innerText = `W:${words} // B:${raw.length}`;
-            clearTimeout(saveDraftTimeout); saveDraftTimeout = setTimeout(() => pushHistory(html), 600); 
-            handleSelectionPosThrottled();
-            if(Math.random() > 0.85) { document.body.classList.add('micro-jitter'); setTimeout(() => document.body.classList.remove('micro-jitter'), 50); }
+            sfx.type(); 
+            clearTimeout(saveDraftTimeout); 
+            saveDraftTimeout = setTimeout(() => {
+                const ta = e.target;
+                const html = ta.innerHTML; const raw = stripHTML(html); const words = raw.trim().split(/\s+/).filter(w=>w.length>0).length;
+                document.getElementById('editor-stats').innerText = `W:${words} // B:${raw.length}`;
+                pushHistory(html);
+                handleSelectionPos();
+            }, 500); 
         };
 
         const handleSmartList = (e) => {
@@ -1119,30 +1121,21 @@
 
         const handleSelectionPosThrottled = () => {
             clearTimeout(selectPosTimeout);
-            selectPosTimeout = setTimeout(handleSelectionPos, 30);
+            selectPosTimeout = setTimeout(handleSelectionPos, 150);
         };
 
         const handleSelectionPos = () => {
             if(state.currentView !== 'editor') return;
             const ta = document.getElementById('edit-content'); 
             const toolbar = document.getElementById('format-toolbar'); 
-            const cursor = document.getElementById('block-cursor');
-            if(!ta || !toolbar || !cursor) return;
+            if(!ta || !toolbar) return;
 
             const sel = window.getSelection();
-            if(document.activeElement === ta && sel.rangeCount > 0 && sel.isCollapsed) {
-                toolbar.style.display = 'none'; cursor.style.display = 'block'; 
-                const range = sel.getRangeAt(0); const rects = range.getClientRects();
-                const rect = rects.length > 0 ? rects[rects.length - 1] : range.getBoundingClientRect();
-                const containerRect = ta.getBoundingClientRect();
-                if(ta.innerHTML === '' || ta.innerHTML === '<br>') { cursor.style.top = `15px`; cursor.style.left = `15px`; cursor.style.height = `1.4rem`; } 
-                else if (rect && rect.height > 0) { cursor.style.top = `${rect.top - containerRect.top}px`; cursor.style.left = `${rect.left - containerRect.left}px`; cursor.style.height = `${rect.height}px`; }
-            } 
-            else if (document.activeElement === ta && sel.rangeCount > 0 && !sel.isCollapsed) { 
+            if(document.activeElement === ta && sel.rangeCount > 0 && !sel.isCollapsed) { 
                 const range = sel.getRangeAt(0); const rect = range.getBoundingClientRect(); 
                 if (rect.width === 0 && rect.height === 0) return; 
 
-                cursor.style.display = 'none'; toolbar.style.opacity = '0'; toolbar.style.display = 'flex'; 
+                toolbar.style.opacity = '0'; toolbar.style.display = 'flex'; 
                 
                 requestAnimationFrame(() => {
                     const tbWidth = toolbar.offsetWidth; const tbHeight = toolbar.offsetHeight;
@@ -1165,7 +1158,9 @@
                     if(isFlipped) toolbar.classList.add('flip-down'); else toolbar.classList.remove('flip-down'); 
                     toolbar.style.top = `${topPos}px`; toolbar.style.left = `${leftPos}px`; toolbar.style.setProperty('--arrow-pos', `${arrowPos}px`); toolbar.style.opacity = '1';
                 });
-            } else { toolbar.style.display = 'none'; cursor.style.display = 'none'; }
+            } else { 
+                toolbar.style.display = 'none'; 
+            }
         };
 
         const execFormat = (command, val = null) => { document.execCommand(command, false, val); sfx.commit(); showToast('FORMAT APPLIED'); pushHistory(document.getElementById('edit-content').innerHTML); handleSelectionPos(); };
@@ -1345,7 +1340,6 @@
         };
 
         window.onload = () => {
-            // SETTINGS DEFAULT (CHROMA FALSE)
             const defaults = { bloom: false, bleed: false, burnin: false, chroma: false };
             state.settings = { ...defaults, ...state.settings };
             applyDOMSettings(); history.replaceState({ view: 'dashboard' }, "", "#dashboard");
@@ -1354,6 +1348,15 @@
             pScreen.addEventListener('mousedown', startPower); pScreen.addEventListener('touchstart', startPower, {passive: false});
             pScreen.addEventListener('mouseup', cancelPower); pScreen.addEventListener('touchend', cancelPower);
             pScreen.addEventListener('mouseleave', cancelPower);
+
+            const vp = document.getElementById('viewport');
+            let scrollTimeout;
+            vp.addEventListener('scroll', () => {
+                if (!vp.classList.contains('crt-flash')) {
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(() => { scrollYMem[state.currentView] = vp.scrollTop; }, 50);
+                }
+            }, {passive: true});
         };
     </script>
 </body>
