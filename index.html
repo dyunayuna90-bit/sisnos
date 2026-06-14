@@ -48,8 +48,8 @@
             --glow-heavy: 0 0 20px var(--text-color), 0 0 5px #fff;
         }
 
-        body[data-bleed="true"] { --bleed-offset: 2px; }
-        body[data-bleed="true"] #viewport { text-shadow: var(--bleed-offset) 0 0 rgba(255,0,0,0.6), calc(var(--bleed-offset) * -1) 0 0 rgba(0,255,255,0.6), var(--glow-light); }
+        body[data-bleed="true"] { --bleed-offset: 2.5px; }
+        body[data-bleed="true"] #viewport { text-shadow: var(--bleed-offset) 0 0 rgba(255,0,0,0.7), calc(var(--bleed-offset) * -1) 0 0 rgba(0,255,255,0.7), var(--glow-light); }
         body[data-bleed="true"] canvas, body[data-bleed="true"] svg { filter: drop-shadow(var(--bleed-offset) 0 0 rgba(255,0,0,0.6)) drop-shadow(calc(var(--bleed-offset) * -1) 0 0 rgba(0,255,255,0.6)); }
 
         body[data-chroma="true"] {
@@ -63,8 +63,8 @@
         
         body[data-scan="false"] #crt-matrix, body[data-scan="false"] .vcr-tracking, body[data-scan="false"] .scanline, body[data-scan="false"] .scanline-thick, body[data-scan="false"] .vsync-roll { display: none !important; }
         
-        /* Blur Diturunin Secara Signifikan */
-        body[data-blur="true"] #crt-vignette { backdrop-filter: blur(0.6px); -webkit-backdrop-filter: blur(0.6px); }
+        /* BLUR DIKURANGIN DRASTIS SESUAI INSTRUKSI */
+        body[data-blur="true"] #crt-vignette { backdrop-filter: blur(0.3px); -webkit-backdrop-filter: blur(0.3px); }
         
         body[data-flicker="true"] #flicker-layer { animation: crt-flicker 0.12s infinite; }
         body[data-jitter="true"] #viewport { animation: signal-jitter 4s infinite; }
@@ -206,10 +206,16 @@
         .prog-bar { width: 100%; height: 6px; background: var(--chart-fill); margin-top: 10px; position: relative; overflow: hidden;}
         .prog-fill { height: 100%; background: var(--text-color); width: 0%; transition: width 1s ease-out; box-shadow: var(--glow-light);}
 
-        /* 3D PARALLAX AVATAR (GOKIL EDITION) */
-        .avatar-container { width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; position: relative; touch-action: none; }
-        #nxt-boy-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 5px var(--text-color)); transition: transform 0.1s ease-out, filter 0.3s;}
-        #boy-face, #boy-head-base { transition: transform 0.1s ease-out; }
+        /* AVATAR CUTE & CLEAN 2.5D PARALLAX EDITION */
+        .avatar-container { width: 100%; max-width: 110px; height: 110px; margin: 0 auto; display: flex; justify-content: center; align-items: center; position: relative; touch-action: none; overflow: visible;}
+        
+        #nxt-boy-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 5px var(--text-color)); transition: transform 0.1s ease-out, filter 0.3s; transform-origin: center;}
+        
+        /* Layer Transitions for smooth Parallax */
+        #boy-neck { transition: transform 0.1s ease-out; }
+        #boy-head-base { transition: transform 0.1s ease-out; }
+        #boy-face-features { transition: transform 0.08s ease-out; }
+        #boy-hair-front { transition: transform 0.15s cubic-bezier(0.3, 1.2, 0.4, 1); } 
         
         .gauge-container { position: relative; width: 100%; height: 80px; display: flex; justify-content: center; align-items: flex-end; }
         #rad-gauge-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
@@ -239,6 +245,10 @@
         
         .sys-glitch { animation: glitch-anim 0.2s linear infinite; }
         @keyframes glitch-anim { 0% { transform: translate(0) } 20% { transform: translate(-2px, 2px) } 40% { transform: translate(-2px, -2px) } 60% { transform: translate(2px, 2px) } 80% { transform: translate(2px, -2px) } 100% { transform: translate(0) } }
+        
+        .breath-anim { animation: chest-breathe 3s ease-in-out infinite alternate; }
+        @keyframes chest-breathe { 0% { transform: scaleY(1); } 100% { transform: scaleY(1.02); } }
+        
         .decrypting-text { font-family: monospace; opacity: 0.8; }
     </style>
 </head>
@@ -388,7 +398,7 @@
             } else { batteryLevel = "99%"; isCharging = false; } 
         };
 
-        // --- CORE LOGIC: 3D PARALLAX & EXPRESSION ---
+        // --- CORE LOGIC: CLEAN 2.5D PARALLAX & DYNAMIC EXPRESSIONS ---
         let globalTouchActive = false;
         let isBlinking = false;
         let lastTapTime = 0;
@@ -396,43 +406,77 @@
         const applyParallax = (nx, ny) => {
             if(state.currentView !== 'dashboard') return;
             const svg = document.getElementById('nxt-boy-svg');
-            const face = document.getElementById('boy-face');
-            const head = document.getElementById('boy-head-base');
+            const headBase = document.getElementById('boy-head-base');
+            const faceFeat = document.getElementById('boy-face-features');
+            const hairFront = document.getElementById('boy-hair-front');
             const pL = document.getElementById('pupil-l');
             const pR = document.getElementById('pupil-r');
             
-            if(svg && face && head && pL && pR) {
-                // Parallax depth calculation
-                face.style.transform = `translate(${nx * 8}px, ${ny * 8}px)`; // Muka condong maju ke arah pointer
-                head.style.transform = `translate(${nx * -2}px, ${ny * -2}px)`; // Rahang dan kuping bergeser tipis berlawanan
+            if(svg && faceFeat && headBase) {
+                // Kalkulasi Parallax Layer yang jauh lebih halus dan presisi
+                headBase.style.transform = `translate(${nx * 2}px, ${ny * 2}px)`; // Base kepala & kuping geser dikit
+                hairFront.style.transform = `translate(${nx * 6}px, ${ny * 5}px)`; // Jambul depan lebih lincah
+                faceFeat.style.transform = `translate(${nx * 8}px, ${ny * 8}px)`; // Fitur muka paling nonjol
+
+                pL.setAttribute('transform', `translate(${nx * 4}, ${ny * 4})`);
+                pR.setAttribute('transform', `translate(${nx * 4}, ${ny * 4})`);
                 
-                pL.setAttribute('transform', `translate(${nx * 5}, ${ny * 5})`); // Mata gerak lebih ekstrem
-                pR.setAttribute('transform', `translate(${nx * 5}, ${ny * 5})`);
-                
-                svg.style.transform = `rotate(${nx * 10}deg) scale(0.95)`; // Rotasi global
+                // Rotasi total kepala
+                const tilt = (nx * 10) + (globalTouchActive ? (nx > 0 ? 5 : -5) : 0);
+                svg.style.transform = `rotate(${tilt}deg) scale(0.95)`;
             }
             updateDynamicExpression(nx, ny);
         };
 
         const updateDynamicExpression = (nx, ny) => {
-            if(globalTouchActive || radsCount > 400) return; // Dis-override kalo lagi dipegang atau sakit radiasi
+            const eyeL = document.getElementById('eye-l'); const eyeR = document.getElementById('eye-r');
+            const browL = document.getElementById('brow-l'); const browR = document.getElementById('brow-r');
             const mouth = document.getElementById('boy-mouth');
-            const eyeL = document.getElementById('eye-l');
-            const eyeR = document.getElementById('eye-r');
-            if(!mouth || !eyeL || !eyeR) return;
+            const pL = document.getElementById('pupil-l'); const pR = document.getElementById('pupil-r');
 
-            if (ny < -0.4) {
-                // Nengok ke atas: mulut kebuka sedikit
-                mouth.setAttribute('d', 'M 40 70 Q 50 78 60 70');
-                if(!isBlinking) { eyeL.setAttribute('ry', '9'); eyeR.setAttribute('ry', '9'); }
-            } else if (ny > 0.4) {
-                // Nunduk ke bawah: mulut lebih kecil/serius, mata agak nutup
-                mouth.setAttribute('d', 'M 40 75 Q 50 75 60 75');
-                if(!isBlinking) { eyeL.setAttribute('ry', '6'); eyeR.setAttribute('ry', '6'); }
-            } else {
-                // Netral Senyum
-                mouth.setAttribute('d', 'M 35 70 Q 50 80 65 70');
-                if(!isBlinking) { eyeL.setAttribute('ry', '8'); eyeR.setAttribute('ry', '8'); }
+            if(!eyeL || isBlinking) return;
+
+            // Reset Default: Senyum imut khas animasi klasik
+            browL.setAttribute('d', 'M 25 42 Q 30 38 40 42'); 
+            browR.setAttribute('d', 'M 60 42 Q 70 38 75 42');
+            eyeL.setAttribute('ry', '8'); eyeR.setAttribute('ry', '8');
+            pL.setAttribute('r', '2.5'); pR.setAttribute('r', '2.5');
+            mouth.setAttribute('d', 'M 30 74 Q 50 88 70 74');
+
+            if (radsCount > 800) {
+                // MELTDOWN: Sakit banget (Alis sedih, mulut merengut ke bawah)
+                browL.setAttribute('d', 'M 25 38 L 40 44'); browR.setAttribute('d', 'M 60 44 L 75 38');
+                eyeL.setAttribute('ry', '2'); eyeR.setAttribute('ry', '2'); // Menyipit kesakitan
+                mouth.setAttribute('d', 'M 35 82 Q 50 74 65 82');
+                document.getElementById('nxt-boy-svg').style.filter = "drop-shadow(0 0 15px red) hue-rotate(-45deg)";
+            } 
+            else if (radsCount > 400) {
+                // SAKIT: Alis marah/serius
+                browL.setAttribute('d', 'M 25 44 L 40 40'); browR.setAttribute('d', 'M 60 40 L 75 44');
+                eyeL.setAttribute('ry', '6'); eyeR.setAttribute('ry', '6');
+                mouth.setAttribute('d', 'M 35 78 Q 50 78 65 78'); // Senyum datar
+                document.getElementById('nxt-boy-svg').style.filter = "drop-shadow(0 0 5px var(--text-color))";
+            }
+            else if (globalTouchActive) {
+                // KAGET (DI SENTUH): Alis naik tinggi, mulut "O" bulet lucu
+                browL.setAttribute('d', 'M 25 35 Q 30 30 40 35'); browR.setAttribute('d', 'M 60 35 Q 70 30 75 35');
+                eyeL.setAttribute('ry', '10'); eyeR.setAttribute('ry', '10'); // Mata melotot lucu
+                pL.setAttribute('r', '1.5'); pR.setAttribute('r', '1.5'); // Pupil ngecil
+                mouth.setAttribute('d', 'M 45 78 A 5 5 0 1 1 55 78 A 5 5 0 1 1 45 78'); // O shape murni
+                document.getElementById('nxt-boy-svg').style.filter = "drop-shadow(0 0 5px var(--text-color))";
+            }
+            else {
+                // NORMAL: Ekspresi dinamis dan ramah saat nengok
+                document.getElementById('nxt-boy-svg').style.filter = "drop-shadow(0 0 5px var(--text-color))";
+                if (ny < -0.4) {
+                    // Dangak: Alis naik dikit, mulut buka ceria
+                    browL.setAttribute('d', 'M 25 40 Q 30 36 40 40'); browR.setAttribute('d', 'M 60 40 Q 70 36 75 40');
+                    mouth.setAttribute('d', 'M 32 72 Q 50 82 68 72');
+                } else if (ny > 0.4) {
+                    // Nunduk: Alis lurus, senyum simpul
+                    browL.setAttribute('d', 'M 25 44 L 40 44'); browR.setAttribute('d', 'M 60 44 L 75 44');
+                    mouth.setAttribute('d', 'M 35 76 Q 50 80 65 76');
+                }
             }
         };
 
@@ -445,7 +489,6 @@
             const cy = rect.top + rect.height / 2;
             const dx = clientX - cx;
             const dy = clientY - cy;
-            // Radius maksimal trigger parallax (300px)
             const maxDist = 300;
             let nx = Math.max(-1, Math.min(1, dx / maxDist));
             let ny = Math.max(-1, Math.min(1, dy / maxDist));
@@ -458,8 +501,7 @@
         document.addEventListener('touchend', (e) => {
             if(e.touches.length === 0) {
                 globalTouchActive = false;
-                applyParallax(0, 0); // Reset pandangan
-                updateAvatarState();
+                applyParallax(0, 0); 
             }
         });
 
@@ -478,36 +520,14 @@
             if(!hitbox) return;
             hitbox.addEventListener('touchstart', (e) => {
                 sfx.commit();
-                const mouth = document.getElementById('boy-mouth');
-                if(mouth && radsCount <= 400) mouth.setAttribute('d', 'M 45 75 A 5 5 0 1 1 55 75 A 5 5 0 1 1 45 75'); // Kaget "O"
                 const now = Date.now();
                 if(now - lastTapTime < 300) healRads(); // Double Tap -> Heal
                 lastTapTime = now;
             }, {passive: true});
         };
 
-        const updateAvatarState = () => {
-            const mouth = document.getElementById('boy-mouth');
-            const svg = document.getElementById('nxt-boy-svg');
-            if(!mouth || !svg || globalTouchActive) return;
-            
-            if(radsCount > 800) {
-                // Ghoul / Sakit banget
-                mouth.setAttribute('d', 'M 35 78 Q 50 65 65 78');
-                svg.style.filter = "drop-shadow(0 0 15px red) hue-rotate(-45deg)";
-            } else if (radsCount > 400) {
-                // Serius / Netral
-                mouth.setAttribute('d', 'M 40 75 Q 50 75 60 75');
-                svg.style.filter = "drop-shadow(0 0 5px var(--text-color))";
-            } else {
-                // Senyum
-                mouth.setAttribute('d', 'M 35 70 Q 50 80 65 70');
-                svg.style.filter = "drop-shadow(0 0 5px var(--text-color))";
-            }
-        };
-
         const spikeRads = (amount) => {
-            radsCount += amount; if(state.currentView === 'dashboard') { drawRadGauge(); updateAvatarState(); }
+            radsCount += amount; if(state.currentView === 'dashboard') { drawRadGauge(); applyParallax(0,0); }
             if(radsCount > 1000) {
                 radsCount = 120; triggerMeltdown(); showToast("WARNING: REACTOR LEAK!");
                 for(let i=0; i<10; i++) setTimeout(() => analogHit(1000 - i*80, 50, 0.2, 0.2, 'sawtooth'), i * 150);
@@ -520,10 +540,9 @@
             sfx.boot(); showToast("RADAWAY INJECTED");
             const vp = document.getElementById('viewport');
             vp.classList.remove('heal-fx'); void vp.offsetWidth; vp.classList.add('heal-fx');
-            drawRadGauge(); updateAvatarState(); applyParallax(0,0);
+            drawRadGauge(); applyParallax(0,0);
         };
 
-        // --- PHOSPHOR BURN-IN PROTECTION ---
         const resetIdleTimer = () => {
             clearTimeout(idleTimer);
             const ss = document.getElementById('screensaver');
@@ -548,7 +567,6 @@
         const exitScreensaver = () => { document.getElementById('screensaver').style.display = 'none'; resetIdleTimer(); sfx.nav(); };
         ['mousemove', 'mousedown', 'keydown', 'touchstart'].forEach(evt => document.addEventListener(evt, resetIdleTimer));
 
-        // --- AUDIO ENGINE ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx, humOsc, humGain, noiseSource, noiseFilter, noiseGain;
         
@@ -635,7 +653,6 @@
             if(state.currentView === 'dashboard') renderDashboard();
         };
 
-        // --- ANIMATIONS & FX ---
         let activeFrames = []; let activeTimeouts = []; let decryptTimeouts = []; let blinkInterval;
         const clearAnimations = () => { 
             activeFrames.forEach(id => cancelAnimationFrame(id)); activeFrames = []; 
@@ -707,7 +724,6 @@
             } else { if(e.state && e.state.view) forceNavigate(e.state.view, true); else forceNavigate('dashboard', true); }
         });
 
-        // --- MATRIX BACKGROUND ---
         let matrixInterval;
         const toggleMatrixBackground = (forceState = null) => {
             const canvas = document.getElementById('matrix-canvas'); if(!canvas) return;
@@ -725,7 +741,6 @@
 
         const toggleTorch = () => { isTorch = !isTorch; document.getElementById('torch-mode').style.display = isTorch ? 'block' : 'none'; };
 
-        // --- COMMAND LINE SHELL ---
         const handleCommandShell = (e) => {
             if(e.key === 'Enter') {
                 const input = e.target; const cmd = input.value.trim().toLowerCase(); input.value = ''; addLog('SHELL', `Executed: ${cmd.toUpperCase()}`);
@@ -758,29 +773,51 @@
                 
                 <div class="grid-2">
                     <div class="stat-block" style="flex-direction:row; align-items:center; justify-content:space-around;">
+                        
+                        <!-- AVATAR CUTE & CLEAN 2.5D PARALLAX EDITION -->
                         <div class="avatar-container" id="avatar-hitbox">
                             <svg viewBox="0 0 100 100" id="nxt-boy-svg">
-                                <g id="boy-neck">
-                                    <path d="M 40 85 L 40 100 M 60 85 L 60 100 M 20 100 L 40 90 L 60 90 L 80 100" fill="none" stroke="var(--text-color)" stroke-width="3"/>
-                                </g>
-                                <g id="boy-head-base">
-                                    <path d="M 22 45 C 15 25, 35 5, 55 5 C 75 5, 85 25, 78 45" fill="none" stroke="var(--text-color)" stroke-width="4"/>
-                                    <path d="M 22 45 C 12 45, 12 60, 22 60" fill="none" stroke="var(--text-color)" stroke-width="3"/>
-                                    <path d="M 78 45 C 88 45, 88 60, 78 60" fill="none" stroke="var(--text-color)" stroke-width="3"/>
-                                    <path d="M 22 55 Q 22 85 50 85 Q 78 85 78 55" fill="none" stroke="var(--text-color)" stroke-width="4"/>
-                                </g>
-                                <g id="boy-face">
-                                    <path d="M 22 45 Q 35 25 55 35 Q 70 30 78 45" fill="none" stroke="var(--text-color)" stroke-width="3"/>
-                                    <path d="M 55 5 Q 60 20 50 30 M 70 12 Q 75 25 65 35" fill="none" stroke="var(--text-color)" stroke-width="2"/>
-                                    <ellipse cx="35" cy="50" rx="5" ry="8" id="eye-l" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="2"/>
-                                    <ellipse cx="65" cy="50" rx="5" ry="8" id="eye-r" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="2"/>
-                                    <circle cx="35" cy="50" r="2.5" fill="var(--text-color)" id="pupil-l"/>
-                                    <circle cx="65" cy="50" r="2.5" fill="var(--text-color)" id="pupil-r"/>
-                                    <path d="M 48 60 L 50 63 L 52 60" fill="none" stroke="var(--text-color)" stroke-width="2" stroke-linecap="round"/>
-                                    <path d="M 35 70 Q 50 80 65 70" id="boy-mouth" fill="none" stroke="var(--text-color)" stroke-width="3" stroke-linecap="round"/>
+                                <g class="breath-anim">
+                                    <!-- Leher -->
+                                    <g id="boy-neck">
+                                        <path d="M 35 90 L 35 105 M 65 90 L 65 105 M 20 105 L 80 105" fill="none" stroke="var(--text-color)" stroke-width="3"/>
+                                    </g>
+                                    
+                                    <!-- Kepala Base & Kuping (Bersih tanpa rahang terpisah) -->
+                                    <g id="boy-head-base">
+                                        <path d="M 18 55 C 5 55, 5 70, 18 68" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="3" stroke-linecap="round"/>
+                                        <path d="M 82 55 C 95 55, 95 70, 82 68" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="3" stroke-linecap="round"/>
+                                        <!-- Bentuk Kepala Bulat Gede -->
+                                        <path d="M 15 45 C 15 10, 85 10, 85 45 C 85 85, 70 95, 50 95 C 30 95, 15 85, 15 45 Z" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="3"/>
+                                    </g>
+                                    
+                                    <!-- Jambul Depan (Gaya Vault Boy) -->
+                                    <g id="boy-hair-front">
+                                        <path d="M 10 45 C 10 5, 55 -5, 75 10 C 95 25, 90 45, 80 50 C 70 30, 45 25, 10 45 Z" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="3" stroke-linejoin="round"/>
+                                        <!-- Detail Helai (Sedikit aja biar clean) -->
+                                        <path d="M 30 30 Q 45 15 65 25" fill="none" stroke="var(--text-color)" stroke-width="2" stroke-linecap="round"/>
+                                    </g>
+
+                                    <!-- Fitur Wajah (Mata, Hidung, Mulut) -->
+                                    <g id="boy-face-features">
+                                        <path d="M 25 42 Q 30 38 40 42" id="brow-l" fill="none" stroke="var(--text-color)" stroke-width="2.5" stroke-linecap="round"/>
+                                        <path d="M 60 42 Q 70 38 75 42" id="brow-r" fill="none" stroke="var(--text-color)" stroke-width="2.5" stroke-linecap="round"/>
+                                        
+                                        <ellipse cx="32" cy="52" rx="4.5" ry="8" id="eye-l" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="2.5"/>
+                                        <ellipse cx="68" cy="52" rx="4.5" ry="8" id="eye-r" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="2.5"/>
+                                        <circle cx="32" cy="52" r="2.5" fill="var(--text-color)" id="pupil-l"/>
+                                        <circle cx="68" cy="52" r="2.5" fill="var(--text-color)" id="pupil-r"/>
+                                        
+                                        <!-- Hidung imut -->
+                                        <path d="M 47 64 C 50 67, 50 67, 53 64" id="boy-nose" fill="none" stroke="var(--text-color)" stroke-width="2.5" stroke-linecap="round"/>
+                                        
+                                        <!-- Mulut Senyum -->
+                                        <path d="M 30 74 Q 50 88 70 74" id="boy-mouth" fill="none" stroke="var(--text-color)" stroke-width="3" stroke-linecap="round"/>
+                                    </g>
                                 </g>
                             </svg>
                         </div>
+                        
                         <div style="text-align:right;">
                             <div class="stat-lbl" style="margin-top:0;">NXT-BOY</div>
                             <div class="stat-val" id="batt-status-val" style="font-size:1.2rem; color:var(--accent);">${batteryLevel}</div>
@@ -832,26 +869,27 @@
             }, 100);
 
             bindAvatarHitbox();
-            updateAvatarState();
+            applyParallax(0,0); // inisialisasi ekspresi default
 
-            // Animasi Kedip
+            // Animasi Kedip Natural
             const doBlink = () => {
                 if(state.currentView !== 'dashboard') return;
                 const eyeL = document.getElementById('eye-l'); const eyeR = document.getElementById('eye-r');
                 const pL = document.getElementById('pupil-l'); const pR = document.getElementById('pupil-r');
-                if(eyeL && eyeR && pL && pR && !globalTouchActive && radsCount <= 400) {
+                
+                if(eyeL && !globalTouchActive && radsCount <= 400) {
                     isBlinking = true;
                     eyeL.setAttribute('ry', '1'); eyeR.setAttribute('ry', '1');
-                    pL.setAttribute('r', '0'); pR.setAttribute('r', '0');
+                    pL.style.display = 'none'; pR.style.display = 'none';
+                    
                     setTimeout(() => {
                         if(state.currentView !== 'dashboard') return;
                         isBlinking = false;
-                        eyeL.setAttribute('ry', '8'); eyeR.setAttribute('ry', '8');
-                        pL.setAttribute('r', '2.5'); pR.setAttribute('r', '2.5');
-                        applyParallax(0,0); // Trigger update ekspresi
-                    }, 150);
+                        pL.style.display = 'block'; pR.style.display = 'block';
+                        applyParallax(0,0); // Trigger update ekspresi untuk ngereset `ry` mata sesuai orientasi
+                    }, 120);
                 }
-                blinkInterval = setTimeout(doBlink, Math.random() * 4000 + 2000);
+                blinkInterval = setTimeout(doBlink, Math.random() * 4000 + 1500);
             };
             doBlink();
 
