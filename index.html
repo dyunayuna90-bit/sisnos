@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" id="meta-theme-color" content="#020802">
     
-    <title>OS-NXT // OVERRIDE</title>
+    <title>OS-NXT // APEX</title>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Share+Tech+Mono&display=swap');
@@ -31,7 +31,7 @@
         [data-theme="linux"] {
             --bg-color: #000000;
             --bg-bezel: #050505;
-            --text-color: #ffb000; /* Amber terminal look */
+            --text-color: #ffb000; 
             --text-muted: #8a6300;
             --accent: #ffcc00; 
             --glow-light: 0 0 2px rgba(255, 176, 0, 0.4);
@@ -42,7 +42,6 @@
             --letter-space: -0.5px;
         }
 
-        /* HARDWARE SWITCHES - ENHANCED */
         body[data-chroma="true"] {
             --glow-light: 1px 0px 0px rgba(255, 0, 0, 0.7), -1px 0px 0px rgba(0, 255, 255, 0.7), 0 0 4px rgba(20, 255, 20, 0.4);
             --glow-heavy: 2px 0px 0px rgba(255, 0, 0, 0.8), -2px 0px 0px rgba(0, 255, 255, 0.8), 0 0 12px rgba(20, 255, 20, 0.8);
@@ -73,11 +72,9 @@
             background-color: var(--bg-bezel); height: 100vh; width: 100vw; overflow: hidden;
             display: flex; flex-direction: column; font-family: var(--font-main); color: var(--text-color);
             letter-spacing: var(--letter-space); text-transform: uppercase; font-size: 16px;
-            -webkit-font-smoothing: none; text-rendering: optimizeSpeed;
-            padding: 1vw; /* Outer bezel gap */
+            -webkit-font-smoothing: none; text-rendering: optimizeSpeed; padding: 1vw;
         }
 
-        /* HARDWARE SCREEN TUBE ILLUSION */
         #screen-tube {
             position: relative; width: 100%; height: 100%; border-radius: 20px; overflow: hidden;
             background-color: var(--bg-color); box-shadow: 0 0 0 4px #000, inset 0 0 30px rgba(0,0,0,0.9);
@@ -85,28 +82,14 @@
         }
 
         /* 1. LAYERS */
-        #crt-matrix {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(0, 0, 0, 0.2) 50%, transparent 50%), linear-gradient(90deg, rgba(0, 0, 0, 0.2) 50%, transparent 50%);
-            background-size: 4px 4px; pointer-events: none; z-index: 2; transform: translateZ(0);
-        }
+        #crt-matrix { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0, 0, 0, 0.2) 50%, transparent 50%), linear-gradient(90deg, rgba(0, 0, 0, 0.2) 50%, transparent 50%); background-size: 4px 4px; pointer-events: none; z-index: 2; transform: translateZ(0); }
         .vsync-roll { position: absolute; top: -20%; left: 0; width: 100%; height: 15%; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.4), transparent); animation: v-roll 8s linear infinite; z-index: 8; pointer-events: none; will-change: top; }
         .vcr-tracking { width: 100%; height: 15px; z-index: 9; position: absolute; pointer-events: none; background: rgba(255,255,255,0.03); box-shadow: 0 0 8px rgba(255,255,255,0.02); animation: tracking 6s infinite linear; will-change: top; }
         .scanline { width: 100%; height: 100px; z-index: 10; position: absolute; pointer-events: none; background: linear-gradient(0deg, transparent 0%, var(--crt-line) 50%, transparent 100%); animation: scan 3s linear infinite; will-change: top; }
         .scanline-thick { width: 100%; height: 300px; z-index: 10; position: absolute; pointer-events: none; background: linear-gradient(0deg, transparent, rgba(255,255,255,0.02), transparent); animation: scan-thick 12s linear infinite; will-change: top; }
-        
         #interference { position: absolute; top: -20%; left: 0; width: 100%; height: 40px; background: linear-gradient(0deg, transparent, rgba(255,255,255,0.08), transparent); z-index: 97; pointer-events: none; opacity: 0; }
         #flicker-layer { position: absolute; top:0; left:0; width:100%; height:100%; background: #000; opacity: 0; pointer-events: none; z-index: 98; }
-        
-        /* Deep Tube Curve Shadow */
-        #crt-vignette {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, transparent 50%, rgba(0,0,0,0.9) 120%), 
-                        linear-gradient(90deg, rgba(0,0,0,0.6) 0%, transparent 5%, transparent 95%, rgba(0,0,0,0.6) 100%),
-                        linear-gradient(0deg, rgba(0,0,0,0.6) 0%, transparent 5%, transparent 95%, rgba(0,0,0,0.6) 100%);
-            pointer-events: none; z-index: 99; transition: backdrop-filter 0.3s ease;
-            box-shadow: inset 0 0 60px rgba(0,0,0,0.8);
-        }
+        #crt-vignette { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, transparent 50%, rgba(0,0,0,0.9) 120%), linear-gradient(90deg, rgba(0,0,0,0.6) 0%, transparent 5%, transparent 95%, rgba(0,0,0,0.6) 100%), linear-gradient(0deg, rgba(0,0,0,0.6) 0%, transparent 5%, transparent 95%, rgba(0,0,0,0.6) 100%); pointer-events: none; z-index: 99; transition: backdrop-filter 0.3s ease; box-shadow: inset 0 0 60px rgba(0,0,0,0.8); }
 
         /* 2. KEYFRAMES */
         @keyframes v-roll { 0% { top: -20%; } 100% { top: 120%; } }
@@ -117,19 +100,11 @@
         @keyframes signal-jitter { 0%, 9%, 11%, 100% { transform: translateX(0) skewX(0); } 10% { transform: translateX(-4px) skewX(1.5deg); } 10.5% { transform: translateX(3px) skewX(-1.5deg); } }
         @keyframes v-interf { 0% { top: -20%; opacity: 0; } 5% { opacity: 1; transform: skewX(10deg); } 8% { transform: skewX(-10deg); } 10% { top: 120%; opacity: 0; } 100% { top: 120%; opacity: 0; } }
         
-        /* TRANSITIONS & GLITCHES */
         .crt-flash { animation: burst 0.4s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; }
         @keyframes burst { 0% { filter: brightness(2.5) contrast(1.5) blur(2px); transform: scale(1.02); } 100% { filter: brightness(1) contrast(1) blur(0); transform: scale(1); } }
         
-        .meltdown-fx { animation: glitch-tear 0.5s ease-in-out forwards; }
-        @keyframes glitch-tear {
-            0% { transform: skew(0deg); filter: hue-rotate(0deg); }
-            20% { transform: skew(-20deg) translateX(-10px); filter: hue-rotate(90deg) invert(1); }
-            40% { transform: skew(20deg) translateX(10px); filter: hue-rotate(-90deg); }
-            60% { transform: skew(-10deg); filter: contrast(3); }
-            80% { transform: skew(5deg); opacity: 0.5; }
-            100% { transform: skew(0deg); filter: none; opacity: 1; }
-        }
+        .meltdown-fx { animation: glitch-tear 0.6s ease-in-out forwards; }
+        @keyframes glitch-tear { 0% { transform: skew(0deg); filter: hue-rotate(0deg); } 15% { transform: skew(-25deg) translateX(-15px); filter: hue-rotate(90deg) invert(1); } 30% { transform: skew(20deg) translateX(10px); filter: hue-rotate(-90deg); } 45% { transform: skew(-10deg); filter: contrast(3); } 60% { transform: skew(15deg); opacity: 0.5; } 100% { transform: skew(0deg); filter: none; opacity: 1; } }
 
         .boot-flash { animation: boot-power-on 1s ease-out forwards; }
         @keyframes boot-power-on { 0% { transform: scaleY(0.01) scaleX(0); opacity: 0; filter: brightness(10); } 40% { transform: scaleY(0.02) scaleX(1); opacity: 1; filter: brightness(5); } 100% { transform: scaleY(1) scaleX(1); filter: brightness(1); } }
@@ -138,19 +113,13 @@
         .safe-area-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; z-index: 20; padding-top: max(env(safe-area-inset-top), 10px); }
         #viewport { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 25px; padding-bottom: 110px; text-shadow: var(--glow-light); position: relative; will-change: transform; transition: filter 0.3s; }
 
-        #bottom-nav {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 80px; background: rgba(0,0,0,0.8); border-top: 3px double var(--text-color);
-            display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 50; text-shadow: var(--glow-heavy);
-            backdrop-filter: blur(5px);
-        }
-
+        #bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; height: 80px; background: rgba(0,0,0,0.8); border-top: 3px double var(--text-color); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 50; text-shadow: var(--glow-heavy); backdrop-filter: blur(5px); }
         .nav-btn { background: none; border: none; color: var(--text-muted); font-family: var(--font-main); font-size: 1.5rem; cursor: pointer; padding: 15px 5px; font-weight: bold; flex: 1; transition: 0.1s; position: relative;}
         .nav-btn.active { color: var(--bg-color); background: var(--text-color); text-shadow: none; box-shadow: 0 0 15px var(--text-color); transform: scale(0.95);}
         .nav-btn::before { content: '['; position: absolute; left: 10px; opacity: 0; transition: 0.2s; }
         .nav-btn::after { content: ']'; position: absolute; right: 10px; opacity: 0; transition: 0.2s; }
         .nav-btn.active::before, .nav-btn.active::after { opacity: 1; }
 
-        /* TYPOGRAPHY & BLOCKS */
         h1, h2, h3 { background: var(--text-color); color: var(--bg-color); padding: 5px 10px; display: inline-block; margin-bottom: 18px; font-size: 1.4rem; font-weight: bold; text-shadow: none; letter-spacing: 2px; }
         h3 { background: transparent; color: var(--text-color); border-bottom: 2px dashed var(--text-color); text-shadow: var(--glow-heavy); }
         
@@ -162,11 +131,7 @@
         input::placeholder { color: var(--text-muted); opacity: 0.6; text-transform: uppercase; }
         input:focus { background: rgba(20, 255, 20, 0.1); border-style: dashed; }
 
-        .fab-btn {
-            position: absolute; bottom: 100px; right: 25px; z-index: 40; width: 70px; height: 70px; font-size: 2.5rem; font-weight: bold; background: var(--bg-color);
-            box-shadow: -5px 5px 0px var(--text-muted); border: 3px solid var(--text-color); display: flex; justify-content: center; align-items: center;
-            color: var(--text-color); cursor: pointer; text-shadow: var(--glow-heavy); border-radius: 50%;
-        }
+        .fab-btn { position: absolute; bottom: 100px; right: 25px; z-index: 40; width: 70px; height: 70px; font-size: 2.5rem; font-weight: bold; background: var(--bg-color); box-shadow: -5px 5px 0px var(--text-muted); border: 3px solid var(--text-color); display: flex; justify-content: center; align-items: center; color: var(--text-color); cursor: pointer; text-shadow: var(--glow-heavy); border-radius: 50%; }
         .fab-btn:active { box-shadow: 0 0 0 transparent; transform: translate(-5px, 5px); background: var(--text-color); color: var(--bg-color); }
 
         /* EDITOR */
@@ -174,7 +139,6 @@
         #edit-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-family: var(--font-main); font-size: 1.2rem; line-height: 1.6; padding: 15px; overflow-y: auto; outline: none; text-transform: none; caret-color: transparent; text-shadow: var(--glow-light); z-index: 2; }
         #edit-content::selection { background: var(--text-color); color: var(--bg-color); text-shadow: none; }
         #block-cursor { position: absolute; width: 14px; height: 1.4rem; background-color: var(--text-color); box-shadow: var(--glow-heavy); z-index: 1; pointer-events: none; display: none; animation: blink 0.8s step-end infinite; transition: top 0.05s, left 0.05s; }
-        
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
         #edit-content h1, #edit-content h2 { display: block; background: transparent; color: var(--text-color); text-shadow: var(--glow-heavy); padding:0; letter-spacing: 0; }
@@ -182,11 +146,12 @@
         #edit-content h2 { font-size: 1.8rem; border-bottom: 1px dashed var(--text-color); margin-bottom: 10px; text-transform: uppercase; }
         #edit-content b, #edit-content strong { background: var(--chart-fill); color: var(--accent); padding: 0 4px; text-shadow: none; border: 1px solid var(--accent);}
         
-        /* SMART TOOLBAR */
+        /* SMART BULLETPROOF TOOLBAR */
         #format-toolbar { 
             position: absolute; background: var(--bg-color); border: 2px solid var(--text-color); box-shadow: 0 15px 30px rgba(0,0,0,1); 
-            display: none; flex-direction: row; align-items: center; z-index: 80; padding: 0; 
+            display: none; flex-direction: row; align-items: center; z-index: 9999; padding: 0; 
             opacity: 0; transition: opacity 0.1s; pointer-events: none;
+            /* Pastikan nempel absolut ke body (atau wrapper) */
         }
         #format-toolbar::after { content: ''; position: absolute; bottom: -10px; left: var(--arrow-pos, 50%); transform: translateX(-50%); border-width: 10px 10px 0; border-style: solid; border-color: var(--text-color) transparent transparent transparent; display: block; width: 0; }
         #format-toolbar.flip-down::after { top: -10px; bottom: auto; border-width: 0 10px 10px; border-color: transparent transparent var(--text-color) transparent; }
@@ -194,9 +159,7 @@
         .fmt-btn:last-child { border-right: none; }
         .fmt-btn:active { background: var(--text-color); color: var(--bg-color); transform: none; box-shadow: none;}
 
-        /* COMPONENTS & DATA STREAM */
         .data-stream { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; margin-bottom: 15px; opacity: 0.8; font-family: monospace; }
-        
         .chart-box { border: 2px var(--border-style) var(--text-color); padding: 10px; margin-top: 30px; margin-bottom: 20px; position: relative; background: repeating-linear-gradient(45deg, rgba(0,0,0,0), rgba(0,0,0,0) 10px, rgba(20,255,20,0.03) 10px, rgba(20,255,20,0.03) 20px); display: flex; justify-content: center; align-items: center; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); }
         .chart-label { position: absolute; top: -14px; left: 15px; font-size: 1rem; background: var(--text-color); color: var(--bg-color); padding: 2px 10px; font-weight: bold; z-index: 2; text-shadow: none; box-shadow: 2px 2px 0 var(--text-muted);}
         canvas { display: block; width: 100%; image-rendering: pixelated; filter: drop-shadow(0 0 5px var(--text-color));}
@@ -224,34 +187,31 @@
         .prog-bar { width: 100%; height: 6px; background: var(--chart-fill); margin-top: 10px; position: relative; overflow: hidden;}
         .prog-fill { height: 100%; background: var(--text-color); width: 0%; transition: width 1s ease-out; box-shadow: var(--glow-light);}
 
-        /* MODALS */
         #modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; display: none; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(2px);}
-        .modal-box { border: 4px solid var(--text-color); background: var(--bg-color); padding: 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: -15px 15px 0px rgba(0,0,0,0.8), 0 0 30px var(--chart-fill); z-index: 101; position: relative;}
+        .modal-box { border: 4px solid var(--text-color); background: repeating-linear-gradient(45deg, var(--bg-color), var(--bg-color) 10px, rgba(20,255,20,0.05) 10px, rgba(20,255,20,0.05) 20px); padding: 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: -15px 15px 0px rgba(0,0,0,0.8), 0 0 30px var(--chart-fill); z-index: 101; position: relative;}
         .modal-box::before { content: '!'; position: absolute; top: -25px; left: -25px; width: 50px; height: 50px; background: var(--text-color); color: var(--bg-color); font-size: 2rem; font-weight: bold; display: flex; justify-content: center; align-items: center; }
-        .modal-box input { width: 100%; margin: 25px 0; text-align: center; font-size: 1.8rem; text-shadow: var(--glow-light); background: rgba(0,0,0,0.8); }
+        .modal-box input { width: 100%; margin: 25px 0; text-align: center; font-size: 1.8rem; text-shadow: var(--glow-light); background: rgba(0,0,0,0.9); }
         
         #toast { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); background: var(--text-color); color: var(--bg-color); padding: 15px 30px; font-weight: bold; font-size: 1.3rem; z-index: 120; opacity: 0; pointer-events: none; transition: opacity 0.2s; border: 4px solid var(--bg-color); box-shadow: 0 0 30px var(--text-color); letter-spacing: 2px;}
 
-        /* BOOT SCREEN ENHANCED */
         #power-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 200; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--text-color); font-family: monospace; cursor: pointer; text-shadow: 0 0 8px var(--text-color); }
         .boot-logo-ascii { white-space: pre; font-size: 8px; line-height: 8px; margin-bottom: 30px; color: var(--text-color); text-shadow: var(--glow-heavy); text-align: center;}
         @media (min-width: 400px) { .boot-logo-ascii { font-size: 12px; line-height: 12px; } }
-        
         #boot-instruct { font-size: 1.4rem; margin-bottom: 20px; font-weight: bold;}
         #boot-bar-container { width: 250px; height: 20px; border: 2px solid var(--text-color); padding: 3px; position: relative;}
         #boot-progress { width: 0%; height: 100%; background: var(--text-color); transition: width 0.1s linear; box-shadow: var(--glow-light);}
-        
         #boot-console { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 199; display: none; flex-direction: column; padding: 20px; color: var(--text-color); font-family: monospace; font-size: 1.2rem; text-transform: uppercase; text-shadow: 0 0 5px var(--text-color); box-shadow: inset 0 0 50px rgba(0,0,0,0.9);}
         .boot-line { margin-bottom: 8px; word-break: break-all; }
         .boot-cursor { display: inline-block; width: 12px; height: 1.2rem; background: var(--text-color); animation: blink 0.5s step-end infinite; vertical-align: bottom;}
         
         .sys-glitch { animation: glitch-anim 0.2s linear infinite; }
         @keyframes glitch-anim { 0% { transform: translate(0) } 20% { transform: translate(-2px, 2px) } 40% { transform: translate(-2px, -2px) } 60% { transform: translate(2px, 2px) } 80% { transform: translate(2px, -2px) } 100% { transform: translate(0) } }
+
+        .decrypting-text { font-family: monospace; opacity: 0.8; }
     </style>
 </head>
 <body>
 
-    <!-- BOOT SEQUENCE -->
     <div id="power-screen">
         <div class="boot-logo-ascii sys-glitch" id="ascii-logo" style="display:none;">
    ____  _____       _   ___  _______
@@ -268,7 +228,7 @@
         <div class="boot-cursor" id="boot-cursor-elem"></div>
     </div>
 
-    <!-- MAIN OS LAYERS WITH 3D TUBE -->
+    <!-- MAIN OS LAYERS -->
     <div id="screen-tube">
         <div id="crt-matrix"></div>
         <div class="vsync-roll"></div>
@@ -282,13 +242,11 @@
         <div id="toast">[ SYS MSG ]</div>
 
         <div class="safe-area-wrapper" id="os-ui">
-            <div id="viewport">
-                <!-- Content injected here -->
-            </div>
+            <div id="viewport"></div>
 
             <button id="main-fab" class="fab-btn" onclick="addNote()" style="display:none;">[+]</button>
 
-            <!-- DYNAMIC TOOLBAR -->
+            <!-- DYNAMIC BULLETPROOF TOOLBAR -->
             <div id="format-toolbar">
                 <button class="fmt-btn" onmousedown="execFormat('formatBlock', 'H1'); return false;">H1</button>
                 <button class="fmt-btn" onmousedown="execFormat('formatBlock', 'H2'); return false;">H2</button>
@@ -308,11 +266,11 @@
 
         <div id="modal-overlay">
             <div class="modal-box">
-                <h2 id="modal-title" style="margin-bottom: 5px;">SUDO EXEC</h2>
-                <p id="modal-desc" style="font-size: 1rem; color: var(--text-muted); margin-bottom:10px; font-family: monospace;">Auth Required.</p>
+                <h2 id="modal-title" style="margin-bottom: 5px; background:var(--bg-color); color:var(--text-color); border:2px solid var(--text-color);">SUDO EXEC</h2>
+                <p id="modal-desc" style="font-size: 1rem; color: var(--text-muted); margin-bottom:10px; font-family: monospace; background:var(--bg-color); padding:5px;">Auth Required.</p>
                 <input type="text" id="modal-input" autocomplete="off" placeholder="> TYPE 'OK'">
                 <div class="grid-2" style="margin-top: 20px; margin-bottom: 0;">
-                    <button onclick="closeModal()" style="border-style: dashed;">ABORT</button>
+                    <button onclick="closeModal()" style="border-style: dashed; background:var(--bg-color);">ABORT</button>
                     <button id="modal-confirm" style="background: var(--text-color); color: var(--bg-color);">EXEC</button>
                 </div>
             </div>
@@ -320,9 +278,6 @@
     </div>
 
     <script>
-        /** OS-NXT OVERRIDE // V5
-         * Full Pip-boy emulation. Geiger audio. Data streams. Fake Tube physics.
-         */
         const setupPWA = () => {
             const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#020802"/><text x="50" y="65" font-family="monospace" font-size="50" font-weight="bold" fill="#14ff14" text-anchor="middle">NXT</text></svg>`;
             const encodedIcon = "data:image/svg+xml;base64," + btoa(svgIcon);
@@ -361,26 +316,22 @@
         let toastTimeout;
         const showToast = (msg) => { const t = document.getElementById('toast'); t.innerText = `[ ${msg} ]`; t.style.opacity = 1; sfx.commit(); clearTimeout(toastTimeout); toastTimeout = setTimeout(() => t.style.opacity = 0, 2500); };
 
-        // --- AUDIO ENGINE (GEIGER & HUM) ---
+        // --- AUDIO ENGINE ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
-        let audioCtx, humOsc, humGain, noiseSource, noiseFilter, noiseGain;
-        let geigerInterval;
+        let audioCtx, humOsc, humGain, noiseSource, noiseFilter, noiseGain, geigerInterval;
         
         const initAudio = () => { 
             if (!audioCtx && AudioContext) audioCtx = new AudioContext(); 
             if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); 
-            manageHumFX(); 
-            manageGeiger();
+            manageHumFX(); manageGeiger();
         };
 
         const manageGeiger = () => {
             clearInterval(geigerInterval);
             if(state.settings.sfx && state.settings.vhs) {
                 geigerInterval = setInterval(() => {
-                    if(Math.random() > 0.6) { // 40% chance every 150ms to click
-                        if(!audioCtx) return;
-                        const t = audioCtx.currentTime;
-                        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                    if(Math.random() > 0.6) {
+                        if(!audioCtx) return; const t = audioCtx.currentTime; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
                         osc.type = 'square'; osc.frequency.setValueAtTime(50 + Math.random()*800, t);
                         gain.gain.setValueAtTime((0.01 + Math.random()*0.03), t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
                         osc.connect(gain); gain.connect(audioCtx.destination); osc.start(t); osc.stop(t + 0.02);
@@ -398,9 +349,7 @@
                 noiseFilter = audioCtx.createBiquadFilter(); noiseFilter.type = 'lowpass'; noiseFilter.frequency.value = 1000; 
                 noiseGain = audioCtx.createGain(); noiseGain.gain.value = 0.05; 
                 noiseSource.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(audioCtx.destination); noiseSource.start();
-
-                humOsc = audioCtx.createOscillator(); humGain = audioCtx.createGain();
-                humOsc.type = 'sine'; humOsc.frequency.value = 60; humGain.gain.value = 0.06;
+                humOsc = audioCtx.createOscillator(); humGain = audioCtx.createGain(); humOsc.type = 'sine'; humOsc.frequency.value = 60; humGain.gain.value = 0.06;
                 humOsc.connect(humGain); humGain.connect(audioCtx.destination); humOsc.start();
             } else if (!state.settings.vhs && noiseSource) { noiseSource.stop(); noiseSource = null; humOsc.stop(); humOsc = null; }
         };
@@ -412,13 +361,7 @@
             gain.gain.setValueAtTime(vol, t); gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
             osc.connect(gain); gain.connect(audioCtx.destination); osc.start(t); osc.stop(t + dur);
         };
-
-        const humVoltageDrop = () => {
-            if(humOsc && humOsc.frequency && state.settings.vhs) {
-                const t = audioCtx.currentTime;
-                humOsc.frequency.setValueAtTime(60, t); humOsc.frequency.exponentialRampToValueAtTime(30, t + 0.15); humOsc.frequency.exponentialRampToValueAtTime(60, t + 0.6);
-            }
-        };
+        const humVoltageDrop = () => { if(humOsc && humOsc.frequency && state.settings.vhs) { const t = audioCtx.currentTime; humOsc.frequency.setValueAtTime(60, t); humOsc.frequency.exponentialRampToValueAtTime(30, t + 0.15); humOsc.frequency.exponentialRampToValueAtTime(60, t + 0.6); } };
 
         const sfx = {
             type: () => { analogHit(200, 50, 0.05, 0.2, 'sawtooth'); analogHit(1000, 400, 0.02, 0.05, 'square'); },
@@ -430,20 +373,45 @@
             boot: () => { analogHit(50, 600, 0.8, 0.2, 'sawtooth'); setTimeout(()=>analogHit(600, 1200, 0.4, 0.2), 800); }
         };
 
-        // --- ANIMATIONS & CORE FX ---
-        let activeFrames = []; let activeTimeouts = []; let streamInterval;
+        // --- ANIMATIONS & FX ---
+        let activeFrames = []; let activeTimeouts = []; let streamInterval; let decryptTimeouts = [];
         const clearAnimations = () => { 
             activeFrames.forEach(id => cancelAnimationFrame(id)); activeFrames = []; 
             activeTimeouts.forEach(id => clearTimeout(id)); activeTimeouts = [];
+            decryptTimeouts.forEach(id => clearTimeout(id)); decryptTimeouts = [];
             clearInterval(streamInterval);
             document.getElementById('format-toolbar').style.display = 'none'; 
             const cur = document.getElementById('block-cursor'); if(cur) cur.style.display = 'none';
         };
-        const triggerFlash = () => { 
-            const vp = document.getElementById('viewport'); vp.classList.remove('crt-flash'); void vp.offsetWidth; vp.classList.add('crt-flash'); 
-            if(Math.random() > 0.7) triggerMeltdown();
-        };
+        const triggerFlash = () => { const vp = document.getElementById('viewport'); vp.classList.remove('crt-flash'); void vp.offsetWidth; vp.classList.add('crt-flash'); if(Math.random() > 0.7) triggerMeltdown(); };
         const triggerMeltdown = () => { const vp = document.getElementById('viewport'); vp.classList.remove('meltdown-fx'); void vp.offsetWidth; vp.classList.add('meltdown-fx'); sfx.error(); };
+
+        const executeDecryption = (elementId, originalHTML, duration = 600) => {
+            const el = document.getElementById(elementId); if(!el) return;
+            const originalText = stripHTML(originalHTML);
+            if(originalText.length === 0) { el.innerHTML = originalHTML; return; }
+            
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+            let start = Date.now();
+            el.classList.add('decrypting-text');
+            
+            const decryptLoop = () => {
+                let now = Date.now();
+                if(now - start > duration || state.currentView !== 'editor') {
+                    el.classList.remove('decrypting-text');
+                    el.innerHTML = originalHTML; return;
+                }
+                let scrambled = "";
+                for(let i=0; i < Math.min(originalText.length, 50); i++) { // limit loop for perf
+                    scrambled += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                if(originalText.length > 50) scrambled += "...";
+                el.innerText = scrambled;
+                if(state.settings.sfx && Math.random() > 0.5) analogHit(800, 900, 0.02, 0.02, 'square');
+                decryptTimeouts.push(setTimeout(decryptLoop, 30));
+            };
+            decryptLoop();
+        };
 
         const forceNavigate = (view, silent = false) => {
             if (!silent) sfx.nav(); 
@@ -486,16 +454,13 @@
                         n.timestamp = new Date().toISOString(); delete n._isNew; 
                         saveState(); showToast('DATA SAVED'); forceNavigate('notes', true);
                     });
-                } else {
-                    if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId);
-                    forceNavigate('notes', true);
-                }
+                } else { if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId); forceNavigate('notes', true); }
             } else { if(e.state && e.state.view) forceNavigate(e.state.view, true); else forceNavigate('dashboard', true); }
         });
 
-        // --- 1. DASHBOARD (TACTICAL) ---
+        // --- 1. DASHBOARD ---
         const renderDashboard = () => {
-            const storageKB = getStorageSize(); const memPerc = Math.min((storageKB / 5120) * 100, 100); // Fake max 5MB quota
+            const storageKB = getStorageSize(); const memPerc = Math.min((storageKB / 5120) * 100, 100); 
             const recentNotes = [...state.notes].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 2);
             const vp = document.getElementById('viewport');
 
@@ -504,12 +469,8 @@
                 <div class="data-stream" id="top-stream">INIT_STREAM...</div>
                 
                 <div class="grid-2">
-                    <div class="stat-block">
-                        <div class="stat-val">${state.notes.length}</div><div class="stat-lbl">DATA BLOCKS</div>
-                    </div>
-                    <div class="stat-block">
-                        <div class="stat-val" id="uptime-val">00:00</div><div class="stat-lbl">UPTIME</div>
-                    </div>
+                    <div class="stat-block"><div class="stat-val">${state.notes.length}</div><div class="stat-lbl">DATA BLOCKS</div></div>
+                    <div class="stat-block"><div class="stat-val" id="uptime-val">00:00</div><div class="stat-lbl">UPTIME</div></div>
                     <div class="stat-block" style="grid-column: span 2;">
                         <div class="flex-between" style="margin:0;"><span class="stat-lbl">MEM_ALLOCATION</span><span class="stat-val" style="font-size:1rem;">${storageKB}KB</span></div>
                         <div class="prog-bar"><div class="prog-fill" style="width: ${memPerc}%;"></div></div>
@@ -520,16 +481,13 @@
                 
                 <div class="grid-2">
                     <div class="chart-box" style="height: 150px; margin-top:10px;"><span class="chart-label">DIST</span><canvas id="pie-chart"></canvas></div>
-                    <div>
-                        <button style="width:100%; height:100%; font-size:1.5rem; background:var(--chart-fill);" onclick="addNote()">+ NEW<br><span style="font-size:0.8rem; font-weight:normal;">SECURE_BLOCK</span></button>
-                    </div>
+                    <div><button style="width:100%; height:100%; font-size:1.5rem; background:var(--chart-fill);" onclick="addNote()">+ NEW<br><span style="font-size:0.8rem; font-weight:normal;">SECURE_BLOCK</span></button></div>
                 </div>
 
                 <h3 style="margin-top: 30px;">RECENT ACTIVITY</h3>
                 ${recentNotes.length === 0 ? '<div class="timeline-item">NO RECENT I/O.</div>' : recentNotes.map(n => `<div class="note-card" onclick="openNote(${n.id})"><strong style="font-size:1.2rem;">${n.title || 'UNTITLED_BLOCK'}</strong><div class="data-stream" style="margin:5px 0 0 0; opacity:0.5;">ID:${n.id}</div><div class="note-date">${fmtDate(n.timestamp)}</div></div>`).join('')}
             `;
             
-            // Start Data Stream
             const streamEl = document.getElementById('top-stream');
             const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*";
             streamInterval = setInterval(() => {
@@ -585,10 +543,8 @@
                 activeFrames.push(requestAnimationFrame(animate));
                 if(time - lastTime < 40) return; lastTime = time;
 
-                ctx.fillStyle = `rgba(0, 0, 0, 0.15)`; // Fading tail
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = `rgba(0, 0, 0, 0.15)`; ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                // Grid
                 ctx.strokeStyle = color; ctx.globalAlpha = 0.2; ctx.lineWidth = 1;
                 ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2); ctx.stroke(); 
                 ctx.beginPath(); ctx.arc(cx, cy, radius*0.66, 0, Math.PI*2); ctx.stroke();
@@ -596,7 +552,6 @@
                 ctx.beginPath(); ctx.moveTo(cx, cy-radius); ctx.lineTo(cx, cy+radius); ctx.stroke(); 
                 ctx.beginPath(); ctx.moveTo(cx-radius, cy); ctx.lineTo(cx+radius, cy); ctx.stroke();
                 
-                // Sweep
                 ctx.save(); ctx.translate(cx, cy); ctx.rotate(angle);
                 const sweepGrad = ctx.createLinearGradient(0,0,0,radius);
                 sweepGrad.addColorStop(0, color); sweepGrad.addColorStop(1, "transparent");
@@ -605,18 +560,15 @@
                 ctx.globalAlpha = 1; ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(radius, 0); ctx.stroke(); 
                 ctx.restore();
 
-                // Anomalies (Blips)
                 if(Math.random() < 0.08) {
                     radarAnomalies.push({ a: Math.random() * Math.PI * 2, r: Math.random() * radius * 0.9, life: 1, type: Math.random()>0.8?'hostile':'neutral' });
-                    if(state.settings.sfx) analogHit(2000, 1800, 0.05, 0.05, 'sine'); // Blip sound
+                    if(state.settings.sfx) analogHit(2000, 1800, 0.05, 0.05, 'sine'); 
                 }
                 
                 radarAnomalies.forEach((an, i) => {
                     if(an.life <= 0) { radarAnomalies.splice(i, 1); return; }
                     const ax = cx + Math.cos(an.a) * an.r; const ay = cy + Math.sin(an.a) * an.r;
-                    ctx.fillStyle = an.type === 'hostile' ? '#ff0000' : color; 
-                    ctx.globalAlpha = an.life;
-                    ctx.fillRect(ax-2, ay-2, 4, 4);
+                    ctx.fillStyle = an.type === 'hostile' ? '#ff0000' : color; ctx.globalAlpha = an.life; ctx.fillRect(ax-2, ay-2, 4, 4);
                     if(an.life > 0.8) { ctx.strokeStyle = ctx.fillStyle; ctx.strokeRect(ax-6, ay-6, 12, 12); }
                     an.life -= 0.02;
                 });
@@ -671,11 +623,7 @@
         const openNote = (id) => { state.activeNoteId = id; forceNavigate('editor'); };
 
         let saveDraftTimeout;
-        const pushHistory = (val) => {
-            if(editorHistory[historyIndex] === val) return;
-            editorHistory = editorHistory.slice(0, historyIndex + 1);
-            editorHistory.push(val); historyIndex++;
-        };
+        const pushHistory = (val) => { if(editorHistory[historyIndex] === val) return; editorHistory = editorHistory.slice(0, historyIndex + 1); editorHistory.push(val); historyIndex++; };
 
         const renderEditor = () => {
             const vp = document.getElementById('viewport'); const note = state.notes.find(n => n.id === state.activeNoteId); if(!note) return forceNavigate('notes');
@@ -692,7 +640,7 @@
                     </div>
                 </div>
                 
-                <input type="text" id="edit-title" value="${note.title}" placeholder="> ENTER_TITLE" style="width:100%; margin-top:10px; margin-bottom:15px; font-size:1.5rem; font-weight:bold; border-width: 0 0 2px 0; background:transparent;" oninput="sfx.type()">
+                <input type="text" id="edit-title" value="" placeholder="> ENTER_TITLE" style="width:100%; margin-top:10px; margin-bottom:15px; font-size:1.5rem; font-weight:bold; border-width: 0 0 2px 0; background:transparent;" oninput="sfx.type()">
                 
                 <div class="swipe-labels" style="padding-bottom: 5px;">
                     ${state.labels.map(l => `<span onclick="toggleLabelDraft('${l}')" class="${note.labels.includes(l) ? 'active-tag' : ''}">[${l}]</span>`).join('')}
@@ -700,7 +648,7 @@
 
                 <div class="editor-container">
                     <div id="block-cursor"></div>
-                    <div id="edit-content" contenteditable="true" spellcheck="false" oninput="handleInput(event)">${note.content}</div>
+                    <div id="edit-content" contenteditable="true" spellcheck="false" oninput="handleInput(event)"></div>
                 </div>
                 
                 <div class="flex-between" style="margin-top:15px;">
@@ -713,9 +661,24 @@
                 <div class="data-stream" style="text-align:right; margin-top:10px;"><span id="editor-stats">W:${words} // B:${rawText.length}</span></div>
             `;
             
+            // Decryption Engine call on load
+            const realTitle = note.title;
+            const realContent = note.content;
+            if(!note._isNew) {
+                document.getElementById('edit-title').value = "DECRYPTING...";
+                executeDecryption('edit-content', realContent, 700);
+                setTimeout(() => { 
+                    if(state.currentView === 'editor') document.getElementById('edit-title').value = realTitle; 
+                }, 700);
+            } else {
+                document.getElementById('edit-title').value = realTitle;
+                document.getElementById('edit-content').innerHTML = realContent;
+            }
+            
             const ta = document.getElementById('edit-content');
             ta.addEventListener('keyup', handleSmartList);
             document.addEventListener('selectionchange', handleSelectionPos);
+            window.addEventListener('resize', handleSelectionPos); // Listener buat keyboard HP
             ta.addEventListener('scroll', handleSelectionPos); 
             ta.addEventListener('keyup', handleSelectionPos);
             ta.addEventListener('click', handleSelectionPos);
@@ -740,52 +703,98 @@
             }
         };
 
+        // CORE LOGIC: BULLETPROOF TOOLBAR (No cut-off)
         const handleSelectionPos = () => {
             if(state.currentView !== 'editor') return;
             const ta = document.getElementById('edit-content'); 
             const toolbar = document.getElementById('format-toolbar'); 
             const cursor = document.getElementById('block-cursor');
-            if(!ta || !cursor) return;
+            if(!ta || !toolbar || !cursor) return;
 
             const sel = window.getSelection();
-            if(document.activeElement === ta && sel.rangeCount > 0) { 
-                const range = sel.getRangeAt(0); const rects = range.getClientRects(); 
-                let rect = rects.length > 0 ? rects[rects.length - 1] : range.getBoundingClientRect();
-
-                if(sel.isCollapsed) {
-                    toolbar.style.display = 'none'; cursor.style.display = 'block'; 
-                    const containerRect = ta.getBoundingClientRect();
-                    if(ta.innerHTML === '' || ta.innerHTML === '<br>') { cursor.style.top = `15px`; cursor.style.left = `15px`; cursor.style.height = `1.4rem`; } 
-                    else if (rect && rect.height > 0) {
-                        cursor.style.top = `${rect.top - containerRect.top}px`; cursor.style.left = `${rect.left - containerRect.left}px`; cursor.style.height = `${rect.height}px`;
-                    }
-                } 
-                else if (!sel.isCollapsed) { 
-                    cursor.style.display = 'none'; toolbar.style.opacity = '0'; toolbar.style.display = 'flex';
-                    activeTimeouts.push(setTimeout(() => {
-                        const tbWidth = toolbar.offsetWidth; const tbHeight = toolbar.offsetHeight;
-                        let targetCenterX = rect.left + (rect.width / 2); let leftPos = targetCenterX - (tbWidth / 2); let topPos = rect.top - tbHeight - 15;
-                        const margin = 10;
-                        if (leftPos < margin) leftPos = margin;
-                        if (leftPos + tbWidth > window.innerWidth - margin) leftPos = window.innerWidth - tbWidth - margin;
-                        let arrowPos = targetCenterX - leftPos;
-                        if (arrowPos < 20) arrowPos = 20; if (arrowPos > tbWidth - 20) arrowPos = tbWidth - 20;
-                        
-                        if(topPos < 80) { topPos = rect.bottom + 15; toolbar.classList.add('flip-down'); } else { toolbar.classList.remove('flip-down'); }
-                        toolbar.style.top = `${topPos}px`; toolbar.style.left = `${leftPos}px`; toolbar.style.setProperty('--arrow-pos', `${arrowPos}px`); toolbar.style.opacity = '1';
-                    }, 0));
+            
+            // Check Block Cursor (Collapsed selection)
+            if(document.activeElement === ta && sel.rangeCount > 0 && sel.isCollapsed) {
+                toolbar.style.display = 'none'; cursor.style.display = 'block'; 
+                const range = sel.getRangeAt(0); const rects = range.getClientRects();
+                const rect = rects.length > 0 ? rects[rects.length - 1] : range.getBoundingClientRect();
+                const containerRect = ta.getBoundingClientRect();
+                if(ta.innerHTML === '' || ta.innerHTML === '<br>') { cursor.style.top = `15px`; cursor.style.left = `15px`; cursor.style.height = `1.4rem`; } 
+                else if (rect && rect.height > 0) {
+                    cursor.style.top = `${rect.top - containerRect.top}px`; cursor.style.left = `${rect.left - containerRect.left}px`; cursor.style.height = `${rect.height}px`;
                 }
-            } else { toolbar.style.display = 'none'; cursor.style.display = 'none'; }
+            } 
+            // Check Smart Toolbar (Active selection)
+            else if (document.activeElement === ta && sel.rangeCount > 0 && !sel.isCollapsed) { 
+                const range = sel.getRangeAt(0);
+                const rect = range.getBoundingClientRect(); // get absolute bounds to viewport
+                
+                if (rect.width === 0 && rect.height === 0) return; // Prevent empty bounds error
+
+                cursor.style.display = 'none'; 
+                toolbar.style.opacity = '0'; 
+                toolbar.style.display = 'flex'; // Display first to calculate offsetWidth/Height
+                
+                activeTimeouts.push(setTimeout(() => {
+                    // 1. Get accurate dimensions
+                    const tbWidth = toolbar.offsetWidth; 
+                    const tbHeight = toolbar.offsetHeight;
+                    
+                    // Gunakan VisualViewport API kalau ada (untuk handle keyboard HP), fallback ke innerHeight/Width
+                    const vpW = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+                    const vpH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+                    const vpTop = window.visualViewport ? window.visualViewport.offsetTop : 0;
+                    
+                    // 2. Kalkulasi sumbu X (Kiri-Kanan)
+                    let targetX = rect.left + (rect.width / 2); 
+                    let leftPos = targetX - (tbWidth / 2);
+                    
+                    // Clamp sumbu X supaya gak out of bounds (margin aman 10px dari sisi layar)
+                    const marginX = 10;
+                    if (leftPos < marginX) leftPos = marginX;
+                    if (leftPos + tbWidth > vpW - marginX) leftPos = vpW - tbWidth - marginX;
+                    
+                    // Panah selalu menunjuk tepat ke targetX teks, dibatasi batas lebar toolbar
+                    let arrowPos = targetX - leftPos;
+                    if (arrowPos < 20) arrowPos = 20; 
+                    if (arrowPos > tbWidth - 20) arrowPos = tbWidth - 20;
+                    
+                    // 3. Kalkulasi sumbu Y (Atas-Bawah)
+                    let topPos = rect.top - tbHeight - 15; // Coba di atas teks dulu
+                    let isFlipped = false;
+
+                    // Kalau nabrak atap (safe zone 60px) ATAU posisi teks sangat di atas
+                    if (topPos < vpTop + 60) { 
+                        topPos = rect.bottom + 15; // Taruh di bawah teks
+                        isFlipped = true;
+                    }
+                    
+                    // (Opsional ekstra) Kalau setelah ditaruh bawah ternyata nabrak lantai bawah keyboard
+                    if (isFlipped && topPos + tbHeight > vpH + vpTop - 10) {
+                        topPos = vpTop + vpH - tbHeight - 10; // Tempel paksa di lantai keyboard
+                    }
+
+                    // Eksekusi DOM
+                    if(isFlipped) toolbar.classList.add('flip-down'); 
+                    else toolbar.classList.remove('flip-down'); 
+                    
+                    toolbar.style.top = `${topPos}px`; 
+                    toolbar.style.left = `${leftPos}px`; 
+                    toolbar.style.setProperty('--arrow-pos', `${arrowPos}px`); 
+                    toolbar.style.opacity = '1';
+                }, 0));
+            } else { 
+                toolbar.style.display = 'none'; cursor.style.display = 'none'; 
+            }
         };
 
         const execFormat = (command, val = null) => { document.execCommand(command, false, val); sfx.commit(); showToast('FORMAT APPLIED'); pushHistory(document.getElementById('edit-content').innerHTML); handleSelectionPos(); };
         const execSelectAll = () => { document.execCommand('selectAll', false, null); sfx.type(); handleSelectionPos(); };
         const execCopy = () => { document.execCommand('copy'); showToast('COPIED TO CLIPBOARD'); sfx.commit(); document.getSelection().removeAllRanges(); handleSelectionPos(); };
+        const execUndo = () => { if(historyIndex > 0) { historyIndex--; document.getElementById('edit-content').innerHTML = editorHistory[historyIndex]; sfx.type(); handleSelectionPos(); } else { sfx.error(); showToast('HISTORY LIMIT'); } };
+        const execRedo = () => { if(historyIndex < editorHistory.length - 1) { historyIndex++; document.getElementById('edit-content').innerHTML = editorHistory[historyIndex]; sfx.type(); handleSelectionPos(); } else { sfx.error(); showToast('NEWEST STATE'); } };
 
-        const execUndo = () => { if(historyIndex > 0) { historyIndex--; document.getElementById('edit-content').innerHTML = editorHistory[historyIndex]; sfx.type(); } else { sfx.error(); showToast('HISTORY LIMIT'); } };
-        const execRedo = () => { if(historyIndex < editorHistory.length - 1) { historyIndex++; document.getElementById('edit-content').innerHTML = editorHistory[historyIndex]; sfx.type(); } else { sfx.error(); showToast('NEWEST STATE'); } };
-
-        const captureDraft = () => { const note = state.notes.find(n => n.id === state.activeNoteId); if(note) { note.title = document.getElementById('edit-title').value; note.content = document.getElementById('edit-content').innerHTML; } };
+        const captureDraft = () => { const note = state.notes.find(n => n.id === state.activeNoteId); if(note) { note.title = document.getElementById('edit-title').value === "DECRYPTING..." ? note.title : document.getElementById('edit-title').value; note.content = document.getElementById('edit-content').innerHTML; } };
         const toggleLabelDraft = (lbl) => { sfx.enter(); captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId); if(note.labels.includes(lbl)) note.labels = note.labels.filter(l => l !== lbl); else note.labels.push(lbl); renderEditor(); };
         const togglePinDraft = () => { sfx.enter(); captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId); note.pinned = !note.pinned; renderEditor(); };
 
@@ -803,13 +812,7 @@
             }
         };
 
-        const requestSave = () => {
-            openCommit('SAVE TO MEMORY', 'Commit block to secure DB?', () => {
-                captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId); note.timestamp = new Date().toISOString(); delete note._isNew; 
-                saveState(); showToast('DATA COMMITTED'); addLog('DATA', `Wrote block ID:${note.id}`); forceNavigate('notes');
-            });
-        };
-
+        const requestSave = () => { openCommit('SAVE TO MEMORY', 'Commit block to secure DB?', () => { captureDraft(); const note = state.notes.find(n => n.id === state.activeNoteId); note.timestamp = new Date().toISOString(); delete note._isNew; saveState(); showToast('DATA COMMITTED'); addLog('DATA', `Wrote block ID:${note.id}`); forceNavigate('notes'); }); };
         const requestDelete = (id) => { triggerMeltdown(); openCommit('PURGE DATA', `Erase ID:${id} permanently?`, () => { state.notes = state.notes.filter(n => n.id !== id); saveState(); showToast('BLOCK PURGED'); addLog('DATA', `Purged block ID:${id}`); forceNavigate('notes'); }); };
 
         // --- 4. LOG ---
@@ -895,7 +898,7 @@
         const closeModal = () => { sfx.enter(); modal.style.display = 'none'; commitCallback = null; };
         document.getElementById('modal-confirm').addEventListener('click', () => { if(modalInput.value.toLowerCase() === 'ok') { sfx.commit(); modal.style.display = 'none'; if(commitCallback) commitCallback(); } else { sfx.error(); triggerMeltdown(); modalInput.value = ''; modalInput.placeholder = "INVALID. TYPE 'OK'"; } });
 
-        // --- BOOT SEQUENCE ENHANCED ---
+        // --- BOOT SEQUENCE ---
         let bootReq; let bootProgress = 0;
         const startPower = (e) => {
             if(e.type === 'touchstart') e.preventDefault(); 
@@ -923,9 +926,7 @@
             }
 
             const bootConsole = document.getElementById('boot-console'); bootConsole.style.display = 'flex';
-            
-            const lines = [ "OS-NXT v5.0.0 (OVERRIDE) KERNEL INIT", "BIOS DATE 10/23/77", "CPU: Z80A 4MHz ... OK", "MEM: CHECKING RAM...", "512KB EXTENDED MEMORY ... OK", "MOUNTING VFS: /dev/sda1", "LOADING MODULES: AUDIO_HUM, GEIGER_FX, CRT_WARP", "BYPASSING SECURITY PROTOCOLS...", "ESTABLISHING SECURE LINK...", "BOOT SEQUENCE COMPLETE." ];
-            
+            const lines = [ "OS-NXT v6.0.0 (APEX) KERNEL INIT", "BIOS DATE 10/23/77", "CPU: Z80A 4MHz ... OK", "MEM: CHECKING RAM...", "512KB EXTENDED MEMORY ... OK", "MOUNTING VFS: /dev/sda1", "LOADING MODULES: AUDIO_HUM, GEIGER_FX, DECRYPT_ENG", "BYPASSING SECURITY PROTOCOLS...", "ESTABLISHING SECURE LINK...", "BOOT SEQUENCE COMPLETE." ];
             const textArea = document.getElementById('boot-text-area'); let lIdx = 0; let cIdx = 0; let currentHTML = "";
 
             const typeChar = () => {
@@ -952,3 +953,4 @@
     </script>
 </body>
 </html>
+
