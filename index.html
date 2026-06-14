@@ -8,7 +8,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" id="meta-theme-color" content="#030a03">
+    <meta name="theme-color" id="meta-theme-color" content="#020802">
     
     <title>OS-NXT // SYS</title>
     
@@ -16,15 +16,13 @@
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Share+Tech+Mono&display=swap');
 
         :root {
-            --bg-color: #030a03;
+            --bg-color: #020802;
             --text-color: #14ff14;
             --text-muted: #086b08;
             --accent: #22ff22;
             
-            /* Chromatic Aberration Halus + Glow */
-            --glow-light: 0.8px 0px 0px rgba(255, 0, 0, 0.6), -0.8px 0px 0px rgba(0, 255, 255, 0.6), 0 0 4px rgba(20, 255, 20, 0.3);
-            --glow-heavy: 1.5px 0px 0px rgba(255, 0, 0, 0.7), -1.5px 0px 0px rgba(0, 255, 255, 0.7), 0 0 8px rgba(20, 255, 20, 0.7);
-            
+            --glow-light: 0 0 2px rgba(20, 255, 20, 0.4);
+            --glow-heavy: 0 0 8px rgba(20, 255, 20, 0.8);
             --crt-line: rgba(20, 255, 20, 0.08);
             --chart-fill: rgba(20, 255, 20, 0.2);
             --font-main: 'Share Tech Mono', monospace;
@@ -37,9 +35,8 @@
             --text-color: #073642; 
             --text-muted: #93a1a1;
             --accent: #dc322f; 
-            /* Linux Light: Tipis banget */
-            --glow-light: 0.5px 0px 0px rgba(220, 50, 47, 0.3), -0.5px 0px 0px rgba(42, 161, 152, 0.3);
-            --glow-heavy: 1px 0px 0px rgba(220, 50, 47, 0.5), -1px 0px 0px rgba(42, 161, 152, 0.5), 0 0 5px rgba(7, 54, 66, 0.2);
+            --glow-light: none;
+            --glow-heavy: none;
             --crt-line: rgba(0, 0, 0, 0.04);
             --chart-fill: rgba(7, 54, 66, 0.15);
             --font-main: 'Fira Code', monospace;
@@ -47,121 +44,113 @@
             --border-style: solid;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: auto; -webkit-tap-highlight-color: transparent; scrollbar-width: none; }
+        /* HARDWARE SWITCHES (OVERRIDES) */
+        body[data-chroma="true"] {
+            --glow-light: 0.8px 0px 0px rgba(255, 0, 0, 0.6), -0.8px 0px 0px rgba(0, 255, 255, 0.6), 0 0 4px rgba(20, 255, 20, 0.3);
+            --glow-heavy: 1.5px 0px 0px rgba(255, 0, 0, 0.7), -1.5px 0px 0px rgba(0, 255, 255, 0.7), 0 0 8px rgba(20, 255, 20, 0.7);
+        }
+        body[data-theme="linux"][data-chroma="true"] {
+            --glow-light: 0.5px 0px 0px rgba(220, 50, 47, 0.3), -0.5px 0px 0px rgba(42, 161, 152, 0.3);
+            --glow-heavy: 1px 0px 0px rgba(220, 50, 47, 0.5), -1px 0px 0px rgba(42, 161, 152, 0.5), 0 0 5px rgba(7, 54, 66, 0.2);
+        }
+        
+        body[data-scan="false"] #crt-matrix, 
+        body[data-scan="false"] .vcr-tracking, 
+        body[data-scan="false"] .scanline { display: none !important; }
+        
+        body[data-blur="true"] #crt-vignette { backdrop-filter: blur(0.6px); -webkit-backdrop-filter: blur(0.6px); }
+        
+        body[data-flicker="true"] #flicker-layer { animation: crt-flicker 0.15s infinite; }
+        body[data-jitter="true"] #viewport { animation: signal-jitter 6s infinite; }
+        body[data-interf="true"] #interference { animation: v-interf 8s infinite linear; }
+        body[data-ghost="true"] #viewport { filter: drop-shadow(2px 2px 1px rgba(20,255,20,0.2)); }
+        body[data-theme="linux"][data-ghost="true"] #viewport { filter: drop-shadow(1px 1px 0px rgba(7,54,66,0.2)); }
+
+        /* ABSOLUTE NATIVE FEEL: Block Text Selection Globally */
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; scrollbar-width: none; }
         ::-webkit-scrollbar { display: none; }
+        
+        /* ENABLE Selection ONLY for inputs and editor */
+        input, textarea, [contenteditable="true"] { user-select: text; -webkit-user-select: text; cursor: text; }
 
         body {
             background-color: var(--bg-color); height: 100vh; width: 100vw; overflow: hidden;
-            display: flex; flex-direction: column;
-            font-family: var(--font-main); color: var(--text-color);
+            display: flex; flex-direction: column; font-family: var(--font-main); color: var(--text-color);
             letter-spacing: var(--letter-space); text-transform: uppercase; font-size: 16px;
             -webkit-font-smoothing: none; text-rendering: optimizeSpeed;
         }
 
-        /* 1. Base Monitor Layer */
-        #screen-base { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background-color: var(--bg-color); z-index: 1; transform: translateZ(0); 
-        }
-
-        /* 2. TRUE DOT-MATRIX GRID */
+        /* 1. LAYERS */
+        #screen-base { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); z-index: 1; transform: translateZ(0); }
         #crt-matrix {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(0, 0, 0, 0.15) 50%, transparent 50%),
-                        linear-gradient(90deg, rgba(0, 0, 0, 0.15) 50%, transparent 50%);
+            background: linear-gradient(rgba(0, 0, 0, 0.15) 50%, transparent 50%), linear-gradient(90deg, rgba(0, 0, 0, 0.15) 50%, transparent 50%);
             background-size: 3px 3px; pointer-events: none; z-index: 2; transform: translateZ(0);
         }
-
-        /* 3. VCR Tracking Line */
         .vcr-tracking {
             width: 100%; height: 12px; z-index: 9; position: absolute; pointer-events: none;
             background: rgba(255,255,255,0.02); box-shadow: 0 0 5px rgba(255,255,255,0.01);
             animation: tracking 7s infinite linear; will-change: transform, top; transform: translateZ(0);
         }
-        @keyframes tracking { 0% { top: -20px; } 100% { top: 110%; } }
-
-        /* Fast Scanline */
         .scanline {
             width: 100%; height: 150px; z-index: 10; position: absolute; pointer-events: none;
             background: linear-gradient(0deg, rgba(0,0,0,0) 0%, var(--crt-line) 50%, rgba(0,0,0,0) 100%);
             animation: scan 4s linear infinite; will-change: transform, top; transform: translateZ(0);
         }
-        @keyframes scan { 0% { top: -150px; } 100% { top: 100%; } }
-
-        /* 4. POST-PROCESSING OVERLAY (KUNCI RAHASIA BLUR ANTI-LAG) */
+        #interference {
+            position: absolute; top: -20%; left: 0; width: 100%; height: 50px;
+            background: linear-gradient(0deg, transparent, rgba(255,255,255,0.05), transparent);
+            z-index: 97; pointer-events: none; opacity: 0; transform: translateZ(0);
+        }
+        #flicker-layer { position: absolute; top:0; left:0; width:100%; height:100%; background: #000; opacity: 0; pointer-events: none; z-index: 98; transform: translateZ(0); }
         #crt-vignette {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 50% 50%, transparent 45%, rgba(0,0,0,0.85) 110%);
-            pointer-events: none; z-index: 99; transform: translateZ(0);
-            transition: backdrop-filter 0.3s ease;
+            pointer-events: none; z-index: 99; transform: translateZ(0); transition: backdrop-filter 0.3s ease;
         }
 
-        /* Toggle Blur via Data Attribute di Body */
-        body[data-blur="true"] #crt-vignette {
-            backdrop-filter: blur(0.6px);
-            -webkit-backdrop-filter: blur(0.6px);
-        }
+        /* 2. KEYFRAMES */
+        @keyframes tracking { 0% { top: -20px; } 100% { top: 110%; } }
+        @keyframes scan { 0% { top: -150px; } 100% { top: 100%; } }
+        @keyframes burst { 0% { filter: brightness(1.8) contrast(1.2); } 100% { filter: brightness(1) contrast(1); } }
+        @keyframes crt-flicker { 0% { opacity: 0; } 50% { opacity: 0.03; } 100% { opacity: 0; } }
+        @keyframes signal-jitter { 0%, 9%, 11%, 100% { transform: translateX(0) skewX(0); } 10% { transform: translateX(-3px) skewX(1deg); } 10.5% { transform: translateX(2px) skewX(-1deg); } }
+        @keyframes v-interf { 0% { top: -20%; opacity: 0; } 5% { opacity: 1; } 10% { top: 120%; opacity: 0; } 100% { top: 120%; opacity: 0; } }
 
-        /* Phosphor Burst */
-        .crt-flash { animation: burst 0.25s ease-out forwards; }
-        @keyframes burst {
-            0% { filter: brightness(1.6) contrast(1.2); }
-            100% { filter: brightness(1) contrast(1); }
-        }
+        .crt-flash { animation: burst 0.3s ease-out forwards; }
 
-        /* Safe Area Container */
-        .safe-area-wrapper {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; z-index: 20;
-            padding-top: max(env(safe-area-inset-top), 15px);
-        }
-
-        #viewport { 
-            flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; padding-bottom: 110px; 
-            text-shadow: var(--glow-light); position: relative; will-change: transform; 
-        }
+        /* 3. OS CONTENT */
+        .safe-area-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; z-index: 20; padding-top: max(env(safe-area-inset-top), 15px); }
+        #viewport { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; padding-bottom: 110px; text-shadow: var(--glow-light); position: relative; will-change: transform; transition: filter 0.3s; }
 
         #bottom-nav {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
-            background: var(--bg-color); border-top: 2px var(--border-style) var(--text-color);
-            display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -5px 15px rgba(0,0,0,0.8); z-index: 50;
-            text-shadow: var(--glow-heavy); 
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 80px; background: var(--bg-color); border-top: 2px var(--border-style) var(--text-color);
+            display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -5px 15px rgba(0,0,0,0.8); z-index: 50; text-shadow: var(--glow-heavy); 
         }
 
-        .nav-btn { background: none; border: none; color: var(--text-muted); font-family: var(--font-main); font-size: 1.4rem; cursor: pointer; padding: 15px 10px; font-weight: bold; flex: 1; transition: 0.1s; user-select: none; text-shadow: none;}
+        .nav-btn { background: none; border: none; color: var(--text-muted); font-family: var(--font-main); font-size: 1.4rem; cursor: pointer; padding: 15px 10px; font-weight: bold; flex: 1; transition: 0.1s; }
         .nav-btn.active { color: var(--text-color); text-shadow: var(--glow-heavy); border-bottom: 5px solid var(--text-color); }
 
         h1, h2, h3 { border-bottom: 2px var(--border-style) var(--text-color); padding-bottom: 8px; margin-bottom: 18px; font-size: 1.4rem; font-weight: bold; text-shadow: var(--glow-heavy); }
         button, input { font-family: var(--font-main); color: var(--text-color); background: transparent; border: 2px var(--border-style) var(--text-color); outline: none; padding: 14px; text-transform: uppercase; font-size: 1.1rem; text-shadow: var(--glow-light);}
-        button { cursor: pointer; font-weight: bold; user-select: none; text-shadow: var(--glow-heavy);}
+        button { cursor: pointer; font-weight: bold; text-shadow: var(--glow-heavy);}
         button:active { background: var(--text-color); color: var(--bg-color); }
         input::placeholder { color: var(--text-muted); opacity: 0.6; text-transform: uppercase; }
 
-        /* THE FLOATING FAB */
         .fab-btn {
-            position: absolute; bottom: 100px; right: 20px; z-index: 40;
-            width: 65px; height: 65px; font-size: 2.2rem; font-weight: bold; background: var(--bg-color);
-            box-shadow: -4px 4px 0px var(--text-muted); border: 2px solid var(--text-color); 
-            display: flex; justify-content: center; align-items: center;
-            color: var(--text-color); cursor: pointer; user-select: none; text-shadow: var(--glow-heavy);
+            position: absolute; bottom: 100px; right: 20px; z-index: 40; width: 65px; height: 65px; font-size: 2.2rem; font-weight: bold; background: var(--bg-color);
+            box-shadow: -4px 4px 0px var(--text-muted); border: 2px solid var(--text-color); display: flex; justify-content: center; align-items: center;
+            color: var(--text-color); cursor: pointer; text-shadow: var(--glow-heavy);
         }
         .fab-btn:active { box-shadow: 0 0 0 transparent; transform: translate(-4px, 4px); background: var(--text-color); color: var(--bg-color); }
 
-        /* ADVANCED EDITOR */
-        .editor-container { 
-            position: relative; width: 100%; height: 50vh; margin-top: 10px; 
-            border: 2px var(--border-style) var(--text-color); background: rgba(0,0,0,0.3);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-        }
+        /* EDITOR */
+        .editor-container { position: relative; width: 100%; height: 50vh; margin-top: 10px; border: 2px var(--border-style) var(--text-color); background: rgba(0,0,0,0.3); box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        #edit-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-family: var(--font-main); font-size: 1.2rem; line-height: 1.5; padding: 15px; overflow-y: auto; outline: none; text-transform: none; caret-color: transparent; text-shadow: var(--glow-light); z-index: 2; }
         
-        #edit-content {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            font-family: var(--font-main); font-size: 1.2rem; line-height: 1.5; padding: 15px; 
-            overflow-y: auto; outline: none; text-transform: none; user-select: text;
-            caret-color: var(--text-color); text-shadow: var(--glow-light);
-        }
-        
+        #block-cursor { position: absolute; width: 12px; height: 1.4rem; background-color: var(--text-color); box-shadow: var(--glow-heavy); z-index: 1; pointer-events: none; display: none; animation: blink 1s step-end infinite; transition: top 0.05s, left 0.05s; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
         #edit-content h1 { font-size: 2.2rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; text-shadow: var(--glow-heavy); }
         #edit-content h2 { font-size: 1.8rem; border-bottom: none; margin-bottom: 10px; padding-bottom: 0; text-transform: uppercase; text-shadow: var(--glow-heavy); }
         #edit-content b, #edit-content strong { font-weight: bold; color: var(--accent); text-shadow: var(--glow-heavy); }
@@ -169,41 +158,27 @@
         #edit-content ol, #edit-content ul { padding-left: 25px; margin-bottom: 10px; list-style-position: outside; }
         #edit-content li { margin-bottom: 5px; }
 
-        /* DYNAMIC FLOATING TOOLBAR */
-        #format-toolbar {
-            position: fixed; 
-            background: var(--bg-color); border: 2px solid var(--text-color); 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.9);
-            display: none; flex-direction: row; align-items: center; z-index: 80; padding: 2px;
-            transition: top 0.1s ease, left 0.1s ease; 
-            transform: translate(-50%, -100%); 
-            margin-top: -15px; 
-        }
-        #format-toolbar::after {
-            content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
-            border-width: 8px 8px 0; border-style: solid; border-color: var(--text-color) transparent transparent transparent; display: block; width: 0;
-        }
-
+        /* TOOLBAR */
+        #format-toolbar { position: fixed; background: var(--bg-color); border: 2px solid var(--text-color); box-shadow: 0 10px 20px rgba(0,0,0,0.9); display: none; flex-direction: row; align-items: center; z-index: 80; padding: 2px; transition: top 0.1s ease, left 0.1s ease; transform: translate(-50%, -100%); margin-top: -15px; }
+        #format-toolbar::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: var(--text-color) transparent transparent transparent; display: block; width: 0; }
         #format-toolbar.flip-down { transform: translate(-50%, 0); margin-top: 15px; }
-        #format-toolbar.flip-down::after {
-            top: -8px; bottom: auto; border-width: 0 8px 8px; border-style: solid; border-color: transparent transparent var(--text-color) transparent;
-        }
-
-        .fmt-btn { background: transparent; color: var(--text-color); border: none; font-size: 1.1rem; padding: 12px 18px; margin: 0; font-weight: bold; border-right: 2px solid var(--text-muted); border-radius: 0; user-select: none; text-shadow: none;}
+        #format-toolbar.flip-down::after { top: -8px; bottom: auto; border-width: 0 8px 8px; border-style: solid; border-color: transparent transparent var(--text-color) transparent; }
+        .fmt-btn { background: transparent; color: var(--text-color); border: none; font-size: 1.1rem; padding: 12px 18px; margin: 0; font-weight: bold; border-right: 2px solid var(--text-muted); border-radius: 0; text-shadow: none;}
         .fmt-btn:last-child { border-right: none; }
         .fmt-btn:active { background: var(--text-color); color: var(--bg-color); }
 
+        /* COMPONENTS */
         .chart-box { border: 2px var(--border-style) var(--text-color); padding: 10px; margin-top: 25px; margin-bottom: 10px; position: relative; background: rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; }
         .chart-label { position: absolute; top: -14px; left: 10px; font-size: 0.9rem; background: var(--bg-color); padding: 0 8px; font-weight: bold; border-left: 2px solid var(--text-color); border-right: 2px solid var(--text-color); color: var(--text-color); z-index: 2; text-shadow: var(--glow-heavy);}
         canvas { display: block; width: 100%; image-rendering: pixelated; }
 
-        .note-card { border: 2px var(--border-style) var(--text-color); padding: 15px; margin-bottom: 15px; cursor: pointer; position: relative; display: block; width: 100%; text-align: left; user-select: none;}
+        .note-card { border: 2px var(--border-style) var(--text-color); padding: 15px; margin-bottom: 15px; cursor: pointer; position: relative; display: block; width: 100%; text-align: left;}
         .note-card:active { background: var(--chart-fill); }
         .note-date { font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; display: block;}
         .pin-badge { position: absolute; top: 0; right: 0; background: var(--text-color); color: var(--bg-color); font-size: 0.8rem; padding: 2px 8px; font-weight: bold; text-shadow: none;}
         
         .label-badge { display: inline-block; padding: 4px 8px; font-size: 0.8rem; border: 1px solid var(--text-color); color: var(--text-color); margin-right: 5px; margin-top: 5px; background: var(--chart-fill); }
-        .swipe-labels { display: flex; overflow-x: auto; white-space: nowrap; padding-bottom: 10px; align-items: center; scrollbar-width: none; user-select: none; }
+        .swipe-labels { display: flex; overflow-x: auto; white-space: nowrap; padding-bottom: 10px; align-items: center; scrollbar-width: none; }
         .swipe-labels::-webkit-scrollbar { display: none; }
         .swipe-labels span { display: inline-block; cursor: pointer; border: 2px dashed var(--text-muted); padding: 6px 12px; margin-right: 8px; font-weight: bold; flex-shrink: 0; }
         .swipe-labels span.active-tag { border: 2px solid var(--accent); background: var(--chart-fill); color: var(--text-color); text-shadow: var(--glow-heavy);}
@@ -221,34 +196,58 @@
         .hex-anim { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px; word-break: break-all;}
         .blink-fast { animation: blink 0.5s step-end infinite; }
 
+        /* MODALS */
         #modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; display: none; justify-content: center; align-items: center; padding: 20px; transform: translateZ(0);}
         .modal-box { border: 2px solid var(--text-color); background: var(--bg-color); padding: 25px; width: 100%; max-width: 400px; text-align: center; box-shadow: -10px 10px 0px var(--chart-fill); z-index: 101; }
-        .modal-box input { width: 100%; margin: 20px 0; text-align: center; font-size: 1.8rem; text-transform: uppercase; user-select: auto; text-shadow: var(--glow-light); }
-
+        .modal-box input { width: 100%; margin: 20px 0; text-align: center; font-size: 1.8rem; text-transform: uppercase; text-shadow: var(--glow-light); }
         #toast { position: absolute; top: 50px; left: 50%; transform: translateX(-50%); background: var(--text-color); color: var(--bg-color); padding: 12px 25px; font-weight: bold; font-size: 1.2rem; z-index: 120; opacity: 0; pointer-events: none; transition: opacity 0.2s; border: 2px solid var(--bg-color); box-shadow: 0 0 20px rgba(0,0,0,0.9); }
+
+        /* BOOT SCREEN (HOLD TO POWER) */
+        #power-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 200; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: var(--text-color); font-family: 'Share Tech Mono', monospace; cursor: pointer; text-shadow: 0 0 5px var(--text-color);
+        }
+        #boot-instruct { font-size: 1.2rem; margin-bottom: 20px; }
+        #boot-bar-container { width: 200px; height: 15px; border: 2px solid var(--text-color); padding: 2px; }
+        #boot-progress { width: 0%; height: 100%; background: var(--text-color); transition: width 0.1s linear; }
+        
+        #boot-console {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 199; display: none; flex-direction: column;
+            padding: 20px; color: var(--text-color); font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;
+            text-transform: uppercase; text-shadow: 0 0 5px var(--text-color);
+        }
     </style>
 </head>
-<body data-theme="pipboy" data-blur="true">
+<body>
 
+    <!-- BOOT SEQUENCE SCREENS -->
+    <div id="power-screen">
+        <div id="boot-instruct" class="blink-fast">> HOLD TO POWER ON_</div>
+        <div id="boot-bar-container"><div id="boot-progress"></div></div>
+    </div>
+    <div id="boot-console"></div>
+
+    <!-- MAIN OS LAYERS -->
     <div id="screen-base">
         <div id="crt-matrix"></div>
         <div class="vcr-tracking"></div>
         <div class="scanline"></div>
     </div>
     
-    <!-- Lensa Tabung dengan Post-Processing Blur -->
+    <div id="interference"></div>
+    <div id="flicker-layer"></div>
     <div id="crt-vignette"></div>
-    
     <div id="toast">[ SYS MSG ]</div>
 
-    <div class="safe-area-wrapper">
+    <div class="safe-area-wrapper" id="os-ui">
         <div id="viewport">
-            <!-- Content injected here -->
+            <!-- Content -->
         </div>
 
         <button id="main-fab" class="fab-btn" onclick="addNote()" style="display:none;">[+]</button>
 
-        <!-- Custom DYNAMIC Format Toolbar -->
         <div id="format-toolbar">
             <button class="fmt-btn" onmousedown="execFormat('formatBlock', 'H1'); return false;">H1</button>
             <button class="fmt-btn" onmousedown="execFormat('formatBlock', 'H2'); return false;">H2</button>
@@ -279,21 +278,20 @@
 
     <script>
         /** * OS-NXT CORE LOGIC
-         * Ultra-optimized Rendering. Hardware Accelerated Blur Filter.
+         * Total Unselectable UI. Hold-to-Boot. Granular Retro FX.
          */
-
         const setupPWA = () => {
-            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#030a03"/><text x="50" y="65" font-family="monospace" font-size="50" font-weight="bold" fill="#14ff14" text-anchor="middle">&gt;_</text></svg>`;
+            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#020802"/><text x="50" y="65" font-family="monospace" font-size="50" font-weight="bold" fill="#14ff14" text-anchor="middle">&gt;_</text></svg>`;
             const encodedIcon = "data:image/svg+xml;base64," + btoa(svgIcon);
             const link = document.createElement('link'); link.rel = 'icon'; link.href = encodedIcon; document.head.appendChild(link);
-            const manifest = { name: "OS-NXT", short_name: "OS-NXT", display: "fullscreen", orientation: "portrait", background_color: "#030a03", theme_color: "#030a03" };
+            const manifest = { name: "OS-NXT", short_name: "OS-NXT", display: "fullscreen", orientation: "portrait", background_color: "#020802", theme_color: "#020802" };
             const manifestLink = document.createElement('link'); manifestLink.rel = 'manifest'; manifestLink.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest)); document.head.appendChild(manifestLink);
         };
         setupPWA();
 
         let state = { 
             notes: [], labels: ['TUGAS', 'PRIBADI', 'IDE'], logs: [], 
-            settings: { theme: 'pipboy', sound: true, blur: true }, // Added blur to settings
+            settings: { theme: 'pipboy', sfx: true, vhs: true, blur: true, chroma: true, scan: true, flicker: true, jitter: false, interf: true, ghost: true, boot: true }, 
             currentView: 'dashboard', activeNoteId: null, filterLabel: null 
         };
         
@@ -304,10 +302,7 @@
             const memLabels = localStorage.getItem('os-nxt-labels'); if(memLabels) state.labels = JSON.parse(memLabels);
             const memLogs = localStorage.getItem('os-nxt-logs'); if(memLogs) state.logs = JSON.parse(memLogs);
             const memSettings = localStorage.getItem('os-nxt-settings'); 
-            if(memSettings) {
-                const parsed = JSON.parse(memSettings);
-                state.settings = { ...state.settings, ...parsed }; // Merge to keep default blur if missing
-            }
+            if(memSettings) state.settings = { ...state.settings, ...JSON.parse(memSettings) };
         } catch (e) { localStorage.clear(); }
 
         let sessionStartTime = Date.now();
@@ -323,12 +318,7 @@
         const stripHTML = (html) => { const tmp = document.createElement("DIV"); tmp.innerHTML = html; return tmp.textContent || tmp.innerText || ""; };
         
         let toastTimeout;
-        const showToast = (msg) => { 
-            const t = document.getElementById('toast'); 
-            t.innerText = `[ ${msg} ]`; t.style.opacity = 1; 
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => t.style.opacity = 0, 2000); 
-        };
+        const showToast = (msg) => { const t = document.getElementById('toast'); t.innerText = `[ ${msg} ]`; t.style.opacity = 1; clearTimeout(toastTimeout); toastTimeout = setTimeout(() => t.style.opacity = 0, 2000); };
 
         // --- AUDIO ENGINE ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -337,24 +327,22 @@
         const initAudio = () => { if (!audioCtx && AudioContext) audioCtx = new AudioContext(); if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); manageHumFX(); };
         const manageHumFX = () => {
             if(!audioCtx) return;
-            if(state.settings.sound && !humOsc) {
+            if(state.settings.vhs && !noiseSource) {
                 const bufferSize = audioCtx.sampleRate * 2; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const data = buffer.getChannelData(0);
                 for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
                 noiseSource = audioCtx.createBufferSource(); noiseSource.buffer = buffer; noiseSource.loop = true;
-                noiseFilter = audioCtx.createBiquadFilter(); noiseFilter.type = 'lowpass'; noiseFilter.frequency.value = 1800; 
-                noiseGain = audioCtx.createGain(); noiseGain.gain.value = 0.055; 
+                noiseFilter = audioCtx.createBiquadFilter(); noiseFilter.type = 'lowpass'; noiseFilter.frequency.value = 2000; 
+                noiseGain = audioCtx.createGain(); noiseGain.gain.value = 0.04; 
                 noiseSource.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(audioCtx.destination); noiseSource.start();
 
                 humOsc = audioCtx.createOscillator(); humGain = audioCtx.createGain();
-                humOsc.type = 'sine'; humOsc.frequency.value = 55; humGain.gain.value = 0.045;
+                humOsc.type = 'sine'; humOsc.frequency.value = 55; humGain.gain.value = 0.03;
                 humOsc.connect(humGain); humGain.connect(audioCtx.destination); humOsc.start();
-            } else if (!state.settings.sound && humOsc) { 
-                humOsc.stop(); humOsc = null; if(noiseSource) { noiseSource.stop(); noiseSource = null; }
-            }
+            } else if (!state.settings.vhs && noiseSource) { noiseSource.stop(); noiseSource = null; humOsc.stop(); humOsc = null; }
         };
 
         const analogHit = (startFreq, endFreq, dur, vol, type='square') => {
-            if (!state.settings.sound || !audioCtx) return; const t = audioCtx.currentTime;
+            if (!state.settings.sfx || !audioCtx) return; const t = audioCtx.currentTime;
             const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
             osc.type = type; osc.frequency.setValueAtTime(startFreq, t); osc.frequency.exponentialRampToValueAtTime(endFreq, t + dur);
             gain.gain.setValueAtTime(vol, t); gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
@@ -362,20 +350,21 @@
         };
 
         const sfx = {
-            type: () => { analogHit(100, 20, 0.05, 0.15, 'sawtooth'); analogHit(500, 100, 0.02, 0.05, 'square'); },
+            type: () => { analogHit(150, 40, 0.06, 0.2, 'sawtooth'); analogHit(800, 300, 0.03, 0.05, 'square'); },
             nav: () => { analogHit(300, 40, 0.1, 0.15, 'square'); },
             enter: () => { analogHit(400, 50, 0.15, 0.15, 'triangle'); },
             error: () => { analogHit(150, 40, 0.3, 0.2, 'sawtooth'); analogHit(100, 20, 0.4, 0.2, 'sawtooth'); },
             commit: () => { analogHit(800, 1200, 0.1, 0.1, 'square'); setTimeout(() => analogHit(1200, 1500, 0.15, 0.1, 'square'), 100); },
-            boot: () => { analogHit(200, 600, 0.2, 0.1); setTimeout(()=>analogHit(600, 1000, 0.3, 0.1), 200); }
+            boot: () => { analogHit(100, 400, 0.4, 0.1, 'sawtooth'); setTimeout(()=>analogHit(400, 800, 0.2, 0.1), 400); }
         };
 
-        // --- OPTIMIZED ANIMATION ENGINE ---
+        // --- ANIMATIONS & INTERCEPTS ---
         let activeFrames = []; let activeTimeouts = [];
         const clearAnimations = () => { 
             activeFrames.forEach(id => cancelAnimationFrame(id)); activeFrames = []; 
             activeTimeouts.forEach(id => clearTimeout(id)); activeTimeouts = [];
             document.getElementById('format-toolbar').style.display = 'none'; 
+            const cur = document.getElementById('block-cursor'); if(cur) cur.style.display = 'none';
         };
         const triggerFlash = () => { const vp = document.getElementById('viewport'); vp.classList.remove('crt-flash'); void vp.offsetWidth; vp.classList.add('crt-flash'); };
 
@@ -393,25 +382,19 @@
             if(!silent) history.pushState({ view: view }, "", `#${view}`);
         };
 
-        // NAV INTERCEPTOR
         const navigate = (view, silent = false) => {
             if (state.currentView === 'editor' && view !== 'editor') {
                 const note = state.notes.find(n => n.id === state.activeNoteId);
                 const currentState = JSON.stringify({ t: document.getElementById('edit-title').value, c: document.getElementById('edit-content').innerHTML });
-                
                 if (currentState !== pristineEditorState || (note._isNew && (note.title !== '' || document.getElementById('edit-content').innerHTML !== ''))) {
                     sfx.error(); showToast("WARN: UNSAVED DATA!");
                     openCommit('SAVE CHANGES', 'Unsaved data detected. Type "ok" to SAVE.', () => {
                         captureDraft(); const n = state.notes.find(n => n.id === state.activeNoteId);
                         n.timestamp = new Date().toISOString(); delete n._isNew; 
                         saveState(); showToast('DATA SAVED'); addLog('DATA', `Auto-saved block ID:${n.id}`); forceNavigate(view);
-                    });
-                    return; 
-                } else {
-                    if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId);
-                }
-            }
-            forceNavigate(view, silent);
+                    }); return; 
+                } else { if(note && note._isNew) state.notes = state.notes.filter(n => n.id !== state.activeNoteId); }
+            } forceNavigate(view, silent);
         };
 
         window.addEventListener('popstate', (e) => {
@@ -419,7 +402,6 @@
                 history.pushState({ view: 'editor' }, "", "#editor"); 
                 const note = state.notes.find(n => n.id === state.activeNoteId);
                 const currentState = JSON.stringify({ t: document.getElementById('edit-title').value, c: document.getElementById('edit-content').innerHTML });
-                
                 if (currentState !== pristineEditorState || (note._isNew && (note.title !== '' || document.getElementById('edit-content').innerHTML !== ''))) {
                     sfx.error(); showToast("WARN: UNSAVED DATA!");
                     openCommit('SAVE CHANGES', 'Unsaved data detected. Type "ok" to SAVE.', () => {
@@ -497,7 +479,7 @@
             const animate = (time) => {
                 if(state.currentView !== 'dashboard') return;
                 activeFrames.push(requestAnimationFrame(animate));
-                if(time - lastTime < 50) return; // OPTIMIZED: Throttle to ~20fps
+                if(time - lastTime < 50) return; 
                 lastTime = time;
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -583,6 +565,7 @@
                 </div>
 
                 <div class="editor-container">
+                    <div id="block-cursor"></div>
                     <div id="edit-content" contenteditable="true" spellcheck="false" oninput="handleInput(event)">${note.content}</div>
                 </div>
                 
@@ -600,13 +583,19 @@
             ta.addEventListener('keyup', handleSmartList);
             document.addEventListener('selectionchange', handleSelectionPos);
             ta.addEventListener('scroll', handleSelectionPos); 
+            ta.addEventListener('keyup', handleSelectionPos);
+            ta.addEventListener('click', handleSelectionPos);
+            ta.addEventListener('blur', () => { document.getElementById('block-cursor').style.display = 'none'; });
+            // Coba stop default context menu tapi di Android agak bandel, ini best effort
             ta.addEventListener('contextmenu', (e) => { e.preventDefault(); return false; });
         };
 
         const handleInput = (e) => { 
-            sfx.type(); const html = e.target.innerHTML; const raw = stripHTML(html); const words = raw.trim().split(/\s+/).filter(w=>w.length>0).length;
+            sfx.type(); const ta = e.target;
+            const html = ta.innerHTML; const raw = stripHTML(html); const words = raw.trim().split(/\s+/).filter(w=>w.length>0).length;
             document.getElementById('editor-stats').innerText = `W: ${words} | C: ${raw.length}`;
             clearTimeout(saveDraftTimeout); saveDraftTimeout = setTimeout(() => pushHistory(html), 600); 
+            handleSelectionPos();
         };
 
         const handleSmartList = (e) => {
@@ -620,28 +609,34 @@
 
         const handleSelectionPos = () => {
             if(state.currentView !== 'editor') return;
-            const ta = document.getElementById('edit-content'); const toolbar = document.getElementById('format-toolbar');
+            const ta = document.getElementById('edit-content'); const toolbar = document.getElementById('format-toolbar'); const cursor = document.getElementById('block-cursor');
+            if(!ta || !cursor) return;
+
             const sel = window.getSelection();
-            if(sel.rangeCount > 0 && ta.contains(sel.anchorNode) && !sel.isCollapsed) { 
-                const range = sel.getRangeAt(0); const rect = range.getBoundingClientRect();
-                toolbar.style.display = 'flex';
-                
-                activeTimeouts.push(setTimeout(() => {
-                    const tbWidth = toolbar.offsetWidth;
-                    let topPos = rect.top;
-                    let leftPos = rect.left + (rect.width / 2);
-                    
-                    const margin = 15;
-                    if (leftPos - (tbWidth / 2) < margin) { leftPos = (tbWidth / 2) + margin; }
-                    if (leftPos + (tbWidth / 2) > window.innerWidth - margin) { leftPos = window.innerWidth - (tbWidth / 2) - margin; }
-                    
-                    if(topPos < 100) { topPos = rect.bottom; toolbar.classList.add('flip-down'); } 
-                    else { toolbar.classList.remove('flip-down'); }
-                    
-                    toolbar.style.top = `${topPos}px`; toolbar.style.left = `${leftPos}px`;
-                }, 0));
+            if(document.activeElement === ta && sel.rangeCount > 0) { 
+                const range = sel.getRangeAt(0); const rects = range.getClientRects(); let rect = rects.length > 0 ? rects[rects.length - 1] : range.getBoundingClientRect();
+
+                if(sel.isCollapsed) {
+                    toolbar.style.display = 'none'; cursor.style.display = 'block'; const containerRect = ta.getBoundingClientRect();
+                    if(ta.innerHTML === '' || ta.innerHTML === '<br>') { cursor.style.top = `15px`; cursor.style.left = `15px`; cursor.style.height = `1.4rem`;} 
+                    else if (rect.width === 0 && rect.height > 0) {
+                        let topPos = rect.top - containerRect.top + ta.scrollTop; let leftPos = rect.left - containerRect.left + ta.scrollLeft;
+                        cursor.style.top = `${topPos}px`; cursor.style.left = `${leftPos}px`; cursor.style.height = `${rect.height}px`;
+                    }
+                } 
+                else if (!sel.isCollapsed) { 
+                    cursor.style.display = 'none'; toolbar.style.display = 'flex';
+                    activeTimeouts.push(setTimeout(() => {
+                        const tbWidth = toolbar.offsetWidth; let topPos = rect.top; let leftPos = rect.left + (rect.width / 2);
+                        const margin = 15;
+                        if (leftPos - (tbWidth / 2) < margin) { leftPos = (tbWidth / 2) + margin; }
+                        if (leftPos + (tbWidth / 2) > window.innerWidth - margin) { leftPos = window.innerWidth - (tbWidth / 2) - margin; }
+                        if(topPos < 100) { topPos = rect.bottom; toolbar.classList.add('flip-down'); } else { toolbar.classList.remove('flip-down'); }
+                        toolbar.style.top = `${topPos}px`; toolbar.style.left = `${leftPos}px`;
+                    }, 0));
+                }
             } 
-            else { toolbar.style.display = 'none'; }
+            else { toolbar.style.display = 'none'; cursor.style.display = 'none'; }
         };
 
         const execFormat = (command, val = null) => { document.execCommand(command, false, val); sfx.commit(); showToast('FORMAT APPLIED'); pushHistory(document.getElementById('edit-content').innerHTML); };
@@ -687,53 +682,102 @@
             `;
         };
 
-        // --- 5. SETTINGS (CFG) ---
+        // --- 5. SETTINGS (GRID BOARD) ---
         const renderSettings = () => {
             document.getElementById('viewport').innerHTML = `
                 <h2>SYS.CONFIG</h2>
                 <div class="hex-anim"><span class="blink-fast">_></span> ROOT_ACCESS: GRANTED</div>
                 
-                <div class="flex-between" style="border:2px var(--border-style) var(--text-color); padding:15px; margin-bottom:15px;">
-                    <span style="font-weight:bold; font-size:1.1rem;">UI ENVIRONMENT</span>
-                    <button onclick="toggleTheme()" style="border-style:dashed;">${state.settings.theme === 'pipboy' ? 'DARK (PIPBOY)' : 'LIGHT (LINUX)'}</button>
-                </div>
-                
-                <div class="flex-between" style="border:2px var(--border-style) var(--text-color); padding:15px; margin-bottom:15px;">
-                    <span style="font-weight:bold; font-size:1.1rem;">AUDIO FEEDBACK</span>
-                    <button onclick="toggleSound()" style="border-style:dashed;">${state.settings.sound ? 'ENABLED' : 'MUTED'}</button>
-                </div>
-                
-                <!-- NEW OPTION: CRT BLUR -->
-                <div class="flex-between" style="border:2px var(--border-style) var(--text-color); padding:15px; margin-bottom:15px;">
-                    <div>
-                        <span style="font-weight:bold; font-size:1.1rem; display:block;">CRT LENS BLUR</span>
-                        <span style="font-size:0.75rem; color:var(--text-muted);">Toggle if UI feels heavy</span>
+                <h3 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 10px; margin-top:20px;">SYSTEM & AUDIO</h3>
+                <div class="grid-2">
+                    <div style="border:2px var(--border-style) var(--text-color); padding:10px; text-align:center;">
+                        <span style="font-weight:bold; font-size:0.9rem; display:block; margin-bottom:5px;">ENVIRONMENT</span>
+                        <button onclick="toggleSetting('theme')" style="width:100%; border-style:dashed;">${state.settings.theme === 'pipboy' ? 'PIPBOY' : 'LINUX'}</button>
                     </div>
-                    <button onclick="toggleBlur()" style="border-style:dashed;">${state.settings.blur ? 'ACTIVE' : 'DISABLED'}</button>
+                    <div style="border:2px var(--border-style) var(--text-color); padding:10px; text-align:center;">
+                        <span style="font-weight:bold; font-size:0.9rem; display:block; margin-bottom:5px;">COLD BOOT</span>
+                        <button onclick="toggleSetting('boot')" style="width:100%; border-style:dashed;">${state.settings.boot ? 'ON' : 'OFF'}</button>
+                    </div>
+                    <div style="border:2px var(--border-style) var(--text-color); padding:10px; text-align:center;">
+                        <span style="font-weight:bold; font-size:0.9rem; display:block; margin-bottom:5px;">UI SFX</span>
+                        <button onclick="toggleSetting('sfx')" style="width:100%; border-style:dashed;">${state.settings.sfx ? 'ON' : 'OFF'}</button>
+                    </div>
+                    <div style="border:2px var(--border-style) var(--text-color); padding:10px; text-align:center;">
+                        <span style="font-weight:bold; font-size:0.9rem; display:block; margin-bottom:5px;">VHS HISS</span>
+                        <button onclick="toggleSetting('vhs')" style="width:100%; border-style:dashed;">${state.settings.vhs ? 'ON' : 'OFF'}</button>
+                    </div>
                 </div>
 
-                <h3>LABEL DATABASE</h3>
+                <h3 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 10px; margin-top:20px;">VIDEO FX (HARDWARE)</h3>
+                <div class="grid-2">
+                    <div style="border:2px var(--border-style) var(--text-color); padding:10px; text-align:center;">
+                        <span style="font-weight:bold; font-size:0.9rem; display:block; margin-bottom:5px;">LENS BLUR</span>
+                        <button onclick="toggleSetting('blur')" style="width:100%; border-style:dashed;">${state.settings.blur ? 'ON' : 'OFF'}</button>
+                    </div>
+                    <div style="border:2px var(--border-style) var(--text-color); padding:10px; text-align:center;">
+                        <span style="font-weight:bold; font-size:0.9rem; display:block; margin-bottom:5px;">CHROMATIC</span>
+                        <button onclick="toggleSetting('chroma')" style="width:100%; border-style:dashed;">${state.settings.chroma ? 'ON' : 'OFF'}</button>
+                    </div>
+                    <div style="border:2px var(--border-style) var(--text-color); padding:10px; text-align:center;">
+                        <span style="font-weight:bold; font-size:0.9rem; display:block; margin-bottom:5px;">SCANLINES</span>
+                        <button onclick="toggleSetting('scan')" style="width:100%; border-style:dashed;">${state.settings.scan ? 'ON' : 'OFF'}</button>
+                    </div>
+                    <div style="border:2px var(--border-style) var(--text-color); padding:10px; text-align:center;">
+                        <span style="font-weight:bold; font-size:0.9rem; display:block; margin-bottom:5px;">FLICKER</span>
+                        <button onclick="toggleSetting('flicker')" style="width:100%; border-style:dashed;">${state.settings.flicker ? 'ON' : 'OFF'}</button>
+                    </div>
+                    <div style="border:2px var(--border-style) var(--text-color); padding:10px; text-align:center;">
+                        <span style="font-weight:bold; font-size:0.9rem; display:block; margin-bottom:5px;">INTERFERENCE</span>
+                        <button onclick="toggleSetting('interf')" style="width:100%; border-style:dashed;">${state.settings.interf ? 'ON' : 'OFF'}</button>
+                    </div>
+                    <div style="border:2px var(--border-style) var(--text-color); padding:10px; text-align:center;">
+                        <span style="font-weight:bold; font-size:0.9rem; display:block; margin-bottom:5px;">GHOSTING</span>
+                        <button onclick="toggleSetting('ghost')" style="width:100%; border-style:dashed;">${state.settings.ghost ? 'ON' : 'OFF'}</button>
+                    </div>
+                    <div style="border:2px var(--border-style) var(--text-color); padding:10px; grid-column: span 2; text-align:center;">
+                        <span style="font-weight:bold; font-size:0.9rem; display:block; margin-bottom:5px;">SIGNAL JITTER (GLITCH)</span>
+                        <button onclick="toggleSetting('jitter')" style="width:100%; border-style:dashed;">${state.settings.jitter ? 'ON' : 'OFF'}</button>
+                    </div>
+                </div>
+
+                <h3 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 10px; margin-top:20px;">DATABASE</h3>
                 <div style="border: 2px dashed var(--text-color); padding: 15px; margin-bottom: 20px;">
                     <div style="margin-bottom: 15px;">
                         ${state.labels.length === 0 ? '<p style="font-size:0.9rem">NO LABELS.</p>' : ''}
-                        ${state.labels.map(l => `<div class="flex-between" style="border-bottom: 1px dashed var(--crt-line); padding: 8px 0;"><span style="font-size:1.1rem;">[${l}]</span><button style="padding: 4px 10px; font-size: 0.9rem; border-color: red; color: red;" onclick="requestDeleteLabel('${l}')">DEL</button></div>`).join('')}
+                        ${state.labels.map(l => `<div class="flex-between" style="border-bottom: 1px dashed var(--crt-line); padding: 8px 0;"><span style="font-size:1rem;">[${l}]</span><button style="padding: 4px 8px; font-size: 0.8rem; border-color: red; color: red;" onclick="requestDeleteLabel('${l}')">DEL</button></div>`).join('')}
                     </div>
                     <div class="flex-row"><input type="text" id="new-label-input" placeholder="> NEW_LABEL" style="flex: 1;" onkeyup="sfx.type()"><button onclick="addNewLabel()">[+]</button></div>
                 </div>
-                <h3>DATA.IO</h3>
+                
+                <h3 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 10px;">DATA.IO</h3>
                 <div class="grid-2"><button onclick="exportData()">EXPORT</button><button onclick="document.getElementById('import-file').click()">IMPORT</button><input type="file" id="import-file" style="display:none" accept=".json" onchange="handleImport(event)"></div>
             `;
         };
 
-        const toggleTheme = () => { sfx.enter(); state.settings.theme = state.settings.theme === 'pipboy' ? 'linux' : 'pipboy'; document.body.setAttribute('data-theme', state.settings.theme); document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#020802' : '#fdf6e3'; saveState(); renderSettings(); addLog('CFG', `Environment set to ${state.settings.theme}`); };
-        const toggleSound = () => { state.settings.sound = !state.settings.sound; if(state.settings.sound) sfx.enter(); manageHumFX(); saveState(); renderSettings(); };
-        const toggleBlur = () => { sfx.enter(); state.settings.blur = !state.settings.blur; document.body.setAttribute('data-blur', state.settings.blur); saveState(); renderSettings(); };
+        const toggleSetting = (key) => {
+            sfx.enter();
+            if(key === 'theme') { state.settings.theme = state.settings.theme === 'pipboy' ? 'linux' : 'pipboy'; applyDOMSettings(); } 
+            else { state.settings[key] = !state.settings[key]; applyDOMSettings(); if(key === 'vhs' || key === 'sfx') manageHumFX(); }
+            saveState(); renderSettings(); addLog('CFG', `${key.toUpperCase()} set to ${state.settings[key]}`);
+        };
+
+        const applyDOMSettings = () => {
+            document.body.setAttribute('data-theme', state.settings.theme); 
+            document.body.setAttribute('data-blur', state.settings.blur);
+            document.body.setAttribute('data-chroma', state.settings.chroma);
+            document.body.setAttribute('data-scan', state.settings.scan);
+            document.body.setAttribute('data-flicker', state.settings.flicker);
+            document.body.setAttribute('data-jitter', state.settings.jitter);
+            document.body.setAttribute('data-interf', state.settings.interf);
+            document.body.setAttribute('data-ghost', state.settings.ghost);
+            document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#020802' : '#fdf6e3'; 
+        };
 
         const addNewLabel = () => { const input = document.getElementById('new-label-input'); const val = input.value.trim().toUpperCase().replace(/\s+/g, '_'); if(val && !state.labels.includes(val)) { sfx.commit(); state.labels.push(val); saveState(); addLog('CFG', `Created label [${val}]`); renderSettings(); } else { sfx.error(); showToast("INVALID LABEL"); } };
         const requestDeleteLabel = (lbl) => openCommit('PURGE LABEL', `Remove [${lbl}]?`, () => { state.labels = state.labels.filter(l => l !== lbl); saveState(); showToast('LABEL PURGED'); renderSettings(); });
 
         const exportData = () => { sfx.enter(); const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(JSON.stringify(state)); const link = document.createElement('a'); link.href = dataUri; link.download = `OS_NXT_${Date.now()}.json`; link.click(); showToast('EXPORT SUCCESS'); addLog('DATA', 'Exported memory state'); };
-        const handleImport = (e) => { const file = e.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (event) => { try { const tempImport = JSON.parse(event.target.result); if(tempImport.notes) openCommit('OVERWRITE SYS', 'Current data will be destroyed.', () => { state = tempImport; saveState(); document.body.setAttribute('data-theme', state.settings.theme); document.body.setAttribute('data-blur', state.settings.blur); showToast('RESTORE SUCCESS'); addLog('SYS', 'Memory restored'); forceNavigate('dashboard'); }); } catch(err) { sfx.error(); showToast('IMPORT FAIL'); } }; reader.readAsText(file); e.target.value = ''; };
+        const handleImport = (e) => { const file = e.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (event) => { try { const tempImport = JSON.parse(event.target.result); if(tempImport.notes) openCommit('OVERWRITE SYS', 'Current data will be destroyed.', () => { state = tempImport; saveState(); applyDOMSettings(); showToast('RESTORE SUCCESS'); addLog('SYS', 'Memory restored'); forceNavigate('dashboard'); }); } catch(err) { sfx.error(); showToast('IMPORT FAIL'); } }; reader.readAsText(file); e.target.value = ''; };
 
         // --- STRICT MODAL UX ---
         let commitCallback = null; const modal = document.getElementById('modal-overlay'); const modalInput = document.getElementById('modal-input');
@@ -744,15 +788,75 @@
         const closeModal = () => { sfx.enter(); modal.style.display = 'none'; commitCallback = null; };
         document.getElementById('modal-confirm').addEventListener('click', () => { if(modalInput.value.toLowerCase() === 'ok') { sfx.commit(); modal.style.display = 'none'; if(commitCallback) commitCallback(); } else { sfx.error(); modalInput.value = ''; modalInput.placeholder = "INVALID. TYPE 'OK'"; } });
 
-        window.onload = () => {
-            document.body.setAttribute('data-theme', state.settings.theme); 
-            // Setting Default Blur Logic
-            if(state.settings.blur === undefined) state.settings.blur = true;
-            document.body.setAttribute('data-blur', state.settings.blur);
-            document.getElementById('meta-theme-color').content = state.settings.theme === 'pipboy' ? '#020802' : '#fdf6e3'; 
+        // --- BOOT SEQUENCE (HOLD TO POWER) ---
+        let bootReq; let bootProgress = 0;
+        const startPower = (e) => {
+            if(e.type === 'touchstart') e.preventDefault(); // Prevent double trigger
+            if(bootProgress >= 100) return;
+            sfx.type(); // Mechanical tick
+            bootProgress = 0;
             
-            history.replaceState({ view: 'dashboard' }, "", "#dashboard"); forceNavigate('dashboard');
-            document.body.addEventListener('click', () => { if(!audioCtx) { initAudio(); sfx.boot(); } }, { once: true });
+            const animateBoot = () => {
+                bootProgress += 2.5; // Sekitar 600ms sampe penuh
+                document.getElementById('boot-progress').style.width = bootProgress + '%';
+                if(bootProgress % 10 === 0) sfx.type(); // Suara engine narik daya
+                
+                if(bootProgress >= 100) { powerOn(); } 
+                else { bootReq = requestAnimationFrame(animateBoot); }
+            };
+            bootReq = requestAnimationFrame(animateBoot);
+            document.getElementById('boot-instruct').innerText = "> CHARGING CAPACITORS...";
+        };
+        const cancelPower = (e) => {
+            if(bootProgress >= 100) return;
+            cancelAnimationFrame(bootReq); bootProgress = 0;
+            document.getElementById('boot-progress').style.width = '0%';
+            document.getElementById('boot-instruct').innerText = "> HOLD TO POWER ON_";
+        };
+
+        const powerOn = () => {
+            document.getElementById('power-screen').style.display = 'none';
+            initAudio(); sfx.boot();
+            
+            if(!state.settings.boot) {
+                document.getElementById('os-ui').style.display = 'flex';
+                forceNavigate('dashboard'); return;
+            }
+
+            const bootConsole = document.getElementById('boot-console');
+            bootConsole.style.display = 'flex';
+            
+            const lines = [
+                "OS-NXT v3.0.0 KERNEL INIT", "BIOS DATE 04/24/85", "CPU: Z80A 4MHz ... OK", 
+                "MEM: 64KB BASE ... OK", "MOUNTING VFS: /dev/sda1", "LOADING MODULES: AUDIO, CRT_FX", 
+                "ESTABLISHING SECURE LINK...", "BOOT COMPLETE."
+            ];
+            
+            let html = ""; let i = 0;
+            const printLine = () => {
+                if(i < lines.length) {
+                    html += `<div>> ${lines[i]}</div>`; bootConsole.innerHTML = html;
+                    if(state.settings.sfx) analogHit(300, 100, 0.05, 0.05, 'square');
+                    i++; setTimeout(printLine, Math.random() * 150 + 50);
+                } else {
+                    setTimeout(() => {
+                        bootConsole.style.display = 'none'; document.getElementById('os-ui').style.display = 'flex'; forceNavigate('dashboard');
+                    }, 500);
+                }
+            };
+            printLine();
+        };
+
+        window.onload = () => {
+            // Apply Settings
+            if(state.settings.sfx === undefined) state.settings = { theme: 'pipboy', sfx: true, vhs: true, blur: true, chroma: true, scan: true, flicker: true, jitter: false, interf: true, ghost: true, boot: true };
+            applyDOMSettings(); history.replaceState({ view: 'dashboard' }, "", "#dashboard");
+            
+            // Setup Hold-to-Boot listeners
+            const pScreen = document.getElementById('power-screen');
+            pScreen.addEventListener('mousedown', startPower); pScreen.addEventListener('touchstart', startPower);
+            pScreen.addEventListener('mouseup', cancelPower); pScreen.addEventListener('touchend', cancelPower);
+            pScreen.addEventListener('mouseleave', cancelPower);
         };
     </script>
 </body>
