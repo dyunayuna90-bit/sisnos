@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" id="meta-theme-color" content="#020802">
     
-    <title>OS-NXT // PIP-BOY ULTIMATE</title>
+    <title>OS-NXT // PIP-BOY ULTIMATE V5</title>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Share+Tech+Mono&display=swap');
@@ -62,10 +62,7 @@
         }
         
         body[data-scan="false"] #crt-matrix, body[data-scan="false"] .vcr-tracking, body[data-scan="false"] .scanline, body[data-scan="false"] .scanline-thick, body[data-scan="false"] .vsync-roll { display: none !important; }
-        
-        /* BLUR DIKURANGIN DRASTIS SESUAI INSTRUKSI */
         body[data-blur="true"] #crt-vignette { backdrop-filter: blur(0.3px); -webkit-backdrop-filter: blur(0.3px); }
-        
         body[data-flicker="true"] #flicker-layer { animation: crt-flicker 0.12s infinite; }
         body[data-jitter="true"] #viewport { animation: signal-jitter 4s infinite; }
         body[data-interf="true"] #interference { animation: v-interf 6s infinite linear; }
@@ -200,24 +197,18 @@
         .flex-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; align-items: stretch;}
         .flex-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 
-        .stat-block { flex: 1; border: 2px var(--border-style) var(--text-color); padding: 15px 10px; text-align: center; display: flex; flex-direction: column; justify-content: center; background: rgba(0,0,0,0.5); position: relative; overflow: hidden;}
+        /* UKURAN STAT BLOCK DIKUNCI MATI BIAR GA GOYANG */
+        .stat-block { flex: 1; border: 2px var(--border-style) var(--text-color); padding: 15px 10px; text-align: center; display: flex; flex-direction: column; justify-content: center; background: rgba(0,0,0,0.5); position: relative; overflow: hidden; height: 120px; max-height: 120px;}
         .stat-val { font-size: 1.8rem; font-weight: bold; text-shadow: var(--glow-heavy); white-space: nowrap; }
         .stat-lbl { font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; letter-spacing: 1px;}
         .prog-bar { width: 100%; height: 6px; background: var(--chart-fill); margin-top: 10px; position: relative; overflow: hidden;}
         .prog-fill { height: 100%; background: var(--text-color); width: 0%; transition: width 1s ease-out; box-shadow: var(--glow-light);}
 
-        /* AVATAR CUTE & CLEAN 2.5D PARALLAX EDITION */
-        .avatar-container { width: 100%; max-width: 110px; height: 110px; margin: 0 auto; display: flex; justify-content: center; align-items: center; position: relative; touch-action: none; overflow: visible;}
+        /* KOTAK AVATAR DIKUNCI 100px */
+        .avatar-container { width: 90px; height: 90px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; position: relative; touch-action: none; overflow: visible; margin: 0;}
+        #nxt-boy-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 5px var(--text-color)); transform-origin: center;}
         
-        #nxt-boy-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 5px var(--text-color)); transition: transform 0.1s ease-out, filter 0.3s; transform-origin: center;}
-        
-        /* Layer Transitions for smooth Parallax */
-        #boy-neck { transition: transform 0.1s ease-out; }
-        #boy-head-base { transition: transform 0.1s ease-out; }
-        #boy-face-features { transition: transform 0.08s ease-out; }
-        #boy-hair-front { transition: transform 0.15s cubic-bezier(0.3, 1.2, 0.4, 1); } 
-        
-        .gauge-container { position: relative; width: 100%; height: 80px; display: flex; justify-content: center; align-items: flex-end; }
+        .gauge-container { position: relative; width: 100%; height: 70px; display: flex; justify-content: center; align-items: flex-end; }
         #rad-gauge-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         
         .terminal-shell-box { border: 2px solid var(--text-color); background: #000; padding: 10px; margin-top: 25px; display: flex; align-items: center; font-family: monospace; box-shadow: 0 0 10px var(--crt-line); }
@@ -246,7 +237,7 @@
         .sys-glitch { animation: glitch-anim 0.2s linear infinite; }
         @keyframes glitch-anim { 0% { transform: translate(0) } 20% { transform: translate(-2px, 2px) } 40% { transform: translate(-2px, -2px) } 60% { transform: translate(2px, 2px) } 80% { transform: translate(2px, -2px) } 100% { transform: translate(0) } }
         
-        .breath-anim { animation: chest-breathe 3s ease-in-out infinite alternate; }
+        .breath-anim { animation: chest-breathe 3s ease-in-out infinite alternate; transform-origin: bottom; }
         @keyframes chest-breathe { 0% { transform: scaleY(1); } 100% { transform: scaleY(1.02); } }
         
         .decrypting-text { font-family: monospace; opacity: 0.8; }
@@ -359,7 +350,7 @@
         let synthRadioActive = false; let synthInterval;
         let batteryLevel = "100%"; let isCharging = false;
         let idleTimer; let vatsActive = false; let isTorch = false;
-        let geigerInterval; let streamInterval; let gyroEnabled = false;
+        let geigerInterval; let streamInterval;
 
         try {
             const memNotes = localStorage.getItem('os-nxt-notes'); if(memNotes) state.notes = JSON.parse(memNotes);
@@ -398,10 +389,16 @@
             } else { batteryLevel = "99%"; isCharging = false; } 
         };
 
-        // --- CORE LOGIC: CLEAN 2.5D PARALLAX & DYNAMIC EXPRESSIONS ---
+        // --- CORE LOGIC: INSANE FLUID LERP 2.5D PARALLAX ---
         let globalTouchActive = false;
         let isBlinking = false;
         let lastTapTime = 0;
+        let avatarAnimFrame;
+
+        // Target (where the user points)
+        let tgtNx = 0; let tgtNy = 0;
+        // Current (where the head actually is, smoothly interpolated)
+        let curNx = 0; let curNy = 0;
 
         const applyParallax = (nx, ny) => {
             if(state.currentView !== 'dashboard') return;
@@ -413,16 +410,14 @@
             const pR = document.getElementById('pupil-r');
             
             if(svg && faceFeat && headBase) {
-                // Kalkulasi Parallax Layer yang jauh lebih halus dan presisi
-                headBase.style.transform = `translate(${nx * 2}px, ${ny * 2}px)`; // Base kepala & kuping geser dikit
-                hairFront.style.transform = `translate(${nx * 6}px, ${ny * 5}px)`; // Jambul depan lebih lincah
-                faceFeat.style.transform = `translate(${nx * 8}px, ${ny * 8}px)`; // Fitur muka paling nonjol
+                headBase.style.transform = `translate(${nx * 3}px, ${ny * 3}px)`; 
+                hairFront.style.transform = `translate(${nx * 8}px, ${ny * 6}px)`; 
+                faceFeat.style.transform = `translate(${nx * 12}px, ${ny * 12}px)`; 
 
-                pL.setAttribute('transform', `translate(${nx * 4}, ${ny * 4})`);
-                pR.setAttribute('transform', `translate(${nx * 4}, ${ny * 4})`);
+                pL.setAttribute('transform', `translate(${nx * 6}, ${ny * 6})`);
+                pR.setAttribute('transform', `translate(${nx * 6}, ${ny * 6})`);
                 
-                // Rotasi total kepala
-                const tilt = (nx * 10) + (globalTouchActive ? (nx > 0 ? 5 : -5) : 0);
+                const tilt = (nx * 12) + (globalTouchActive ? (nx > 0 ? 5 : -5) : 0);
                 svg.style.transform = `rotate(${tilt}deg) scale(0.95)`;
             }
             updateDynamicExpression(nx, ny);
@@ -436,18 +431,18 @@
 
             if(!eyeL || isBlinking) return;
 
-            // Reset Default: Senyum imut khas animasi klasik
-            browL.setAttribute('d', 'M 25 42 Q 30 38 40 42'); 
-            browR.setAttribute('d', 'M 60 42 Q 70 38 75 42');
+            // Base expressions (Clean Vault Boy)
+            browL.setAttribute('d', 'M 25 40 Q 30 36 40 40'); 
+            browR.setAttribute('d', 'M 60 40 Q 70 36 75 40');
             eyeL.setAttribute('ry', '8'); eyeR.setAttribute('ry', '8');
             pL.setAttribute('r', '2.5'); pR.setAttribute('r', '2.5');
-            mouth.setAttribute('d', 'M 30 74 Q 50 88 70 74');
+            mouth.setAttribute('d', 'M 32 72 Q 50 86 68 72');
 
             if (radsCount > 800) {
                 // MELTDOWN: Sakit banget (Alis sedih, mulut merengut ke bawah)
-                browL.setAttribute('d', 'M 25 38 L 40 44'); browR.setAttribute('d', 'M 60 44 L 75 38');
+                browL.setAttribute('d', 'M 25 36 L 40 44'); browR.setAttribute('d', 'M 60 44 L 75 36');
                 eyeL.setAttribute('ry', '2'); eyeR.setAttribute('ry', '2'); // Menyipit kesakitan
-                mouth.setAttribute('d', 'M 35 82 Q 50 74 65 82');
+                mouth.setAttribute('d', 'M 35 80 Q 50 72 65 80');
                 document.getElementById('nxt-boy-svg').style.filter = "drop-shadow(0 0 15px red) hue-rotate(-45deg)";
             } 
             else if (radsCount > 400) {
@@ -459,29 +454,28 @@
             }
             else if (globalTouchActive) {
                 // KAGET (DI SENTUH): Alis naik tinggi, mulut "O" bulet lucu
-                browL.setAttribute('d', 'M 25 35 Q 30 30 40 35'); browR.setAttribute('d', 'M 60 35 Q 70 30 75 35');
+                browL.setAttribute('d', 'M 25 32 Q 30 28 40 32'); browR.setAttribute('d', 'M 60 32 Q 70 28 75 32');
                 eyeL.setAttribute('ry', '10'); eyeR.setAttribute('ry', '10'); // Mata melotot lucu
                 pL.setAttribute('r', '1.5'); pR.setAttribute('r', '1.5'); // Pupil ngecil
-                mouth.setAttribute('d', 'M 45 78 A 5 5 0 1 1 55 78 A 5 5 0 1 1 45 78'); // O shape murni
+                mouth.setAttribute('d', 'M 45 76 A 6 6 0 1 1 55 76 A 6 6 0 1 1 45 76'); // O shape murni
                 document.getElementById('nxt-boy-svg').style.filter = "drop-shadow(0 0 5px var(--text-color))";
             }
             else {
-                // NORMAL: Ekspresi dinamis dan ramah saat nengok
+                // NORMAL: Dinamis ngikutin arah kepala
                 document.getElementById('nxt-boy-svg').style.filter = "drop-shadow(0 0 5px var(--text-color))";
-                if (ny < -0.4) {
-                    // Dangak: Alis naik dikit, mulut buka ceria
-                    browL.setAttribute('d', 'M 25 40 Q 30 36 40 40'); browR.setAttribute('d', 'M 60 40 Q 70 36 75 40');
-                    mouth.setAttribute('d', 'M 32 72 Q 50 82 68 72');
-                } else if (ny > 0.4) {
-                    // Nunduk: Alis lurus, senyum simpul
+                if (ny < -0.3) {
+                    // Dangak: Alis naik dikit, senyum lebar
+                    browL.setAttribute('d', 'M 25 38 Q 30 32 40 38'); browR.setAttribute('d', 'M 60 38 Q 70 32 75 38');
+                    mouth.setAttribute('d', 'M 32 70 Q 50 80 68 70');
+                } else if (ny > 0.3) {
+                    // Nunduk: Alis lurus, senyum ketutup
                     browL.setAttribute('d', 'M 25 44 L 40 44'); browR.setAttribute('d', 'M 60 44 L 75 44');
-                    mouth.setAttribute('d', 'M 35 76 Q 50 80 65 76');
+                    mouth.setAttribute('d', 'M 35 74 Q 50 78 65 74');
                 }
             }
         };
 
         const processPointer = (clientX, clientY) => {
-            if(gyroEnabled) return;
             const svg = document.getElementById('nxt-boy-svg');
             if(!svg) return;
             const rect = svg.getBoundingClientRect();
@@ -489,10 +483,20 @@
             const cy = rect.top + rect.height / 2;
             const dx = clientX - cx;
             const dy = clientY - cy;
-            const maxDist = 300;
-            let nx = Math.max(-1, Math.min(1, dx / maxDist));
-            let ny = Math.max(-1, Math.min(1, dy / maxDist));
-            applyParallax(nx, ny);
+            const maxDist = 400; // Sensitivitas lerp
+            tgtNx = Math.max(-1, Math.min(1, dx / maxDist));
+            tgtNy = Math.max(-1, Math.min(1, dy / maxDist));
+        };
+
+        // Smooth Physics Loop (Lerp)
+        const runAvatarLoop = () => {
+            if(state.currentView !== 'dashboard') return;
+            // Interpolasi dari cur menuju tgt seberat 10% (makin kecil makin empuk)
+            curNx += (tgtNx - curNx) * 0.1;
+            curNy += (tgtNy - curNy) * 0.1;
+            
+            applyParallax(curNx, curNy);
+            avatarAnimFrame = requestAnimationFrame(runAvatarLoop);
         };
 
         document.addEventListener('mousemove', (e) => { if(!globalTouchActive) processPointer(e.clientX, e.clientY); });
@@ -501,19 +505,9 @@
         document.addEventListener('touchend', (e) => {
             if(e.touches.length === 0) {
                 globalTouchActive = false;
-                applyParallax(0, 0); 
+                tgtNx = 0; tgtNy = 0; // Balik tengah pelan-pelan
             }
         });
-
-        const handleOrientation = (e) => {
-            if(globalTouchActive || state.currentView !== 'dashboard') return;
-            if(e.gamma === null || e.beta === null) return; 
-            gyroEnabled = true;
-            let rawX = e.gamma; let rawY = e.beta - 45; 
-            let nx = Math.max(-1, Math.min(1, rawX / 45));
-            let ny = Math.max(-1, Math.min(1, rawY / 45));
-            applyParallax(nx, ny);
-        };
 
         const bindAvatarHitbox = () => {
             const hitbox = document.getElementById('avatar-hitbox');
@@ -527,7 +521,7 @@
         };
 
         const spikeRads = (amount) => {
-            radsCount += amount; if(state.currentView === 'dashboard') { drawRadGauge(); applyParallax(0,0); }
+            radsCount += amount; if(state.currentView === 'dashboard') { drawRadGauge(); }
             if(radsCount > 1000) {
                 radsCount = 120; triggerMeltdown(); showToast("WARNING: REACTOR LEAK!");
                 for(let i=0; i<10; i++) setTimeout(() => analogHit(1000 - i*80, 50, 0.2, 0.2, 'sawtooth'), i * 150);
@@ -540,7 +534,7 @@
             sfx.boot(); showToast("RADAWAY INJECTED");
             const vp = document.getElementById('viewport');
             vp.classList.remove('heal-fx'); void vp.offsetWidth; vp.classList.add('heal-fx');
-            drawRadGauge(); applyParallax(0,0);
+            drawRadGauge(); tgtNx = 0; tgtNy = 0;
         };
 
         const resetIdleTimer = () => {
@@ -658,7 +652,7 @@
             activeFrames.forEach(id => cancelAnimationFrame(id)); activeFrames = []; 
             activeTimeouts.forEach(id => clearTimeout(id)); activeTimeouts = [];
             decryptTimeouts.forEach(id => clearTimeout(id)); decryptTimeouts = [];
-            clearInterval(streamInterval); clearInterval(blinkInterval);
+            clearInterval(streamInterval); clearInterval(blinkInterval); cancelAnimationFrame(avatarAnimFrame);
             document.getElementById('format-toolbar').style.display = 'none'; 
             const cur = document.getElementById('block-cursor'); if(cur) cur.style.display = 'none';
         };
@@ -772,47 +766,51 @@
                 </div>
                 
                 <div class="grid-2">
-                    <div class="stat-block" style="flex-direction:row; align-items:center; justify-content:space-around;">
-                        
-                        <!-- AVATAR CUTE & CLEAN 2.5D PARALLAX EDITION -->
+                    <!-- KOTAK AVATAR - SIZE DIKUNCI MATI BIAR GA BERUBAH UKURAN -->
+                    <div class="stat-block" style="flex-direction:row; align-items:center; justify-content:space-between;">
                         <div class="avatar-container" id="avatar-hitbox">
                             <svg viewBox="0 0 100 100" id="nxt-boy-svg">
                                 <g class="breath-anim">
-                                    <!-- Leher -->
+                                    <!-- Leher & Garis Baju -->
                                     <g id="boy-neck">
-                                        <path d="M 35 90 L 35 105 M 65 90 L 65 105 M 20 105 L 80 105" fill="none" stroke="var(--text-color)" stroke-width="3"/>
+                                        <path d="M 35 88 L 35 105 M 65 88 L 65 105 M 20 105 L 80 105" fill="none" stroke="var(--text-color)" stroke-width="3"/>
                                     </g>
                                     
-                                    <!-- Kepala Base & Kuping (Bersih tanpa rahang terpisah) -->
+                                    <!-- Kepala Base & Kuping -->
                                     <g id="boy-head-base">
-                                        <path d="M 18 55 C 5 55, 5 70, 18 68" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="3" stroke-linecap="round"/>
-                                        <path d="M 82 55 C 95 55, 95 70, 82 68" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="3" stroke-linecap="round"/>
-                                        <!-- Bentuk Kepala Bulat Gede -->
-                                        <path d="M 15 45 C 15 10, 85 10, 85 45 C 85 85, 70 95, 50 95 C 30 95, 15 85, 15 45 Z" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="3"/>
+                                        <!-- Kuping (Nongol ke luar) -->
+                                        <path d="M 16 52 C 5 52, 5 72, 16 68" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="3.5" stroke-linecap="round"/>
+                                        <path d="M 84 52 C 95 52, 95 72, 84 68" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="3.5" stroke-linecap="round"/>
+                                        <!-- Kepala Bulat Mulus -->
+                                        <path d="M 15 45 C 15 10, 85 10, 85 45 C 85 85, 70 95, 50 95 C 30 95, 15 85, 15 45 Z" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="3.5"/>
                                     </g>
                                     
-                                    <!-- Jambul Depan (Gaya Vault Boy) -->
+                                    <!-- Jambul & Poni Vault Boy (Layer paling depan) -->
                                     <g id="boy-hair-front">
-                                        <path d="M 10 45 C 10 5, 55 -5, 75 10 C 95 25, 90 45, 80 50 C 70 30, 45 25, 10 45 Z" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="3" stroke-linejoin="round"/>
-                                        <!-- Detail Helai (Sedikit aja biar clean) -->
-                                        <path d="M 30 30 Q 45 15 65 25" fill="none" stroke="var(--text-color)" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M 12 40 C 10 5, 55 -5, 75 10 C 95 25, 90 40, 80 45 C 70 25, 45 20, 12 40 Z" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="3.5" stroke-linejoin="round"/>
+                                        <!-- Detail Helai (Sedikit aja) -->
+                                        <path d="M 30 25 Q 45 10 65 20" fill="none" stroke="var(--text-color)" stroke-width="2" stroke-linecap="round"/>
                                     </g>
 
-                                    <!-- Fitur Wajah (Mata, Hidung, Mulut) -->
+                                    <!-- Fitur Wajah Ekspresif -->
                                     <g id="boy-face-features">
-                                        <path d="M 25 42 Q 30 38 40 42" id="brow-l" fill="none" stroke="var(--text-color)" stroke-width="2.5" stroke-linecap="round"/>
-                                        <path d="M 60 42 Q 70 38 75 42" id="brow-r" fill="none" stroke="var(--text-color)" stroke-width="2.5" stroke-linecap="round"/>
+                                        <!-- Alis -->
+                                        <path d="M 25 40 Q 30 36 40 40" id="brow-l" fill="none" stroke="var(--text-color)" stroke-width="3" stroke-linecap="round"/>
+                                        <path d="M 60 40 Q 70 36 75 40" id="brow-r" fill="none" stroke="var(--text-color)" stroke-width="3" stroke-linecap="round"/>
                                         
-                                        <ellipse cx="32" cy="52" rx="4.5" ry="8" id="eye-l" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="2.5"/>
-                                        <ellipse cx="68" cy="52" rx="4.5" ry="8" id="eye-r" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="2.5"/>
-                                        <circle cx="32" cy="52" r="2.5" fill="var(--text-color)" id="pupil-l"/>
-                                        <circle cx="68" cy="52" r="2.5" fill="var(--text-color)" id="pupil-r"/>
+                                        <!-- Mata Outline -->
+                                        <ellipse cx="32" cy="50" rx="4.5" ry="8" id="eye-l" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="2.5"/>
+                                        <ellipse cx="68" cy="50" rx="4.5" ry="8" id="eye-r" fill="var(--bg-color)" stroke="var(--text-color)" stroke-width="2.5"/>
                                         
-                                        <!-- Hidung imut -->
-                                        <path d="M 47 64 C 50 67, 50 67, 53 64" id="boy-nose" fill="none" stroke="var(--text-color)" stroke-width="2.5" stroke-linecap="round"/>
+                                        <!-- Pupil hitam pekat -->
+                                        <circle cx="32" cy="50" r="2.5" fill="var(--text-color)" id="pupil-l"/>
+                                        <circle cx="68" cy="50" r="2.5" fill="var(--text-color)" id="pupil-r"/>
                                         
-                                        <!-- Mulut Senyum -->
-                                        <path d="M 30 74 Q 50 88 70 74" id="boy-mouth" fill="none" stroke="var(--text-color)" stroke-width="3" stroke-linecap="round"/>
+                                        <!-- Hidung kecil mancung -->
+                                        <path d="M 47 62 C 50 65, 50 65, 53 62" id="boy-nose" fill="none" stroke="var(--text-color)" stroke-width="2.5" stroke-linecap="round"/>
+                                        
+                                        <!-- Mulut Dinamis Lebar -->
+                                        <path d="M 32 72 Q 50 86 68 72" id="boy-mouth" fill="none" stroke="var(--text-color)" stroke-width="3.5" stroke-linecap="round"/>
                                     </g>
                                 </g>
                             </svg>
@@ -831,11 +829,12 @@
                     
                     <div class="stat-block"><div class="stat-val">${state.notes.length}</div><div class="stat-lbl">DATA BLOCKS</div></div>
                     
+                    <!-- MODULE RADIO - TEXT BROADCAST DIBIKIN FIT -->
                     <div class="stat-block" id="radio-module" onclick="toggleSynthRadio()" style="cursor:pointer; border-color:${synthRadioActive ? 'var(--accent)' : 'var(--text-color)'}; background:${synthRadioActive ? 'var(--chart-fill)' : 'rgba(0,0,0,0.5)'}">
-                        <div class="stat-val" style="font-size:${synthRadioActive ? '1.1rem' : '1.4rem'}; padding-top:4px;">
+                        <div class="stat-val" style="font-size:${synthRadioActive ? '1rem' : '1.4rem'}; padding-top:4px; letter-spacing:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                             ${synthRadioActive ? 'BROADCASTING' : 'OFFLINE'}
                         </div>
-                        <div class="stat-lbl">NXT TRANSMITTER</div>
+                        <div class="stat-lbl">TRANSMITTER</div>
                     </div>
                     
                     <div class="stat-block" style="grid-column: span 2;">
@@ -869,7 +868,11 @@
             }, 100);
 
             bindAvatarHitbox();
-            applyParallax(0,0); // inisialisasi ekspresi default
+
+            // Memulai Animasi Lerp Avatar Parallax
+            cancelAnimationFrame(avatarAnimFrame);
+            tgtNx = 0; tgtNy = 0; curNx = 0; curNy = 0;
+            runAvatarLoop();
 
             // Animasi Kedip Natural
             const doBlink = () => {
@@ -886,7 +889,7 @@
                         if(state.currentView !== 'dashboard') return;
                         isBlinking = false;
                         pL.style.display = 'block'; pR.style.display = 'block';
-                        applyParallax(0,0); // Trigger update ekspresi untuk ngereset `ry` mata sesuai orientasi
+                        applyParallax(curNx, curNy); // Biar nggak freeze matanya
                     }, 120);
                 }
                 blinkInterval = setTimeout(doBlink, Math.random() * 4000 + 1500);
@@ -1295,10 +1298,6 @@
             if(e.type === 'touchstart') e.preventDefault(); 
             if(bootProgress >= 100) return; sfx.type(); bootProgress = 0; document.getElementById('ascii-logo').style.display = 'block';
             
-            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission().then(resp => { if (resp === 'granted') window.addEventListener('deviceorientation', handleOrientation); }).catch(console.error);
-            } else { window.addEventListener('deviceorientation', handleOrientation); }
-
             const animateBoot = () => {
                 bootProgress += 2; document.getElementById('boot-progress').style.width = bootProgress + '%';
                 if(bootProgress % 10 === 0) sfx.type(); 
